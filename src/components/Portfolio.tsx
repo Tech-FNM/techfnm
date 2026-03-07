@@ -1,40 +1,15 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ExternalLink } from 'lucide-react';
-
-const projects = [
-  {
-    title: 'E-commerce Platform',
-    category: 'Web Development',
-    image: 'https://images.unsplash.com/photo-1557821552-17105176677c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-  },
-  {
-    title: 'Mobile Banking App',
-    category: 'App Development',
-    image: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-  },
-  {
-    title: 'Digital Marketing Campaign',
-    category: 'Marketing',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-  },
-  {
-    title: 'Corporate Branding',
-    category: 'Branding',
-    image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-  },
-  {
-    title: 'Social Media Strategy',
-    category: 'Social Media',
-    image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-  },
-  {
-    title: 'Content Creation',
-    category: 'Content',
-    image: 'https://images.unsplash.com/photo-1499750310159-5b9883e73975?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-  },
-];
+import axios from 'axios';
 
 export default function Portfolio() {
+  const [projects, setProjects] = useState<any[]>([]);
+
+  useEffect(() => {
+    axios.get('/api/projects').then(res => setProjects(res.data));
+  }, []);
+
   return (
     <section id="portfolio" className="py-24 bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,7 +24,7 @@ export default function Portfolio() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project, index) => (
             <motion.div
-              key={index}
+              key={project.id}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}

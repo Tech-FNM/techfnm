@@ -1,28 +1,15 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Quote } from 'lucide-react';
-
-const testimonials = [
-  {
-    name: 'Sarah Malik',
-    role: 'Business Owner',
-    content: 'TechFNM built a stunning website for my business; fast, responsive, and SEO-friendly. Their communication was smooth, and everything was delivered on time.',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    name: 'Ahmed Raza',
-    role: 'Startup Founder',
-    content: 'We got our mobile app developed by TechFNM, and the results exceeded our expectations. The UI/UX was modern, and the performance was flawless. Great work!',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    name: 'Fatima Khan',
-    role: 'Marketing Director',
-    content: 'The digital marketing strategies implemented by TechFNM have significantly increased our online visibility and lead generation. Highly recommended!',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-  },
-];
+import axios from 'axios';
 
 export default function Testimonials() {
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+
+  useEffect(() => {
+    axios.get('/api/testimonials').then(res => setTestimonials(res.data));
+  }, []);
+
   return (
     <section id="testimonials" className="py-24 bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,7 +24,7 @@ export default function Testimonials() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
             <motion.div
-              key={index}
+              key={testimonial.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

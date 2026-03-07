@@ -1,30 +1,15 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Linkedin, Twitter, Facebook } from 'lucide-react';
-
-const team = [
-  {
-    name: 'Muhammad Naeem',
-    role: 'CEO',
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    name: 'Nabeel Ahmed',
-    role: 'Web Developer',
-    image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    name: 'Maroofa Mazhar',
-    role: 'Graphic Designer',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    name: 'Mohibba Fatima Khan',
-    role: 'Web Developer',
-    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-  },
-];
+import axios from 'axios';
 
 export default function Team() {
+  const [team, setTeam] = useState<any[]>([]);
+
+  useEffect(() => {
+    axios.get('/api/team').then(res => setTeam(res.data));
+  }, []);
+
   return (
     <section id="team" className="py-24 bg-zinc-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,7 +24,7 @@ export default function Team() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {team.map((member, index) => (
             <motion.div
-              key={index}
+              key={member.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

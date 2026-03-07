@@ -3,32 +3,30 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import Header from './components/Header';
-import Hero from './components/Hero';
-import About from './components/About';
-import Services from './components/Services';
-import Portfolio from './components/Portfolio';
-import Team from './components/Team';
-import Testimonials from './components/Testimonials';
-import Clients from './components/Clients';
-import Contact from './components/Contact';
-import Footer from './components/Footer';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Login from './pages/admin/Login';
+import AdminLayout from './pages/admin/AdminLayout';
+import DashboardHome from './pages/admin/DashboardHome';
+import ServicesManager from './pages/admin/ServicesManager';
+import ProjectsManager from './pages/admin/ProjectsManager';
+import TeamManager from './pages/admin/TeamManager';
+import TestimonialsManager from './pages/admin/TestimonialsManager';
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-black font-sans text-white scroll-smooth">
-      <Header />
-      <main>
-        <Hero />
-        <About />
-        <Services />
-        <Portfolio />
-        <Team />
-        <Testimonials />
-        <Clients />
-        <Contact />
-      </main>
-      <Footer />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/admin/login" element={<Login />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="dashboard" element={<DashboardHome />} />
+          <Route path="services" element={<ServicesManager />} />
+          <Route path="projects" element={<ProjectsManager />} />
+          <Route path="team" element={<TeamManager />} />
+          <Route path="testimonials" element={<TestimonialsManager />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
