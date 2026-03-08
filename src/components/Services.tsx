@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Code, Smartphone, Globe, PenTool, ShoppingCart, Share2 } from 'lucide-react';
 import { motion } from 'motion/react';
-import axios from 'axios';
+import { supabase } from '../lib/supabase';
 
 const iconMap: any = {
   Code,
@@ -16,7 +16,9 @@ export default function Services() {
   const [services, setServices] = useState<any[]>([]);
 
   useEffect(() => {
-    axios.get('/api/services').then(res => setServices(res.data));
+    supabase.from('services').select('*').order('id').then(({ data }) => {
+      if (data) setServices(data);
+    });
   }, []);
 
   return (

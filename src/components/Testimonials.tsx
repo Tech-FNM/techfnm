@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Quote } from 'lucide-react';
-import axios from 'axios';
+import { supabase } from '../lib/supabase';
 
 export default function Testimonials() {
   const [testimonials, setTestimonials] = useState<any[]>([]);
 
   useEffect(() => {
-    axios.get('/api/testimonials').then(res => setTestimonials(res.data));
+    supabase.from('testimonials').select('*').order('id').then(({ data }) => {
+      if (data) setTestimonials(data);
+    });
   }, []);
 
   return (

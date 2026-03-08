@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Plus, Trash, Edit, Check, X } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 export default function ProjectsManager() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -16,15 +16,15 @@ export default function ProjectsManager() {
   }, []);
 
   const fetchProjects = async () => {
-    const res = await axios.get('/api/projects');
-    setProjects(res.data);
+    const { data } = await supabase.from('projects').select('*').order('id');
+    if (data) setProjects(data);
   };
 
   const handleSave = async () => {
     if (isEditing) {
-      await axios.put(`/api/projects/${currentProject.id}`, currentProject);
+      await supabase.from('projects').update(currentProject).eq('id', currentProject.id);
     } else {
-      await axios.post('/api/projects', currentProject);
+      await supabase.from('projects').insert([currentProject]);
     }
     setIsEditing(false);
     setCurrentProject({ title: '', category: '', image: '' });
@@ -33,7 +33,7 @@ export default function ProjectsManager() {
 
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure?')) {
-      await axios.delete(`/api/projects/${id}`);
+      await supabase.from('projects').delete().eq('id', id);
       fetchProjects();
     }
   };

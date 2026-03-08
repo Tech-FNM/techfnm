@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ExternalLink } from 'lucide-react';
-import axios from 'axios';
+import { supabase } from '../lib/supabase';
 
 export default function Portfolio() {
   const [projects, setProjects] = useState<any[]>([]);
 
   useEffect(() => {
-    axios.get('/api/projects').then(res => setProjects(res.data));
+    supabase.from('projects').select('*').order('id').then(({ data }) => {
+      if (data) setProjects(data);
+    });
   }, []);
 
   return (

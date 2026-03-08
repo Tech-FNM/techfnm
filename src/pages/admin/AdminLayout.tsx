@@ -1,29 +1,33 @@
 import { useEffect } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Briefcase, Users, MessageSquare, LogOut, Layers } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    const isAdmin = localStorage.getItem('isAdmin');
-    if (!isAdmin) {
-      navigate('/admin/login');
-    }
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/admindash/login');
+      }
+    };
+    checkAuth();
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAdmin');
-    navigate('/admin/login');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/admindash/login');
   };
 
   const menuItems = [
-    { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/admin/services', icon: Layers, label: 'Services' },
-    { path: '/admin/projects', icon: Briefcase, label: 'Projects' },
-    { path: '/admin/team', icon: Users, label: 'Team' },
-    { path: '/admin/testimonials', icon: MessageSquare, label: 'Testimonials' },
+    { path: '/admindash/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/admindash/services', icon: Layers, label: 'Services' },
+    { path: '/admindash/projects', icon: Briefcase, label: 'Projects' },
+    { path: '/admindash/team', icon: Users, label: 'Team' },
+    { path: '/admindash/testimonials', icon: MessageSquare, label: 'Testimonials' },
   ];
 
   return (

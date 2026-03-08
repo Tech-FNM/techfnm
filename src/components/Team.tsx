@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Linkedin, Twitter, Facebook } from 'lucide-react';
-import axios from 'axios';
+import { supabase } from '../lib/supabase';
 
 export default function Team() {
   const [team, setTeam] = useState<any[]>([]);
 
   useEffect(() => {
-    axios.get('/api/team').then(res => setTeam(res.data));
+    supabase.from('team').select('*').order('id').then(({ data }) => {
+      if (data) setTeam(data);
+    });
   }, []);
 
   return (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Plus, Trash, Edit, Check, X } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 export default function ServicesManager() {
   const [services, setServices] = useState<any[]>([]);
@@ -17,15 +17,15 @@ export default function ServicesManager() {
   }, []);
 
   const fetchServices = async () => {
-    const res = await axios.get('/api/services');
-    setServices(res.data);
+    const { data } = await supabase.from('services').select('*').order('id');
+    if (data) setServices(data);
   };
 
   const handleSave = async () => {
     if (isEditing) {
-      await axios.put(`/api/services/${currentService.id}`, currentService);
+      await supabase.from('services').update(currentService).eq('id', currentService.id);
     } else {
-      await axios.post('/api/services', currentService);
+      await supabase.from('services').insert([currentService]);
     }
     setIsEditing(false);
     setCurrentService({ title: '', description: '', icon: 'Code', color: 'bg-red-900/20 text-red-400' });
@@ -34,7 +34,7 @@ export default function ServicesManager() {
 
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure?')) {
-      await axios.delete(`/api/services/${id}`);
+      await supabase.from('services').delete().eq('id', id);
       fetchServices();
     }
   };

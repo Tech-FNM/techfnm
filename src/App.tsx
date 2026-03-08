@@ -18,8 +18,8 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/admin/login" element={<Login />} />
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/admindash/login" element={<Login />} />
+        <Route path="/admindash" element={<AdminLayout />}>
           <Route path="dashboard" element={<DashboardHome />} />
           <Route path="services" element={<ServicesManager />} />
           <Route path="projects" element={<ProjectsManager />} />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Plus, Trash, Edit, Check, X } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 export default function TeamManager() {
   const [team, setTeam] = useState<any[]>([]);
@@ -16,15 +16,15 @@ export default function TeamManager() {
   }, []);
 
   const fetchTeam = async () => {
-    const res = await axios.get('/api/team');
-    setTeam(res.data);
+    const { data } = await supabase.from('team').select('*').order('id');
+    if (data) setTeam(data);
   };
 
   const handleSave = async () => {
     if (isEditing) {
-      await axios.put(`/api/team/${currentMember.id}`, currentMember);
+      await supabase.from('team').update(currentMember).eq('id', currentMember.id);
     } else {
-      await axios.post('/api/team', currentMember);
+      await supabase.from('team').insert([currentMember]);
     }
     setIsEditing(false);
     setCurrentMember({ name: '', role: '', image: '' });
@@ -33,7 +33,7 @@ export default function TeamManager() {
 
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure?')) {
-      await axios.delete(`/api/team/${id}`);
+      await supabase.from('team').delete().eq('id', id);
       fetchTeam();
     }
   };

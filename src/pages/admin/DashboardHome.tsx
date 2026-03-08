@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Layers, Briefcase, Users, MessageSquare } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 export default function DashboardHome() {
   const [stats, setStats] = useState({
@@ -16,17 +16,17 @@ export default function DashboardHome() {
 
   const fetchStats = async () => {
     const [services, projects, team, testimonials] = await Promise.all([
-      axios.get('/api/services'),
-      axios.get('/api/projects'),
-      axios.get('/api/team'),
-      axios.get('/api/testimonials'),
+      supabase.from('services').select('*', { count: 'exact', head: true }),
+      supabase.from('projects').select('*', { count: 'exact', head: true }),
+      supabase.from('team').select('*', { count: 'exact', head: true }),
+      supabase.from('testimonials').select('*', { count: 'exact', head: true }),
     ]);
 
     setStats({
-      services: services.data.length,
-      projects: projects.data.length,
-      team: team.data.length,
-      testimonials: testimonials.data.length,
+      services: services.count || 0,
+      projects: projects.count || 0,
+      team: team.count || 0,
+      testimonials: testimonials.count || 0,
     });
   };
 

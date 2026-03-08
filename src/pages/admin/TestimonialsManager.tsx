@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Plus, Trash, Edit, Check, X } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 export default function TestimonialsManager() {
   const [testimonials, setTestimonials] = useState<any[]>([]);
@@ -17,15 +17,15 @@ export default function TestimonialsManager() {
   }, []);
 
   const fetchTestimonials = async () => {
-    const res = await axios.get('/api/testimonials');
-    setTestimonials(res.data);
+    const { data } = await supabase.from('testimonials').select('*').order('id');
+    if (data) setTestimonials(data);
   };
 
   const handleSave = async () => {
     if (isEditing) {
-      await axios.put(`/api/testimonials/${currentTestimonial.id}`, currentTestimonial);
+      await supabase.from('testimonials').update(currentTestimonial).eq('id', currentTestimonial.id);
     } else {
-      await axios.post('/api/testimonials', currentTestimonial);
+      await supabase.from('testimonials').insert([currentTestimonial]);
     }
     setIsEditing(false);
     setCurrentTestimonial({ name: '', role: '', content: '', image: '' });
@@ -34,7 +34,7 @@ export default function TestimonialsManager() {
 
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure?')) {
-      await axios.delete(`/api/testimonials/${id}`);
+      await supabase.from('testimonials').delete().eq('id', id);
       fetchTestimonials();
     }
   };
