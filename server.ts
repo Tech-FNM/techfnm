@@ -1,11 +1,20 @@
+import 'dotenv/config';
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import cors from 'cors';
-import db from './db';
+import { supabase } from './src/lib/supabaseServer';
+import { initDb } from './src/db/init';
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
+
+  // Initialize database
+  try {
+    await initDb();
+  } catch (error) {
+    console.error('Failed to initialize database:', error);
+  }
 
   app.use(cors());
   app.use(express.json());
@@ -13,114 +22,150 @@ async function startServer() {
   // API Routes
   
   // Services
-  app.get('/api/services', (req, res) => {
-    const services = db.prepare('SELECT * FROM services').all();
-    res.json(services);
+  app.get('/api/services', async (req, res) => {
+    const { data, error } = await supabase.from('services').select('*').order('id');
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
   });
 
-  app.post('/api/services', (req, res) => {
+  app.post('/api/services', async (req, res) => {
     const { title, description, icon, color } = req.body;
-    const stmt = db.prepare('INSERT INTO services (title, description, icon, color) VALUES (?, ?, ?, ?)');
-    const info = stmt.run(title, description, icon, color);
-    res.json({ id: info.lastInsertRowid });
+    const { data, error } = await supabase
+      .from('services')
+      .insert([{ title, description, icon, color }])
+      .select();
+    
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ id: data[0].id });
   });
 
-  app.put('/api/services/:id', (req, res) => {
+  app.put('/api/services/:id', async (req, res) => {
     const { title, description, icon, color } = req.body;
     const { id } = req.params;
-    const stmt = db.prepare('UPDATE services SET title = ?, description = ?, icon = ?, color = ? WHERE id = ?');
-    stmt.run(title, description, icon, color, id);
+    const { error } = await supabase
+      .from('services')
+      .update({ title, description, icon, color })
+      .eq('id', id);
+      
+    if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });
   });
 
-  app.delete('/api/services/:id', (req, res) => {
+  app.delete('/api/services/:id', async (req, res) => {
     const { id } = req.params;
-    const stmt = db.prepare('DELETE FROM services WHERE id = ?');
-    stmt.run(id);
+    const { error } = await supabase.from('services').delete().eq('id', id);
+    if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });
   });
 
   // Projects
-  app.get('/api/projects', (req, res) => {
-    const projects = db.prepare('SELECT * FROM projects').all();
-    res.json(projects);
+  app.get('/api/projects', async (req, res) => {
+    const { data, error } = await supabase.from('projects').select('*').order('id');
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
   });
 
-  app.post('/api/projects', (req, res) => {
+  app.post('/api/projects', async (req, res) => {
     const { title, category, image } = req.body;
-    const stmt = db.prepare('INSERT INTO projects (title, category, image) VALUES (?, ?, ?)');
-    const info = stmt.run(title, category, image);
-    res.json({ id: info.lastInsertRowid });
+    const { data, error } = await supabase
+      .from('projects')
+      .insert([{ title, category, image }])
+      .select();
+      
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ id: data[0].id });
   });
 
-  app.put('/api/projects/:id', (req, res) => {
+  app.put('/api/projects/:id', async (req, res) => {
     const { title, category, image } = req.body;
     const { id } = req.params;
-    const stmt = db.prepare('UPDATE projects SET title = ?, category = ?, image = ? WHERE id = ?');
-    stmt.run(title, category, image, id);
+    const { error } = await supabase
+      .from('projects')
+      .update({ title, category, image })
+      .eq('id', id);
+      
+    if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });
   });
 
-  app.delete('/api/projects/:id', (req, res) => {
+  app.delete('/api/projects/:id', async (req, res) => {
     const { id } = req.params;
-    const stmt = db.prepare('DELETE FROM projects WHERE id = ?');
-    stmt.run(id);
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });
   });
 
   // Team
-  app.get('/api/team', (req, res) => {
-    const team = db.prepare('SELECT * FROM team').all();
-    res.json(team);
+  app.get('/api/team', async (req, res) => {
+    const { data, error } = await supabase.from('team').select('*').order('id');
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
   });
 
-  app.post('/api/team', (req, res) => {
+  app.post('/api/team', async (req, res) => {
     const { name, role, image } = req.body;
-    const stmt = db.prepare('INSERT INTO team (name, role, image) VALUES (?, ?, ?)');
-    const info = stmt.run(name, role, image);
-    res.json({ id: info.lastInsertRowid });
+    const { data, error } = await supabase
+      .from('team')
+      .insert([{ name, role, image }])
+      .select();
+      
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ id: data[0].id });
   });
 
-  app.put('/api/team/:id', (req, res) => {
+  app.put('/api/team/:id', async (req, res) => {
     const { name, role, image } = req.body;
     const { id } = req.params;
-    const stmt = db.prepare('UPDATE team SET name = ?, role = ?, image = ? WHERE id = ?');
-    stmt.run(name, role, image, id);
+    const { error } = await supabase
+      .from('team')
+      .update({ name, role, image })
+      .eq('id', id);
+      
+    if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });
   });
 
-  app.delete('/api/team/:id', (req, res) => {
+  app.delete('/api/team/:id', async (req, res) => {
     const { id } = req.params;
-    const stmt = db.prepare('DELETE FROM team WHERE id = ?');
-    stmt.run(id);
+    const { error } = await supabase.from('team').delete().eq('id', id);
+    if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });
   });
 
   // Testimonials
-  app.get('/api/testimonials', (req, res) => {
-    const testimonials = db.prepare('SELECT * FROM testimonials').all();
-    res.json(testimonials);
+  app.get('/api/testimonials', async (req, res) => {
+    const { data, error } = await supabase.from('testimonials').select('*').order('id');
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
   });
 
-  app.post('/api/testimonials', (req, res) => {
+  app.post('/api/testimonials', async (req, res) => {
     const { name, role, content, image } = req.body;
-    const stmt = db.prepare('INSERT INTO testimonials (name, role, content, image) VALUES (?, ?, ?, ?)');
-    const info = stmt.run(name, role, content, image);
-    res.json({ id: info.lastInsertRowid });
+    const { data, error } = await supabase
+      .from('testimonials')
+      .insert([{ name, role, content, image }])
+      .select();
+      
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ id: data[0].id });
   });
 
-  app.put('/api/testimonials/:id', (req, res) => {
+  app.put('/api/testimonials/:id', async (req, res) => {
     const { name, role, content, image } = req.body;
     const { id } = req.params;
-    const stmt = db.prepare('UPDATE testimonials SET name = ?, role = ?, content = ?, image = ? WHERE id = ?');
-    stmt.run(name, role, content, image, id);
+    const { error } = await supabase
+      .from('testimonials')
+      .update({ name, role, content, image })
+      .eq('id', id);
+      
+    if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });
   });
 
-  app.delete('/api/testimonials/:id', (req, res) => {
+  app.delete('/api/testimonials/:id', async (req, res) => {
     const { id } = req.params;
-    const stmt = db.prepare('DELETE FROM testimonials WHERE id = ?');
-    stmt.run(id);
+    const { error } = await supabase.from('testimonials').delete().eq('id', id);
+    if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });
   });
 
