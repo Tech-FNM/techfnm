@@ -31,6 +31,16 @@ export default function Login() {
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="bg-zinc-900 p-8 rounded-2xl shadow-xl w-full max-w-md border border-zinc-800">
         <h2 className="text-2xl font-bold text-white mb-6 text-center">Admin Login</h2>
+        {!import.meta.env.VITE_SUPABASE_URL && (
+          <div className="mb-6 p-4 bg-red-900/20 border border-red-500/50 rounded-lg text-sm text-red-200">
+            <p className="font-semibold mb-1">Demo Mode Active</p>
+            <p>Use these credentials to login:</p>
+            <ul className="list-disc ml-4 mt-1">
+              <li>Email: <strong>techhfnm@gmail.com</strong></li>
+              <li>Password: <strong>admin123</strong></li>
+            </ul>
+          </div>
+        )}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-gray-400 mb-2">Email</label>
