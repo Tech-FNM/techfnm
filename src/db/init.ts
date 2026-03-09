@@ -12,11 +12,18 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false, // Required for Supabase connection
   },
+  connectionTimeoutMillis: 5000, // Add timeout to prevent hanging
 });
 
 export async function initDb() {
-  const client = await pool.connect();
+  if (!connectionString) {
+    console.warn('DATABASE_URL is not set. Skipping database initialization.');
+    return;
+  }
+
+  let client;
   try {
+    client = await pool.connect();
     console.log('Initializing database...');
 
     // Create tables
@@ -219,6 +226,8 @@ export async function initDb() {
   } catch (err) {
     console.error('Error initializing database:', err);
   } finally {
-    client.release();
+    if (client) {
+      client.release();
+    }
   }
 }
