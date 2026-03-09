@@ -8,7 +8,33 @@ export default function Testimonials() {
 
   useEffect(() => {
     supabase.from('testimonials').select('*').order('id').then(({ data }) => {
-      if (data) setTestimonials(data);
+      if (data && data.length > 0) {
+        setTestimonials(data);
+      } else {
+        setTestimonials([
+          {
+            id: 1,
+            name: 'David Chen',
+            role: 'Tech Startup Founder',
+            content: 'Working with this team was a game-changer for our business. They delivered a high-quality product on time and within budget.',
+            image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200',
+          },
+          {
+            id: 2,
+            name: 'Emily Rodriguez',
+            role: 'E-commerce Director',
+            content: 'The redesign of our online store resulted in a 40% increase in conversions. Their attention to detail and user experience is unmatched.',
+            image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200',
+          },
+          {
+            id: 3,
+            name: 'Michael Chang',
+            role: 'Marketing Manager',
+            content: 'Their digital marketing strategies helped us reach a wider audience and significantly boost our brand awareness across all platforms.',
+            image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
+          }
+        ]);
+      }
     });
   }, []);
 

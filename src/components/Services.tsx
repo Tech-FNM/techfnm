@@ -17,7 +17,55 @@ export default function Services() {
 
   useEffect(() => {
     supabase.from('services').select('*').order('id').then(({ data }) => {
-      if (data) setServices(data);
+      if (data && data.length > 0) {
+        setServices(data);
+      } else {
+        // Fallback data if database is empty or not configured
+        setServices([
+          {
+            id: 1,
+            title: 'Web Development',
+            description: 'Custom, responsive websites built with modern technologies to deliver exceptional user experiences.',
+            icon: 'Code',
+            color: 'bg-blue-500/10 text-blue-500',
+          },
+          {
+            id: 2,
+            title: 'Mobile Apps',
+            description: 'Native and cross-platform mobile applications that engage users and drive business growth.',
+            icon: 'Smartphone',
+            color: 'bg-purple-500/10 text-purple-500',
+          },
+          {
+            id: 3,
+            title: 'Digital Marketing',
+            description: 'Data-driven marketing strategies to increase your online visibility and reach your target audience.',
+            icon: 'Globe',
+            color: 'bg-green-500/10 text-green-500',
+          },
+          {
+            id: 4,
+            title: 'UI/UX Design',
+            description: 'Intuitive and visually appealing interfaces designed to maximize user engagement and satisfaction.',
+            icon: 'PenTool',
+            color: 'bg-pink-500/10 text-pink-500',
+          },
+          {
+            id: 5,
+            title: 'E-Commerce',
+            description: 'Scalable online stores with secure payment gateways and seamless shopping experiences.',
+            icon: 'ShoppingCart',
+            color: 'bg-orange-500/10 text-orange-500',
+          },
+          {
+            id: 6,
+            title: 'Social Media',
+            description: 'Strategic social media management to build brand awareness and foster community engagement.',
+            icon: 'Share2',
+            color: 'bg-red-500/10 text-red-500',
+          }
+        ]);
+      }
     });
   }, []);
 

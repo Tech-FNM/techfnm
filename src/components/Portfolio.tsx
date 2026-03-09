@@ -8,7 +8,48 @@ export default function Portfolio() {
 
   useEffect(() => {
     supabase.from('projects').select('*').order('id').then(({ data }) => {
-      if (data) setProjects(data);
+      if (data && data.length > 0) {
+        setProjects(data);
+      } else {
+        setProjects([
+          {
+            id: 1,
+            title: 'E-Commerce Platform',
+            category: 'Web Development',
+            image: 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800',
+          },
+          {
+            id: 2,
+            title: 'Fitness Tracking App',
+            category: 'Mobile App',
+            image: 'https://images.unsplash.com/photo-1526506114642-903c5e470580?auto=format&fit=crop&q=80&w=800',
+          },
+          {
+            id: 3,
+            title: 'Corporate Dashboard',
+            category: 'UI/UX Design',
+            image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
+          },
+          {
+            id: 4,
+            title: 'Real Estate Portal',
+            category: 'Web Development',
+            image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=800',
+          },
+          {
+            id: 5,
+            title: 'Food Delivery App',
+            category: 'Mobile App',
+            image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=800',
+          },
+          {
+            id: 6,
+            title: 'Marketing Campaign',
+            category: 'Digital Marketing',
+            image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800',
+          }
+        ]);
+      }
     });
   }, []);
 

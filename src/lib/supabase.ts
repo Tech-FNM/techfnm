@@ -17,7 +17,7 @@ if (supabaseUrl && supabaseAnonKey) {
     delete: () => dummyBuilder,
     eq: () => dummyBuilder,
     order: () => dummyBuilder,
-    then: (resolve: (value: any) => void) => resolve({ data: [], error: { message: 'Supabase not configured' } }),
+    then: (resolve: (value: any) => void) => resolve({ data: null, error: { message: 'Supabase not configured' } }),
   };
 
   supabaseInstance = {
