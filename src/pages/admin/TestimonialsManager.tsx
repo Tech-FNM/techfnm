@@ -28,35 +28,43 @@ export default function TestimonialsManager() {
   };
 
   const handleSave = async () => {
+    if (!currentTestimonial.name || !currentTestimonial.role || !currentTestimonial.content || !currentTestimonial.image) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
     try {
+      let error;
       if (isEditing) {
-        const { error } = await supabase.from('testimonials').update({
+        const { error: updateError } = await supabase.from('testimonials').update({
           name: currentTestimonial.name,
           role: currentTestimonial.role,
           content: currentTestimonial.content,
           image: currentTestimonial.image
         }).eq('id', currentTestimonial.id);
-        
-        if (!error) {
-          setIsEditing(false);
-          setCurrentTestimonial({ name: '', role: '', content: '', image: '' });
-          fetchTestimonials();
-        }
+        error = updateError;
       } else {
-        const { error } = await supabase.from('testimonials').insert([{
+        const { error: insertError } = await supabase.from('testimonials').insert([{
           name: currentTestimonial.name,
           role: currentTestimonial.role,
           content: currentTestimonial.content,
           image: currentTestimonial.image
         }]);
-        
-        if (!error) {
-          setCurrentTestimonial({ name: '', role: '', content: '', image: '' });
-          fetchTestimonials();
-        }
+        error = insertError;
       }
-    } catch (error) {
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        alert(`Error saving testimonial: ${error.message}. Make sure the 'testimonials' table exists in Supabase.`);
+      } else {
+        alert(isEditing ? 'Testimonial updated successfully!' : 'Testimonial added successfully!');
+        setIsEditing(false);
+        setCurrentTestimonial({ name: '', role: '', content: '', image: '' });
+        fetchTestimonials();
+      }
+    } catch (error: any) {
       console.error('Error saving testimonial:', error);
+      alert('An unexpected error occurred. Check the console for details.');
     }
   };
 

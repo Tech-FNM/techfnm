@@ -28,35 +28,43 @@ export default function ServicesManager() {
   };
 
   const handleSave = async () => {
+    if (!currentService.title || !currentService.description) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
     try {
+      let error;
       if (isEditing) {
-        const { error } = await supabase.from('services').update({
+        const { error: updateError } = await supabase.from('services').update({
           title: currentService.title,
           description: currentService.description,
           icon: currentService.icon,
           color: currentService.color
         }).eq('id', currentService.id);
-        
-        if (!error) {
-          setIsEditing(false);
-          setCurrentService({ title: '', description: '', icon: 'Code', color: 'bg-red-900/20 text-red-400' });
-          fetchServices();
-        }
+        error = updateError;
       } else {
-        const { error } = await supabase.from('services').insert([{
+        const { error: insertError } = await supabase.from('services').insert([{
           title: currentService.title,
           description: currentService.description,
           icon: currentService.icon,
           color: currentService.color
         }]);
-        
-        if (!error) {
-          setCurrentService({ title: '', description: '', icon: 'Code', color: 'bg-red-900/20 text-red-400' });
-          fetchServices();
-        }
+        error = insertError;
       }
-    } catch (error) {
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        alert(`Error saving service: ${error.message}. Make sure the 'services' table exists in Supabase.`);
+      } else {
+        alert(isEditing ? 'Service updated successfully!' : 'Service added successfully!');
+        setIsEditing(false);
+        setCurrentService({ title: '', description: '', icon: 'Code', color: 'bg-red-900/20 text-red-400' });
+        fetchServices();
+      }
+    } catch (error: any) {
       console.error('Error saving service:', error);
+      alert('An unexpected error occurred. Check the console for details.');
     }
   };
 

@@ -16,18 +16,22 @@ export default function DashboardHome() {
 
   const fetchStats = async () => {
     try {
-      const [{ count: services }, { count: projects }, { count: team }, { count: testimonials }] = await Promise.all([
+      const [servicesRes, projectsRes, teamRes, testimonialsRes] = await Promise.all([
         supabase.from('services').select('*', { count: 'exact', head: true }),
         supabase.from('projects').select('*', { count: 'exact', head: true }),
         supabase.from('team').select('*', { count: 'exact', head: true }),
         supabase.from('testimonials').select('*', { count: 'exact', head: true }),
       ]);
       
+      if (servicesRes.error || projectsRes.error || teamRes.error || testimonialsRes.error) {
+        console.error('Error fetching stats from Supabase');
+      }
+
       setStats({
-        services: services || 0,
-        projects: projects || 0,
-        team: team || 0,
-        testimonials: testimonials || 0,
+        services: servicesRes.count || 0,
+        projects: projectsRes.count || 0,
+        team: teamRes.count || 0,
+        testimonials: testimonialsRes.count || 0,
       });
     } catch (error) {
       console.error('Error fetching stats:', error);

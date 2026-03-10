@@ -27,33 +27,41 @@ export default function TeamManager() {
   };
 
   const handleSave = async () => {
+    if (!currentMember.name || !currentMember.role || !currentMember.image) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
     try {
+      let error;
       if (isEditing) {
-        const { error } = await supabase.from('team').update({
+        const { error: updateError } = await supabase.from('team').update({
           name: currentMember.name,
           role: currentMember.role,
           image: currentMember.image
         }).eq('id', currentMember.id);
-        
-        if (!error) {
-          setIsEditing(false);
-          setCurrentMember({ name: '', role: '', image: '' });
-          fetchTeam();
-        }
+        error = updateError;
       } else {
-        const { error } = await supabase.from('team').insert([{
+        const { error: insertError } = await supabase.from('team').insert([{
           name: currentMember.name,
           role: currentMember.role,
           image: currentMember.image
         }]);
-        
-        if (!error) {
-          setCurrentMember({ name: '', role: '', image: '' });
-          fetchTeam();
-        }
+        error = insertError;
       }
-    } catch (error) {
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        alert(`Error saving team member: ${error.message}. Make sure the 'team' table exists in Supabase.`);
+      } else {
+        alert(isEditing ? 'Team member updated successfully!' : 'Team member added successfully!');
+        setIsEditing(false);
+        setCurrentMember({ name: '', role: '', image: '' });
+        fetchTeam();
+      }
+    } catch (error: any) {
       console.error('Error saving team member:', error);
+      alert('An unexpected error occurred. Check the console for details.');
     }
   };
 

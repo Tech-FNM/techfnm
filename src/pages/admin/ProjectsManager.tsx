@@ -27,33 +27,41 @@ export default function ProjectsManager() {
   };
 
   const handleSave = async () => {
+    if (!currentProject.title || !currentProject.category || !currentProject.image) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
     try {
+      let error;
       if (isEditing) {
-        const { error } = await supabase.from('projects').update({
+        const { error: updateError } = await supabase.from('projects').update({
           title: currentProject.title,
           category: currentProject.category,
           image: currentProject.image
         }).eq('id', currentProject.id);
-        
-        if (!error) {
-          setIsEditing(false);
-          setCurrentProject({ title: '', category: '', image: '' });
-          fetchProjects();
-        }
+        error = updateError;
       } else {
-        const { error } = await supabase.from('projects').insert([{
+        const { error: insertError } = await supabase.from('projects').insert([{
           title: currentProject.title,
           category: currentProject.category,
           image: currentProject.image
         }]);
-        
-        if (!error) {
-          setCurrentProject({ title: '', category: '', image: '' });
-          fetchProjects();
-        }
+        error = insertError;
       }
-    } catch (error) {
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        alert(`Error saving project: ${error.message}. Make sure the 'projects' table exists in Supabase.`);
+      } else {
+        alert(isEditing ? 'Project updated successfully!' : 'Project added successfully!');
+        setIsEditing(false);
+        setCurrentProject({ title: '', category: '', image: '' });
+        fetchProjects();
+      }
+    } catch (error: any) {
       console.error('Error saving project:', error);
+      alert('An unexpected error occurred. Check the console for details.');
     }
   };
 
