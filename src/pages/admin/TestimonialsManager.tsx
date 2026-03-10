@@ -17,25 +17,48 @@ export default function TestimonialsManager() {
   }, []);
 
   const fetchTestimonials = async () => {
-    const { data } = await supabase.from('testimonials').select('*').order('id');
-    if (data) setTestimonials(data);
+    try {
+      const response = await fetch('/api/testimonials');
+      if (response.ok) {
+        const data = await response.json();
+        setTestimonials(data);
+      }
+    } catch (error) {
+      console.error('Error fetching testimonials:', error);
+    }
   };
 
   const handleSave = async () => {
-    if (isEditing) {
-      await supabase.from('testimonials').update(currentTestimonial).eq('id', currentTestimonial.id);
-    } else {
-      await supabase.from('testimonials').insert([currentTestimonial]);
+    try {
+      const method = isEditing ? 'PUT' : 'POST';
+      const url = isEditing ? `/api/testimonials/${currentTestimonial.id}` : '/api/testimonials';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(currentTestimonial),
+      });
+
+      if (response.ok) {
+        setIsEditing(false);
+        setCurrentTestimonial({ name: '', role: '', content: '', image: '' });
+        fetchTestimonials();
+      }
+    } catch (error) {
+      console.error('Error saving testimonial:', error);
     }
-    setIsEditing(false);
-    setCurrentTestimonial({ name: '', role: '', content: '', image: '' });
-    fetchTestimonials();
   };
 
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure?')) {
-      await supabase.from('testimonials').delete().eq('id', id);
-      fetchTestimonials();
+      try {
+        const response = await fetch(`/api/testimonials/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          fetchTestimonials();
+        }
+      } catch (error) {
+        console.error('Error deleting testimonial:', error);
+      }
     }
   };
 

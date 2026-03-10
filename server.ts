@@ -19,6 +19,21 @@ async function startServer() {
   app.use(cors());
   app.use(express.json());
 
+  // Auth
+  app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+    // For simplicity and reliability in the iframe, using a simple check.
+    // In a real app, you'd check against a database or use a more secure method.
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@techfnm.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+
+    if (email === adminEmail && password === adminPassword) {
+      res.json({ success: true, token: 'fake-jwt-token-for-demo' });
+    } else {
+      res.status(401).json({ error: 'Invalid credentials' });
+    }
+  });
+
   // API Routes
   
   // Services

@@ -7,38 +7,40 @@ export default function Team() {
   const [team, setTeam] = useState<any[]>([]);
 
   useEffect(() => {
-    supabase.from('team').select('*').order('id').then(({ data }) => {
-      if (data && data.length > 0) {
-        setTeam(data);
-      } else {
-        setTeam([
-          {
-            id: 1,
-            name: 'John Doe',
-            role: 'CEO & Founder',
-            image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800',
-          },
-          {
-            id: 2,
-            name: 'Jane Smith',
-            role: 'Lead Designer',
-            image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800',
-          },
-          {
-            id: 3,
-            name: 'Mike Johnson',
-            role: 'Senior Developer',
-            image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=800',
-          },
-          {
-            id: 4,
-            name: 'Sarah Williams',
-            role: 'Marketing Director',
-            image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=800',
-          }
-        ]);
-      }
-    });
+    fetch('/api/team')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          setTeam(data);
+        } else {
+          setTeam([
+            {
+              id: 1,
+              name: 'John Doe',
+              role: 'CEO & Founder',
+              image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800',
+            },
+            {
+              id: 2,
+              name: 'Jane Smith',
+              role: 'Lead Designer',
+              image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800',
+            },
+            {
+              id: 3,
+              name: 'Mike Johnson',
+              role: 'Senior Developer',
+              image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=800',
+            },
+            {
+              id: 4,
+              name: 'Sarah Williams',
+              role: 'Marketing Director',
+              image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=800',
+            }
+          ]);
+        }
+      });
   }, []);
 
   return (

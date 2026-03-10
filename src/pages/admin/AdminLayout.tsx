@@ -8,17 +8,17 @@ export default function AdminLayout() {
   const location = useLocation();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+    const checkAuth = () => {
+      const token = localStorage.getItem('admin_token');
+      if (!token) {
         navigate('/admindash/login');
       }
     };
     checkAuth();
   }, [navigate]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    localStorage.removeItem('admin_token');
     navigate('/admindash/login');
   };
 

@@ -16,25 +16,48 @@ export default function TeamManager() {
   }, []);
 
   const fetchTeam = async () => {
-    const { data } = await supabase.from('team').select('*').order('id');
-    if (data) setTeam(data);
+    try {
+      const response = await fetch('/api/team');
+      if (response.ok) {
+        const data = await response.json();
+        setTeam(data);
+      }
+    } catch (error) {
+      console.error('Error fetching team:', error);
+    }
   };
 
   const handleSave = async () => {
-    if (isEditing) {
-      await supabase.from('team').update(currentMember).eq('id', currentMember.id);
-    } else {
-      await supabase.from('team').insert([currentMember]);
+    try {
+      const method = isEditing ? 'PUT' : 'POST';
+      const url = isEditing ? `/api/team/${currentMember.id}` : '/api/team';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(currentMember),
+      });
+
+      if (response.ok) {
+        setIsEditing(false);
+        setCurrentMember({ name: '', role: '', image: '' });
+        fetchTeam();
+      }
+    } catch (error) {
+      console.error('Error saving team member:', error);
     }
-    setIsEditing(false);
-    setCurrentMember({ name: '', role: '', image: '' });
-    fetchTeam();
   };
 
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure?')) {
-      await supabase.from('team').delete().eq('id', id);
-      fetchTeam();
+      try {
+        const response = await fetch(`/api/team/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          fetchTeam();
+        }
+      } catch (error) {
+        console.error('Error deleting team member:', error);
+      }
     }
   };
 
