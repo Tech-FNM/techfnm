@@ -18,7 +18,7 @@ export default function ServicesManager() {
 
   const fetchServices = async () => {
     try {
-      const { data, error } = await supabase.from('services').select('*').order('created_at', { ascending: true });
+      const { data, error } = await supabase.from('services').select('*');
       if (data) {
         setServices(data);
       }

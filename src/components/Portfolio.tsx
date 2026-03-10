@@ -9,17 +9,16 @@ export default function Portfolio() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
+        const { data, error } = await supabase.from('projects').select('*');
         
         if (error) {
           console.error('Supabase error fetching projects:', error);
-          throw error;
         }
 
         if (data && data.length > 0) {
           setProjects(data);
         } else {
-          console.log('No projects found in database, using fallback data.');
+          console.log('No projects found or error occurred, using fallback data.');
           setProjects([
             {
               id: 1,

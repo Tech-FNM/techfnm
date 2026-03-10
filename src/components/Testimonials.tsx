@@ -9,17 +9,16 @@ export default function Testimonials() {
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const { data, error } = await supabase.from('testimonials').select('*').order('created_at', { ascending: true });
+        const { data, error } = await supabase.from('testimonials').select('*');
         
         if (error) {
           console.error('Supabase error fetching testimonials:', error);
-          throw error;
         }
 
         if (data && data.length > 0) {
           setTestimonials(data);
         } else {
-          console.log('No testimonials found in database, using fallback data.');
+          console.log('No testimonials found or error occurred, using fallback data.');
           setTestimonials([
             {
               id: 1,

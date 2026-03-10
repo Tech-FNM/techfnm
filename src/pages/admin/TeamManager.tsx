@@ -17,7 +17,7 @@ export default function TeamManager() {
 
   const fetchTeam = async () => {
     try {
-      const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
+      const { data, error } = await supabase.from('team').select('*');
       if (data) {
         setTeam(data);
       }

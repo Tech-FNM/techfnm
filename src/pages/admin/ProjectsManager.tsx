@@ -17,7 +17,7 @@ export default function ProjectsManager() {
 
   const fetchProjects = async () => {
     try {
-      const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: true });
+      const { data, error } = await supabase.from('projects').select('*');
       if (data) {
         setProjects(data);
       }

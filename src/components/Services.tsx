@@ -18,19 +18,17 @@ export default function Services() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const { data, error } = await supabase.from('services').select('*').order('created_at', { ascending: true });
+        const { data, error } = await supabase.from('services').select('*');
         
         if (error) {
           console.error('Supabase error fetching services:', error);
-          // If there's an error, we show fallback data
-          throw error;
+          // Don't throw, just let it fall through to fallback
         }
 
         if (data && data.length > 0) {
           setServices(data);
         } else {
-          console.log('No services found in database, using fallback data.');
-          // Fallback data if database is empty or not configured
+          console.log('No services found or error occurred, using fallback data.');
           setServices([
             {
               id: 1,

@@ -9,17 +9,16 @@ export default function Team() {
   useEffect(() => {
     const fetchTeam = async () => {
       try {
-        const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
+        const { data, error } = await supabase.from('team').select('*');
         
         if (error) {
           console.error('Supabase error fetching team:', error);
-          throw error;
         }
 
         if (data && data.length > 0) {
           setTeam(data);
         } else {
-          console.log('No team members found in database, using fallback data.');
+          console.log('No team members found or error occurred, using fallback data.');
           setTeam([
             {
               id: 1,
