@@ -10,9 +10,16 @@ export default function Portfolio() {
     const fetchProjects = async () => {
       try {
         const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
+        
+        if (error) {
+          console.error('Supabase error fetching projects:', error);
+          throw error;
+        }
+
         if (data && data.length > 0) {
           setProjects(data);
         } else {
+          console.log('No projects found in database, using fallback data.');
           setProjects([
             {
               id: 1,
@@ -53,7 +60,7 @@ export default function Portfolio() {
           ]);
         }
       } catch (err) {
-        console.error('Error fetching projects:', err);
+        console.error('Error in fetchProjects:', err);
       }
     };
     fetchProjects();

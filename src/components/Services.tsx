@@ -19,9 +19,17 @@ export default function Services() {
     const fetchServices = async () => {
       try {
         const { data, error } = await supabase.from('services').select('*').order('created_at', { ascending: true });
+        
+        if (error) {
+          console.error('Supabase error fetching services:', error);
+          // If there's an error, we show fallback data
+          throw error;
+        }
+
         if (data && data.length > 0) {
           setServices(data);
         } else {
+          console.log('No services found in database, using fallback data.');
           // Fallback data if database is empty or not configured
           setServices([
             {
@@ -69,7 +77,7 @@ export default function Services() {
           ]);
         }
       } catch (err) {
-        console.error('Error fetching services:', err);
+        console.error('Error in fetchServices:', err);
       }
     };
     fetchServices();

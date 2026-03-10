@@ -10,9 +10,16 @@ export default function Testimonials() {
     const fetchTestimonials = async () => {
       try {
         const { data, error } = await supabase.from('testimonials').select('*').order('created_at', { ascending: true });
+        
+        if (error) {
+          console.error('Supabase error fetching testimonials:', error);
+          throw error;
+        }
+
         if (data && data.length > 0) {
           setTestimonials(data);
         } else {
+          console.log('No testimonials found in database, using fallback data.');
           setTestimonials([
             {
               id: 1,
@@ -38,7 +45,7 @@ export default function Testimonials() {
           ]);
         }
       } catch (err) {
-        console.error('Error fetching testimonials:', err);
+        console.error('Error in fetchTestimonials:', err);
       }
     };
     fetchTestimonials();

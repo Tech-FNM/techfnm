@@ -10,9 +10,16 @@ export default function Team() {
     const fetchTeam = async () => {
       try {
         const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
+        
+        if (error) {
+          console.error('Supabase error fetching team:', error);
+          throw error;
+        }
+
         if (data && data.length > 0) {
           setTeam(data);
         } else {
+          console.log('No team members found in database, using fallback data.');
           setTeam([
             {
               id: 1,
@@ -41,7 +48,7 @@ export default function Team() {
           ]);
         }
       } catch (err) {
-        console.error('Error fetching team:', err);
+        console.error('Error in fetchTeam:', err);
       }
     };
     fetchTeam();
