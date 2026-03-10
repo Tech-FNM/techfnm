@@ -7,9 +7,9 @@ export default function Team() {
   const [team, setTeam] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/team')
-      .then(res => res.json())
-      .then(data => {
+    const fetchTeam = async () => {
+      try {
+        const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
         if (data && data.length > 0) {
           setTeam(data);
         } else {
@@ -40,7 +40,11 @@ export default function Team() {
             }
           ]);
         }
-      });
+      } catch (err) {
+        console.error('Error fetching team:', err);
+      }
+    };
+    fetchTeam();
   }, []);
 
   return (

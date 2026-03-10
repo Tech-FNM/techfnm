@@ -18,9 +18,8 @@ export default function TestimonialsManager() {
 
   const fetchTestimonials = async () => {
     try {
-      const response = await fetch('/api/testimonials');
-      if (response.ok) {
-        const data = await response.json();
+      const { data, error } = await supabase.from('testimonials').select('*').order('created_at', { ascending: true });
+      if (data) {
         setTestimonials(data);
       }
     } catch (error) {
@@ -30,19 +29,31 @@ export default function TestimonialsManager() {
 
   const handleSave = async () => {
     try {
-      const method = isEditing ? 'PUT' : 'POST';
-      const url = isEditing ? `/api/testimonials/${currentTestimonial.id}` : '/api/testimonials';
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentTestimonial),
-      });
-
-      if (response.ok) {
-        setIsEditing(false);
-        setCurrentTestimonial({ name: '', role: '', content: '', image: '' });
-        fetchTestimonials();
+      if (isEditing) {
+        const { error } = await supabase.from('testimonials').update({
+          name: currentTestimonial.name,
+          role: currentTestimonial.role,
+          content: currentTestimonial.content,
+          image: currentTestimonial.image
+        }).eq('id', currentTestimonial.id);
+        
+        if (!error) {
+          setIsEditing(false);
+          setCurrentTestimonial({ name: '', role: '', content: '', image: '' });
+          fetchTestimonials();
+        }
+      } else {
+        const { error } = await supabase.from('testimonials').insert([{
+          name: currentTestimonial.name,
+          role: currentTestimonial.role,
+          content: currentTestimonial.content,
+          image: currentTestimonial.image
+        }]);
+        
+        if (!error) {
+          setCurrentTestimonial({ name: '', role: '', content: '', image: '' });
+          fetchTestimonials();
+        }
       }
     } catch (error) {
       console.error('Error saving testimonial:', error);
@@ -52,8 +63,8 @@ export default function TestimonialsManager() {
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure?')) {
       try {
-        const response = await fetch(`/api/testimonials/${id}`, { method: 'DELETE' });
-        if (response.ok) {
+        const { error } = await supabase.from('testimonials').delete().eq('id', id);
+        if (!error) {
           fetchTestimonials();
         }
       } catch (error) {

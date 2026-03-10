@@ -17,9 +17,8 @@ export default function ProjectsManager() {
 
   const fetchProjects = async () => {
     try {
-      const response = await fetch('/api/projects');
-      if (response.ok) {
-        const data = await response.json();
+      const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: true });
+      if (data) {
         setProjects(data);
       }
     } catch (error) {
@@ -29,19 +28,29 @@ export default function ProjectsManager() {
 
   const handleSave = async () => {
     try {
-      const method = isEditing ? 'PUT' : 'POST';
-      const url = isEditing ? `/api/projects/${currentProject.id}` : '/api/projects';
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentProject),
-      });
-
-      if (response.ok) {
-        setIsEditing(false);
-        setCurrentProject({ title: '', category: '', image: '' });
-        fetchProjects();
+      if (isEditing) {
+        const { error } = await supabase.from('projects').update({
+          title: currentProject.title,
+          category: currentProject.category,
+          image: currentProject.image
+        }).eq('id', currentProject.id);
+        
+        if (!error) {
+          setIsEditing(false);
+          setCurrentProject({ title: '', category: '', image: '' });
+          fetchProjects();
+        }
+      } else {
+        const { error } = await supabase.from('projects').insert([{
+          title: currentProject.title,
+          category: currentProject.category,
+          image: currentProject.image
+        }]);
+        
+        if (!error) {
+          setCurrentProject({ title: '', category: '', image: '' });
+          fetchProjects();
+        }
       }
     } catch (error) {
       console.error('Error saving project:', error);
@@ -51,8 +60,8 @@ export default function ProjectsManager() {
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure?')) {
       try {
-        const response = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
-        if (response.ok) {
+        const { error } = await supabase.from('projects').delete().eq('id', id);
+        if (!error) {
           fetchProjects();
         }
       } catch (error) {

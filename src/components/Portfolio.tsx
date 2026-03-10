@@ -7,9 +7,9 @@ export default function Portfolio() {
   const [projects, setProjects] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/projects')
-      .then(res => res.json())
-      .then(data => {
+    const fetchProjects = async () => {
+      try {
+        const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
         if (data && data.length > 0) {
           setProjects(data);
         } else {
@@ -52,7 +52,11 @@ export default function Portfolio() {
             }
           ]);
         }
-      });
+      } catch (err) {
+        console.error('Error fetching projects:', err);
+      }
+    };
+    fetchProjects();
   }, []);
 
   return (

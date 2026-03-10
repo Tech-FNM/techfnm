@@ -16,9 +16,9 @@ export default function Services() {
   const [services, setServices] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/services')
-      .then(res => res.json())
-      .then(data => {
+    const fetchServices = async () => {
+      try {
+        const { data, error } = await supabase.from('services').select('*').order('created_at', { ascending: true });
         if (data && data.length > 0) {
           setServices(data);
         } else {
@@ -68,7 +68,11 @@ export default function Services() {
             }
           ]);
         }
-      });
+      } catch (err) {
+        console.error('Error fetching services:', err);
+      }
+    };
+    fetchServices();
   }, []);
 
   return (

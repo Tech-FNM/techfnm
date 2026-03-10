@@ -18,9 +18,8 @@ export default function ServicesManager() {
 
   const fetchServices = async () => {
     try {
-      const response = await fetch('/api/services');
-      if (response.ok) {
-        const data = await response.json();
+      const { data, error } = await supabase.from('services').select('*').order('created_at', { ascending: true });
+      if (data) {
         setServices(data);
       }
     } catch (error) {
@@ -30,19 +29,31 @@ export default function ServicesManager() {
 
   const handleSave = async () => {
     try {
-      const method = isEditing ? 'PUT' : 'POST';
-      const url = isEditing ? `/api/services/${currentService.id}` : '/api/services';
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentService),
-      });
-
-      if (response.ok) {
-        setIsEditing(false);
-        setCurrentService({ title: '', description: '', icon: 'Code', color: 'bg-red-900/20 text-red-400' });
-        fetchServices();
+      if (isEditing) {
+        const { error } = await supabase.from('services').update({
+          title: currentService.title,
+          description: currentService.description,
+          icon: currentService.icon,
+          color: currentService.color
+        }).eq('id', currentService.id);
+        
+        if (!error) {
+          setIsEditing(false);
+          setCurrentService({ title: '', description: '', icon: 'Code', color: 'bg-red-900/20 text-red-400' });
+          fetchServices();
+        }
+      } else {
+        const { error } = await supabase.from('services').insert([{
+          title: currentService.title,
+          description: currentService.description,
+          icon: currentService.icon,
+          color: currentService.color
+        }]);
+        
+        if (!error) {
+          setCurrentService({ title: '', description: '', icon: 'Code', color: 'bg-red-900/20 text-red-400' });
+          fetchServices();
+        }
       }
     } catch (error) {
       console.error('Error saving service:', error);
@@ -52,8 +63,8 @@ export default function ServicesManager() {
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure?')) {
       try {
-        const response = await fetch(`/api/services/${id}`, { method: 'DELETE' });
-        if (response.ok) {
+        const { error } = await supabase.from('services').delete().eq('id', id);
+        if (!error) {
           fetchServices();
         }
       } catch (error) {

@@ -1,7 +1,54 @@
 import { motion } from 'motion/react';
-import { Mail, MapPin, Phone, Send } from 'lucide-react';
+import { Mail, MapPin, Phone, Send, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { supabase } from '../lib/supabase';
 
 export default function Contact() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.id]: e.target.value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('submitting');
+    setErrorMessage('');
+
+    try {
+      const { error } = await supabase
+        .from('contacts')
+        .insert([{
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message
+        }]);
+
+      if (error) throw error;
+
+      setStatus('success');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => setStatus('idle'), 5000);
+    } catch (err: any) {
+      console.error('Error submitting form:', err);
+      setStatus('error');
+      setErrorMessage(err.message || 'Something went wrong. Please try again.');
+    }
+  };
+
   return (
     <section id="contact" className="py-24 bg-zinc-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,15 +68,34 @@ export default function Contact() {
             className="bg-zinc-900 rounded-2xl shadow-lg p-8 md:p-12 border border-zinc-800"
           >
             <h3 className="text-2xl font-bold text-white mb-8">Send Us a Message</h3>
-            <form className="space-y-6">
+            
+            {status === 'success' && (
+              <div className="mb-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-lg flex items-start gap-3">
+                <CheckCircle2 className="shrink-0 mt-0.5" size={20} />
+                <p>Thank you for your message! We will get back to you shortly.</p>
+              </div>
+            )}
+
+            {status === 'error' && (
+              <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-lg flex items-start gap-3">
+                <AlertCircle className="shrink-0 mt-0.5" size={20} />
+                <p>{errorMessage}</p>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">Name</label>
                   <input
                     type="text"
                     id="name"
+                    required
+                    value={formData.name}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 rounded-lg bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all placeholder-gray-500"
                     placeholder="Your Name"
+                    disabled={status === 'submitting'}
                   />
                 </div>
                 <div>
@@ -37,8 +103,12 @@ export default function Contact() {
                   <input
                     type="email"
                     id="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 rounded-lg bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all placeholder-gray-500"
                     placeholder="Your Email"
+                    disabled={status === 'submitting'}
                   />
                 </div>
               </div>
@@ -47,25 +117,38 @@ export default function Contact() {
                 <input
                   type="text"
                   id="subject"
+                  required
+                  value={formData.subject}
+                  onChange={handleChange}
                   className="w-full px-4 py-3 rounded-lg bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all placeholder-gray-500"
                   placeholder="Subject"
+                  disabled={status === 'submitting'}
                 />
               </div>
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">Message</label>
                 <textarea
                   id="message"
+                  required
+                  value={formData.message}
+                  onChange={handleChange}
                   rows={5}
                   className="w-full px-4 py-3 rounded-lg bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all resize-none placeholder-gray-500"
                   placeholder="Your Message"
+                  disabled={status === 'submitting'}
                 ></textarea>
               </div>
               <button
                 type="submit"
-                className="w-full bg-red-600 text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors shadow-lg shadow-red-600/30 flex items-center justify-center gap-2"
+                disabled={status === 'submitting'}
+                className="w-full bg-red-600 text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                <Send size={20} />
-                Send Message
+                {status === 'submitting' ? (
+                  <Loader2 size={20} className="animate-spin" />
+                ) : (
+                  <Send size={20} />
+                )}
+                {status === 'submitting' ? 'Sending...' : 'Send Message'}
               </button>
             </form>
           </motion.div>

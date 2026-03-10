@@ -7,9 +7,9 @@ export default function Testimonials() {
   const [testimonials, setTestimonials] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/testimonials')
-      .then(res => res.json())
-      .then(data => {
+    const fetchTestimonials = async () => {
+      try {
+        const { data, error } = await supabase.from('testimonials').select('*').order('created_at', { ascending: true });
         if (data && data.length > 0) {
           setTestimonials(data);
         } else {
@@ -37,7 +37,11 @@ export default function Testimonials() {
             }
           ]);
         }
-      });
+      } catch (err) {
+        console.error('Error fetching testimonials:', err);
+      }
+    };
+    fetchTestimonials();
   }, []);
 
   return (

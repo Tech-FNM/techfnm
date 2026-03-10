@@ -13,28 +13,17 @@ export default function Login() {
     setLoading(true);
     
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      // Simulate network request
+      await new Promise(resolve => setTimeout(resolve, 800));
 
-      let data;
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
+      // Simple static check since we removed the custom backend
+      if (email === 'admin@techfnm.com' && password === 'admin123') {
+        const fakeToken = btoa(email + ':' + Date.now());
+        localStorage.setItem('admin_token', fakeToken);
+        navigate('/admindash/dashboard');
       } else {
-        const text = await response.text();
-        console.error('Non-JSON response from server:', text);
-        throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}...`);
+        throw new Error('Invalid email or password');
       }
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
-      localStorage.setItem('admin_token', data.token);
-      navigate('/admindash/dashboard');
     } catch (error: any) {
       console.error('Login error:', error);
       alert(error.message || 'Login failed. Please check your credentials.');

@@ -17,9 +17,8 @@ export default function TeamManager() {
 
   const fetchTeam = async () => {
     try {
-      const response = await fetch('/api/team');
-      if (response.ok) {
-        const data = await response.json();
+      const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
+      if (data) {
         setTeam(data);
       }
     } catch (error) {
@@ -29,19 +28,29 @@ export default function TeamManager() {
 
   const handleSave = async () => {
     try {
-      const method = isEditing ? 'PUT' : 'POST';
-      const url = isEditing ? `/api/team/${currentMember.id}` : '/api/team';
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentMember),
-      });
-
-      if (response.ok) {
-        setIsEditing(false);
-        setCurrentMember({ name: '', role: '', image: '' });
-        fetchTeam();
+      if (isEditing) {
+        const { error } = await supabase.from('team').update({
+          name: currentMember.name,
+          role: currentMember.role,
+          image: currentMember.image
+        }).eq('id', currentMember.id);
+        
+        if (!error) {
+          setIsEditing(false);
+          setCurrentMember({ name: '', role: '', image: '' });
+          fetchTeam();
+        }
+      } else {
+        const { error } = await supabase.from('team').insert([{
+          name: currentMember.name,
+          role: currentMember.role,
+          image: currentMember.image
+        }]);
+        
+        if (!error) {
+          setCurrentMember({ name: '', role: '', image: '' });
+          fetchTeam();
+        }
       }
     } catch (error) {
       console.error('Error saving team member:', error);
@@ -51,8 +60,8 @@ export default function TeamManager() {
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure?')) {
       try {
-        const response = await fetch(`/api/team/${id}`, { method: 'DELETE' });
-        if (response.ok) {
+        const { error } = await supabase.from('team').delete().eq('id', id);
+        if (!error) {
           fetchTeam();
         }
       } catch (error) {
