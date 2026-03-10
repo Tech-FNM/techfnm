@@ -4,15 +4,15 @@ import 'dotenv/config';
 const { Pool } = pg;
 
 const connectionString = process.env.DATABASE_URL
-  ? process.env.DATABASE_URL.replace('sslmode=require', '')
+  ? process.env.DATABASE_URL.replace(/[?&]sslmode=require/, '').replace(/\?$/, '')
   : '';
 
 const pool = new Pool({
   connectionString,
-  ssl: {
+  ssl: connectionString.includes('localhost') ? false : {
     rejectUnauthorized: false,
   },
-  connectionTimeoutMillis: 10000, // Increased to 10s
+  connectionTimeoutMillis: 30000, // Increased to 30s
   idleTimeoutMillis: 30000,
   max: 10,
 });
@@ -23,12 +23,20 @@ export async function initDb() {
     return;
   }
 
+  try {
+    new URL(connectionString);
+  } catch (e) {
+    console.error('Invalid DATABASE_URL format. Skipping database initialization.');
+    return;
+  }
+
   let client;
   let retries = 3;
   
   while (retries > 0) {
     try {
       console.log(`Connecting to database... (Attempts left: ${retries})`);
+      console.log(`Connection string length: ${connectionString.length}`);
       client = await pool.connect();
       console.log('Connected successfully. Initializing database...');
       

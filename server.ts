@@ -25,8 +25,20 @@ async function startServer() {
   });
 
   // Health check
-  app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  app.get('/api/health', async (req, res) => {
+    let supabaseStatus = 'unknown';
+    try {
+      const { error } = await supabase.from('services').select('id').limit(1);
+      supabaseStatus = error ? `error: ${error.message}` : 'ok';
+    } catch (err: any) {
+      supabaseStatus = `exception: ${err.message}`;
+    }
+
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      supabase: supabaseStatus
+    });
   });
 
   // Auth
