@@ -25,6 +25,7 @@ export default function Login() {
         data = await response.json();
       } else {
         const text = await response.text();
+        console.error('Non-JSON response from server:', text);
         throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}...`);
       }
 
