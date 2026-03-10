@@ -169,6 +169,27 @@ async function startServer() {
     res.json({ success: true });
   });
 
+  // Stats
+  app.get('/api/stats', async (req, res) => {
+    try {
+      const [services, projects, team, testimonials] = await Promise.all([
+        supabase.from('services').select('*', { count: 'exact', head: true }),
+        supabase.from('projects').select('*', { count: 'exact', head: true }),
+        supabase.from('team').select('*', { count: 'exact', head: true }),
+        supabase.from('testimonials').select('*', { count: 'exact', head: true }),
+      ]);
+
+      res.json({
+        services: services.count || 0,
+        projects: projects.count || 0,
+        team: team.count || 0,
+        testimonials: testimonials.count || 0,
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({

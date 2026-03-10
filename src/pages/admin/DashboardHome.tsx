@@ -15,19 +15,15 @@ export default function DashboardHome() {
   }, []);
 
   const fetchStats = async () => {
-    const [services, projects, team, testimonials] = await Promise.all([
-      supabase.from('services').select('*', { count: 'exact', head: true }),
-      supabase.from('projects').select('*', { count: 'exact', head: true }),
-      supabase.from('team').select('*', { count: 'exact', head: true }),
-      supabase.from('testimonials').select('*', { count: 'exact', head: true }),
-    ]);
-
-    setStats({
-      services: services.count || 0,
-      projects: projects.count || 0,
-      team: team.count || 0,
-      testimonials: testimonials.count || 0,
-    });
+    try {
+      const response = await fetch('/api/stats');
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
   };
 
   const statCards = [
