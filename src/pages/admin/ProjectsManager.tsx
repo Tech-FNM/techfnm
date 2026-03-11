@@ -40,7 +40,7 @@ export default function ProjectsManager() {
 
       const { error: uploadError } = await supabase.storage
         .from('agency-assets')
-        .upload(filePath, file);
+        .upload(filePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
@@ -51,7 +51,8 @@ export default function ProjectsManager() {
       setCurrentProject({ ...currentProject, image: publicUrl });
       alert('Image uploaded successfully!');
     } catch (error: any) {
-      alert('Error uploading image: ' + error.message);
+      console.error('Upload error details:', error);
+      alert('Upload failed: ' + (error.message || 'Unknown error') + '\n\nIf the bucket exists, please check your Storage Policies (RLS) in Supabase.');
     } finally {
       setUploading(false);
     }

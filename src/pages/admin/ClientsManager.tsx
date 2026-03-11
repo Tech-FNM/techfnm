@@ -39,7 +39,7 @@ export default function ClientsManager() {
 
       const { error: uploadError } = await supabase.storage
         .from('agency-assets')
-        .upload(filePath, file);
+        .upload(filePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
@@ -50,7 +50,8 @@ export default function ClientsManager() {
       setCurrentClient({ ...currentClient, logo: publicUrl });
       alert('Logo uploaded successfully!');
     } catch (error: any) {
-      alert('Error uploading logo: ' + error.message);
+      console.error('Upload error details:', error);
+      alert('Upload failed: ' + (error.message || 'Unknown error') + '\n\nIf the bucket exists, please check your Storage Policies (RLS) in Supabase.');
     } finally {
       setUploading(false);
     }
