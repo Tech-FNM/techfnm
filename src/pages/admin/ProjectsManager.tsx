@@ -10,7 +10,6 @@ export default function ProjectsManager() {
     title: '',
     category: 'Web Development',
     image: '',
-    description: '',
   });
 
   useEffect(() => {
@@ -70,7 +69,6 @@ export default function ProjectsManager() {
         title: currentProject.title,
         category: currentProject.category,
         image: currentProject.image,
-        description: currentProject.description
       };
 
       if (isEditing) {
@@ -87,7 +85,7 @@ export default function ProjectsManager() {
       } else {
         alert(isEditing ? 'Project updated successfully!' : 'Project added successfully!');
         setIsEditing(false);
-        setCurrentProject({ title: '', category: 'Web Development', image: '', description: '' });
+        setCurrentProject({ title: '', category: 'Web Development', image: '' });
         fetchProjects();
       }
     } catch (error: any) {
@@ -174,19 +172,6 @@ export default function ProjectsManager() {
               </div>
             </div>
           </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Short Description</label>
-              <textarea
-                placeholder="Describe this project..."
-                rows={6}
-                value={currentProject.description}
-                onChange={(e) => setCurrentProject({ ...currentProject, description: e.target.value })}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all resize-none"
-              />
-            </div>
-          </div>
         </div>
 
         <div className="mt-8 flex gap-3">
@@ -198,7 +183,7 @@ export default function ProjectsManager() {
           </button>
           {isEditing && (
             <button 
-              onClick={() => { setIsEditing(false); setCurrentProject({ title: '', category: 'Web Development', image: '', description: '' }); }} 
+              onClick={() => { setIsEditing(false); setCurrentProject({ title: '', category: 'Web Development', image: '' }); }} 
               className="bg-zinc-800 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-zinc-700 transition-all"
             >
               <X size={20} /> Cancel
