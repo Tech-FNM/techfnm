@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Plus, Trash, Edit, Check, X } from 'lucide-react';
+import { Plus, Trash, Edit, Check, X, Upload, Quote } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function TestimonialsManager() {
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState<any>({
     name: '',
     role: '',
@@ -27,35 +28,61 @@ export default function TestimonialsManager() {
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      if (!e.target.files || e.target.files.length === 0) return;
+      
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `testimonials/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('agency-assets')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('agency-assets')
+        .getPublicUrl(filePath);
+
+      setCurrentTestimonial({ ...currentTestimonial, image: publicUrl });
+      alert('Image uploaded successfully!');
+    } catch (error: any) {
+      alert('Error uploading image: ' + error.message + '\nMake sure you have created a public bucket named "agency-assets" in Supabase Storage.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
-    if (!currentTestimonial.name || !currentTestimonial.role || !currentTestimonial.content || !currentTestimonial.image) {
-      alert('Please fill in all required fields');
+    if (!currentTestimonial.name || !currentTestimonial.role || !currentTestimonial.content) {
+      alert('Please fill in all required fields (Name, Role, Content)');
       return;
     }
 
     try {
       let error;
+      const payload = {
+        name: currentTestimonial.name,
+        role: currentTestimonial.role,
+        content: currentTestimonial.content,
+        image: currentTestimonial.image
+      };
+
       if (isEditing) {
-        const { error: updateError } = await supabase.from('testimonials').update({
-          name: currentTestimonial.name,
-          role: currentTestimonial.role,
-          content: currentTestimonial.content,
-          image: currentTestimonial.image
-        }).eq('id', currentTestimonial.id);
+        const { error: updateError } = await supabase.from('testimonials').update(payload).eq('id', currentTestimonial.id);
         error = updateError;
       } else {
-        const { error: insertError } = await supabase.from('testimonials').insert([{
-          name: currentTestimonial.name,
-          role: currentTestimonial.role,
-          content: currentTestimonial.content,
-          image: currentTestimonial.image
-        }]);
+        const { error: insertError } = await supabase.from('testimonials').insert([payload]);
         error = insertError;
       }
       
       if (error) {
         console.error('Supabase error:', error);
-        alert(`Error saving testimonial: ${error.message}. Make sure the 'testimonials' table exists in Supabase.`);
+        alert(`Error saving testimonial: ${error.message}`);
       } else {
         alert(isEditing ? 'Testimonial updated successfully!' : 'Testimonial added successfully!');
         setIsEditing(false);
@@ -82,73 +109,144 @@ export default function TestimonialsManager() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-8 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold text-white mb-8">Manage Testimonials</h1>
 
-      <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 mb-8">
-        <h2 className="text-xl font-bold text-white mb-4">{isEditing ? 'Edit Testimonial' : 'Add New Testimonial'}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            placeholder="Name"
-            value={currentTestimonial.name}
-            onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, name: e.target.value })}
-            className="bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white"
-          />
-          <input
-            type="text"
-            placeholder="Role"
-            value={currentTestimonial.role}
-            onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, role: e.target.value })}
-            className="bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white"
-          />
-          <input
-            type="text"
-            placeholder="Image URL"
-            value={currentTestimonial.image}
-            onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, image: e.target.value })}
-            className="bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white col-span-2"
-          />
-          <textarea
-            placeholder="Content"
-            value={currentTestimonial.content}
-            onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, content: e.target.value })}
-            className="bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white col-span-2"
-          />
+      {/* Form Section */}
+      <div className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800 mb-12 shadow-xl">
+        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          {isEditing ? <Edit size={20} className="text-blue-500" /> : <Plus size={20} className="text-red-500" />}
+          {isEditing ? 'Edit Testimonial' : 'Add New Testimonial'}
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Client Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Sarah Johnson"
+                value={currentTestimonial.name}
+                onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, name: e.target.value })}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Role / Company</label>
+              <input
+                type="text"
+                placeholder="e.g. CEO, TechCorp"
+                value={currentTestimonial.role}
+                onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, role: e.target.value })}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Client Photo (Optional)</label>
+              <div className="flex items-center gap-4">
+                <div className="flex-1 relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="testimonial-image-upload"
+                    disabled={uploading}
+                  />
+                  <label
+                    htmlFor="testimonial-image-upload"
+                    className={`flex items-center justify-center gap-2 w-full bg-zinc-800 border-2 border-dashed border-zinc-700 rounded-xl px-4 py-3 text-gray-400 cursor-pointer hover:border-red-500/50 hover:text-white transition-all ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {uploading ? 'Uploading...' : <><Upload size={18} /> Attach Photo</>}
+                  </label>
+                </div>
+                {currentTestimonial.image && (
+                  <div className="w-16 h-16 rounded-full overflow-hidden border border-zinc-700 bg-zinc-800 flex items-center justify-center">
+                    <img src={currentTestimonial.image} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Testimonial Content</label>
+              <textarea
+                placeholder="What did the client say?"
+                rows={3}
+                value={currentTestimonial.content}
+                onChange={(e) => setCurrentTestimonial({ ...currentTestimonial, content: e.target.value })}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all resize-none"
+              />
+            </div>
+          </div>
         </div>
-        <div className="mt-4 flex gap-2">
-          <button onClick={handleSave} className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-700">
-            <Check size={18} /> Save
+
+        <div className="mt-8 flex gap-3">
+          <button 
+            onClick={handleSave} 
+            className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+          >
+            <Check size={20} /> {isEditing ? 'Update Testimonial' : 'Add Testimonial'}
           </button>
           {isEditing && (
-            <button onClick={() => { setIsEditing(false); setCurrentTestimonial({ name: '', role: '', content: '', image: '' }); }} className="bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-700">
-              <X size={18} /> Cancel
+            <button 
+              onClick={() => { setIsEditing(false); setCurrentTestimonial({ name: '', role: '', content: '', image: '' }); }} 
+              className="bg-zinc-800 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-zinc-700 transition-all"
+            >
+              <X size={20} /> Cancel
             </button>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {testimonials.map((testimonial) => (
-          <div key={testimonial.id} className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 relative group">
-            <div className="flex items-center gap-4 mb-4">
-              <img src={testimonial.image} alt={testimonial.name} className="w-12 h-12 rounded-full object-cover" />
-              <div>
-                <h3 className="text-lg font-bold text-white">{testimonial.name}</h3>
-                <p className="text-gray-400 text-sm">{testimonial.role}</p>
+      {/* List Section */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-white mb-4">Client Feedback</h2>
+        <div className="grid grid-cols-1 gap-4">
+          {testimonials.length === 0 ? (
+            <div className="text-center py-12 bg-zinc-900 rounded-2xl border border-zinc-800 text-gray-500">
+              No testimonials found. Add your first testimonial above.
+            </div>
+          ) : (
+            testimonials.map((testimonial) => (
+              <div key={testimonial.id} className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-zinc-700 transition-all">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-zinc-800 flex-shrink-0 flex items-center justify-center overflow-hidden border border-zinc-700">
+                    {testimonial.image ? (
+                      <img src={testimonial.image} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <Quote className="text-zinc-600" size={20} />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold">{testimonial.name}</h3>
+                    <p className="text-red-500 text-xs font-semibold uppercase mb-2">{testimonial.role}</p>
+                    <p className="text-gray-400 text-sm italic">"{testimonial.content}"</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 self-end md:self-center">
+                  <button 
+                    onClick={() => { setIsEditing(true); setCurrentTestimonial(testimonial); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
+                    className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all"
+                    title="Edit"
+                  >
+                    <Edit size={18} />
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(testimonial.id)} 
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                    title="Delete"
+                  >
+                    <Trash size={18} />
+                  </button>
+                </div>
               </div>
-            </div>
-            <p className="text-gray-400 italic">"{testimonial.content}"</p>
-            <div className="flex gap-2 absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button onClick={() => { setIsEditing(true); setCurrentTestimonial(testimonial); }} className="bg-blue-600 p-2 rounded-lg text-white hover:bg-blue-700">
-                <Edit size={16} />
-              </button>
-              <button onClick={() => handleDelete(testimonial.id)} className="bg-red-600 p-2 rounded-lg text-white hover:bg-red-700">
-                <Trash size={16} />
-              </button>
-            </div>
-          </div>
-        ))}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

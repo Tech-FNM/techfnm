@@ -74,9 +74,10 @@ export default function Testimonials() {
               <Quote className="absolute top-6 right-6 text-red-900/30 w-12 h-12" />
               <div className="flex items-center mb-6">
                 <img
-                  src={testimonial.image}
+                  src={testimonial.image || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200'}
                   alt={testimonial.name}
                   className="w-14 h-14 rounded-full object-cover mr-4 border-2 border-zinc-700 shadow-sm"
+                  referrerPolicy="no-referrer"
                 />
                 <div>
                   <h4 className="text-lg font-bold text-white">{testimonial.name}</h4>

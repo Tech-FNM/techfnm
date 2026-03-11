@@ -76,9 +76,10 @@ export default function Team() {
             >
               <div className="relative overflow-hidden">
                 <img
-                  src={member.image}
+                  src={member.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800'}
                   alt={member.name}
                   className="w-full h-80 object-cover object-top transform group-hover:scale-105 transition-transform duration-500"
+                  referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-red-600/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-4">
                   <a href="#" className="text-white hover:text-red-100 transition-colors bg-white/20 p-2 rounded-full backdrop-blur-sm">

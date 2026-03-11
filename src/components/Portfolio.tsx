@@ -87,15 +87,22 @@ export default function Portfolio() {
               className="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer border border-white/10"
             >
               <img
-                src={project.image}
+                src={project.image || 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800'}
                 alt={project.title}
                 className="w-full h-64 object-cover transform group-hover:scale-110 transition-transform duration-500"
+                referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                <span className="text-red-400 text-sm font-medium mb-2">{project.category}</span>
+                <span className="text-red-400 text-sm font-medium mb-2">{project.category || 'Project'}</span>
                 <h3 className="text-white text-xl font-bold mb-2">{project.title}</h3>
                 <div className="flex items-center text-white/80 text-sm font-medium">
-                  View Project <ExternalLink size={16} className="ml-2" />
+                  {project.slug ? (
+                    <a href={`/projects/${project.slug}`} className="flex items-center">
+                      View Project <ExternalLink size={16} className="ml-2" />
+                    </a>
+                  ) : (
+                    <>View Project <ExternalLink size={16} className="ml-2" /></>
+                  )}
                 </div>
               </div>
             </motion.div>
