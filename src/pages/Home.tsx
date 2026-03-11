@@ -12,7 +12,7 @@ import Footer from '../components/Footer';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black font-sans text-white scroll-smooth">
+    <div className="min-h-screen bg-black font-sans text-white scroll-smooth overflow-x-hidden w-full">
       <Header />
       <main>
         <Hero />

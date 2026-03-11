@@ -38,7 +38,7 @@ export default function Clients() {
                 <img
                   src={client.logo}
                   alt={client.name}
-                  className="h-12 md:h-16 w-full object-contain brightness-0 invert opacity-50 hover:opacity-100 transition-opacity duration-300"
+                  className="h-12 md:h-16 w-full object-contain hover:scale-105 transition-transform duration-300"
                   referrerPolicy="no-referrer"
                 />
               ) : (
