@@ -106,27 +106,16 @@ export default function Services() {
                 transition={{ delay: index * 0.1 }}
                 className="bg-zinc-900 rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-zinc-800 group hover:border-red-500/30 overflow-hidden relative"
               >
-                {hasImage ? (
-                  <div className="w-full h-48 -mx-8 -mt-8 mb-6 overflow-hidden">
-                    <img 
-                      src={service.image} 
-                      alt={service.title} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                ) : (
-                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 ${service.color || 'bg-red-500/10 text-red-500'} group-hover:scale-110 transition-transform`}>
-                    <Icon size={28} />
-                  </div>
-                )}
+                <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 ${service.color || 'bg-red-500/10 text-red-500'} group-hover:scale-110 transition-transform`}>
+                  <Icon size={28} />
+                </div>
                 <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors">{service.title}</h3>
                 <p className="text-gray-400 leading-relaxed mb-4">
                   {service.description}
                 </p>
-                <a href={service.slug ? `/services/${service.slug}` : "#"} className="inline-flex items-center text-red-500 font-medium hover:text-red-400 group-hover:translate-x-1 transition-transform">
+                <div className="inline-flex items-center text-red-500 font-medium hover:text-red-400 group-hover:translate-x-1 transition-transform cursor-default">
                   Learn More <span className="ml-1">&rarr;</span>
-                </a>
+                </div>
               </motion.div>
             );
           })}

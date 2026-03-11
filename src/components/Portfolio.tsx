@@ -96,13 +96,7 @@ export default function Portfolio() {
                 <span className="text-red-400 text-sm font-medium mb-2">{project.category || 'Project'}</span>
                 <h3 className="text-white text-xl font-bold mb-2">{project.title}</h3>
                 <div className="flex items-center text-white/80 text-sm font-medium">
-                  {project.slug ? (
-                    <a href={`/projects/${project.slug}`} className="flex items-center">
-                      View Project <ExternalLink size={16} className="ml-2" />
-                    </a>
-                  ) : (
-                    <>View Project <ExternalLink size={16} className="ml-2" /></>
-                  )}
+                  View Project <ExternalLink size={16} className="ml-2" />
                 </div>
               </div>
             </motion.div>
