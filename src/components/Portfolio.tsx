@@ -102,12 +102,6 @@ export default function Portfolio() {
             </motion.div>
           ))}
         </div>
-        
-        <div className="text-center mt-12">
-          <a href="#" className="inline-flex items-center justify-center px-8 py-3 border border-red-600 text-base font-medium rounded-full text-red-500 bg-transparent hover:bg-red-900/20 transition-colors">
-            View All Projects
-          </a>
-        </div>
       </div>
     </section>
   );

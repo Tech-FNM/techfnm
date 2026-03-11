@@ -11,8 +11,20 @@ export default function Header() {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <a href="/" className="text-2xl font-bold text-white">
-              Tech<span className="text-red-600 ml-1 font-extrabold">FNM</span>
+            <a href="/" className="block">
+              <img 
+                src="/logo.png" 
+                alt="TechFNM Logo" 
+                className="h-10 md:h-12 w-auto object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  target.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+              <div className="hidden text-2xl font-bold text-white">
+                Tech<span className="text-red-600 ml-1 font-extrabold">FNM</span>
+              </div>
             </a>
           </div>
 

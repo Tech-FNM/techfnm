@@ -110,12 +110,9 @@ export default function Services() {
                   <Icon size={28} />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors">{service.title}</h3>
-                <p className="text-gray-400 leading-relaxed mb-4">
+                <p className="text-gray-400 leading-relaxed">
                   {service.description}
                 </p>
-                <div className="inline-flex items-center text-red-500 font-medium hover:text-red-400 group-hover:translate-x-1 transition-transform cursor-default">
-                  Learn More <span className="ml-1">&rarr;</span>
-                </div>
               </motion.div>
             );
           })}
