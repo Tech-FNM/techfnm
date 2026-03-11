@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Plus, Trash, Edit, Check, X, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash, Edit, Check, X, Upload, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function ProjectsManager() {
   const [projects, setProjects] = useState<any[]>([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [currentProject, setCurrentProject] = useState<any>({
     title: '',
     category: 'Web Development',
@@ -24,6 +25,35 @@ export default function ProjectsManager() {
       }
     } catch (error) {
       console.error('Error fetching projects:', error);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      if (!e.target.files || e.target.files.length === 0) return;
+      
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `projects/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('agency-assets')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('agency-assets')
+        .getPublicUrl(filePath);
+
+      setCurrentProject({ ...currentProject, image: publicUrl });
+      alert('Image uploaded successfully!');
+    } catch (error: any) {
+      alert('Error uploading image: ' + error.message);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -117,19 +147,30 @@ export default function ProjectsManager() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Project Image URL (Optional)</label>
-              <input
-                type="text"
-                placeholder="https://example.com/image.jpg"
-                value={currentProject.image}
-                onChange={(e) => setCurrentProject({ ...currentProject, image: e.target.value })}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
-              />
-              {currentProject.image && (
-                <div className="mt-4 w-32 h-20 rounded-lg overflow-hidden border border-zinc-700 bg-zinc-800 flex items-center justify-center">
-                  <img src={currentProject.image} alt="Preview" className="w-full h-full object-cover" />
+              <label className="block text-sm font-medium text-gray-400 mb-1">Project Image (Optional)</label>
+              <div className="flex items-center gap-4">
+                <div className="flex-1 relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="project-image-upload"
+                    disabled={uploading}
+                  />
+                  <label
+                    htmlFor="project-image-upload"
+                    className={`flex items-center justify-center gap-2 w-full bg-zinc-800 border-2 border-dashed border-zinc-700 rounded-xl px-4 py-3 text-gray-400 cursor-pointer hover:border-red-500/50 hover:text-white transition-all ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {uploading ? 'Uploading...' : <><Upload size={18} /> Attach Image</>}
+                  </label>
                 </div>
-              )}
+                {currentProject.image && (
+                  <div className="w-16 h-16 rounded-lg overflow-hidden border border-zinc-700 bg-zinc-800 flex items-center justify-center">
+                    <img src={currentProject.image} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
