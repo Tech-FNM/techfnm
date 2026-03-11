@@ -26,16 +26,22 @@ export default function Contact() {
     setErrorMessage('');
 
     try {
-      const { error } = await supabase
-        .from('contacts')
-        .insert([{
-          name: formData.name,
-          email: formData.email,
-          subject: formData.subject,
-          message: formData.message
-        }]);
+      const response = await fetch("https://formsubmit.co/ajax/techhfnm@gmail.com", {
+        method: "POST",
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject,
+            message: formData.message,
+            _subject: `New Contact Form Submission: ${formData.subject}`
+        })
+      });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error('Failed to send message');
 
       setStatus('success');
       setFormData({ name: '', email: '', subject: '', message: '' });
