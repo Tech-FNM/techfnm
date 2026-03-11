@@ -8,7 +8,6 @@ export default function ProjectsManager() {
   const [uploading, setUploading] = useState(false);
   const [currentProject, setCurrentProject] = useState<any>({
     title: '',
-    slug: '',
     category: 'Web Development',
     image: '',
     description: '',
@@ -27,22 +26,6 @@ export default function ProjectsManager() {
     } catch (error) {
       console.error('Error fetching projects:', error);
     }
-  };
-
-  const generateSlug = (text: string) => {
-    return text
-      .toLowerCase()
-      .replace(/[^\w ]+/g, '')
-      .replace(/ +/g, '-');
-  };
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const title = e.target.value;
-    setCurrentProject({
-      ...currentProject,
-      title,
-      slug: isEditing ? currentProject.slug : generateSlug(title)
-    });
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,15 +51,15 @@ export default function ProjectsManager() {
       setCurrentProject({ ...currentProject, image: publicUrl });
       alert('Image uploaded successfully!');
     } catch (error: any) {
-      alert('Error uploading image: ' + error.message + '\nMake sure you have created a public bucket named "agency-assets" in Supabase Storage.');
+      alert('Error uploading image: ' + error.message);
     } finally {
       setUploading(false);
     }
   };
 
   const handleSave = async () => {
-    if (!currentProject.title || !currentProject.category || !currentProject.image || !currentProject.slug) {
-      alert('Please fill in all required fields (Title, Slug, Category, Image)');
+    if (!currentProject.title || !currentProject.category) {
+      alert('Please fill in Title and Category');
       return;
     }
 
@@ -84,7 +67,6 @@ export default function ProjectsManager() {
       let error;
       const payload = {
         title: currentProject.title,
-        slug: currentProject.slug,
         category: currentProject.category,
         image: currentProject.image,
         description: currentProject.description
@@ -100,16 +82,16 @@ export default function ProjectsManager() {
       
       if (error) {
         console.error('Supabase error:', error);
-        alert(`Error saving project: ${error.message}. Make sure the 'projects' table has 'slug' and 'description' columns.`);
+        alert(`Error saving project: ${error.message}`);
       } else {
         alert(isEditing ? 'Project updated successfully!' : 'Project added successfully!');
         setIsEditing(false);
-        setCurrentProject({ title: '', slug: '', category: 'Web Development', image: '', description: '' });
+        setCurrentProject({ title: '', category: 'Web Development', image: '', description: '' });
         fetchProjects();
       }
     } catch (error: any) {
       console.error('Error saving project:', error);
-      alert('An unexpected error occurred. Check the console for details.');
+      alert('An unexpected error occurred.');
     }
   };
 
@@ -145,22 +127,11 @@ export default function ProjectsManager() {
                 type="text"
                 placeholder="e.g. E-Commerce Platform"
                 value={currentProject.title}
-                onChange={handleTitleChange}
+                onChange={(e) => setCurrentProject({ ...currentProject, title: e.target.value })}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
               />
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Slug (URL friendly)</label>
-              <input
-                type="text"
-                placeholder="e.g. ecommerce-platform"
-                value={currentProject.slug}
-                onChange={(e) => setCurrentProject({ ...currentProject, slug: e.target.value })}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
-              />
-            </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-1">Category</label>
               <select
@@ -174,22 +145,9 @@ export default function ProjectsManager() {
                 <option value="Digital Marketing">Digital Marketing</option>
               </select>
             </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Short Description</label>
-              <textarea
-                placeholder="Describe this project..."
-                rows={3}
-                value={currentProject.description}
-                onChange={(e) => setCurrentProject({ ...currentProject, description: e.target.value })}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all resize-none"
-              />
-            </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Project Image</label>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Project Image (Optional)</label>
               <div className="flex items-center gap-4">
                 <div className="flex-1 relative">
                   <input
@@ -215,6 +173,19 @@ export default function ProjectsManager() {
               </div>
             </div>
           </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Short Description</label>
+              <textarea
+                placeholder="Describe this project..."
+                rows={6}
+                value={currentProject.description}
+                onChange={(e) => setCurrentProject({ ...currentProject, description: e.target.value })}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all resize-none"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="mt-8 flex gap-3">
@@ -226,7 +197,7 @@ export default function ProjectsManager() {
           </button>
           {isEditing && (
             <button 
-              onClick={() => { setIsEditing(false); setCurrentProject({ title: '', slug: '', category: 'Web Development', image: '', description: '' }); }} 
+              onClick={() => { setIsEditing(false); setCurrentProject({ title: '', category: 'Web Development', image: '', description: '' }); }} 
               className="bg-zinc-800 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-zinc-700 transition-all"
             >
               <X size={20} /> Cancel
@@ -258,8 +229,6 @@ export default function ProjectsManager() {
                     <h3 className="text-white font-bold">{project.title}</h3>
                     <div className="flex items-center gap-2">
                       <span className="text-red-500 text-xs font-semibold uppercase">{project.category}</span>
-                      <span className="text-gray-600">•</span>
-                      <span className="text-gray-500 text-xs font-mono">{project.slug}</span>
                     </div>
                   </div>
                 </div>

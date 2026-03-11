@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Layers, Briefcase, Users, MessageSquare } from 'lucide-react';
+import { Layers, Briefcase, Users, MessageSquare, Globe, HelpCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function DashboardHome() {
@@ -8,6 +8,8 @@ export default function DashboardHome() {
     projects: 0,
     team: 0,
     testimonials: 0,
+    clients: 0,
+    faqs: 0,
   });
 
   useEffect(() => {
@@ -16,22 +18,22 @@ export default function DashboardHome() {
 
   const fetchStats = async () => {
     try {
-      const [servicesRes, projectsRes, teamRes, testimonialsRes] = await Promise.all([
+      const [servicesRes, projectsRes, teamRes, testimonialsRes, clientsRes, faqsRes] = await Promise.all([
         supabase.from('services').select('*', { count: 'exact', head: true }),
         supabase.from('projects').select('*', { count: 'exact', head: true }),
         supabase.from('team').select('*', { count: 'exact', head: true }),
         supabase.from('testimonials').select('*', { count: 'exact', head: true }),
+        supabase.from('clients').select('*', { count: 'exact', head: true }),
+        supabase.from('faqs').select('*', { count: 'exact', head: true }),
       ]);
       
-      if (servicesRes.error || projectsRes.error || teamRes.error || testimonialsRes.error) {
-        console.error('Error fetching stats from Supabase');
-      }
-
       setStats({
         services: servicesRes.count || 0,
         projects: projectsRes.count || 0,
         team: teamRes.count || 0,
         testimonials: testimonialsRes.count || 0,
+        clients: clientsRes.count || 0,
+        faqs: faqsRes.count || 0,
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -43,6 +45,8 @@ export default function DashboardHome() {
     { title: 'Total Projects', value: stats.projects, icon: Briefcase, color: 'text-green-500' },
     { title: 'Team Members', value: stats.team, icon: Users, color: 'text-purple-500' },
     { title: 'Testimonials', value: stats.testimonials, icon: MessageSquare, color: 'text-orange-500' },
+    { title: 'Our Clients', value: stats.clients, icon: Globe, color: 'text-red-500' },
+    { title: 'FAQs', value: stats.faqs, icon: HelpCircle, color: 'text-yellow-500' },
   ];
 
   return (

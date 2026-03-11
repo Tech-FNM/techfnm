@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Briefcase, Users, MessageSquare, LogOut, Layers } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Users, MessageSquare, LogOut, Layers, HelpCircle, Globe } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function AdminLayout() {
@@ -28,6 +28,8 @@ export default function AdminLayout() {
     { path: '/admindash/projects', icon: Briefcase, label: 'Projects' },
     { path: '/admindash/team', icon: Users, label: 'Team' },
     { path: '/admindash/testimonials', icon: MessageSquare, label: 'Testimonials' },
+    { path: '/admindash/clients', icon: Globe, label: 'Clients' },
+    { path: '/admindash/faqs', icon: HelpCircle, label: 'FAQs' },
   ];
 
   return (

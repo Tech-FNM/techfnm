@@ -37,7 +37,6 @@ export default function Footer() {
               <li><a href="#portfolio" className="text-gray-400 hover:text-red-500 transition-colors flex items-center"><span className="mr-2">›</span> Portfolio</a></li>
               <li><a href="#contact" className="text-gray-400 hover:text-red-500 transition-colors flex items-center"><span className="mr-2">›</span> Contact</a></li>
               <li><a href="#faqs" className="text-gray-400 hover:text-red-500 transition-colors flex items-center"><span className="mr-2">›</span> FAQs</a></li>
-              <li><a href="/admindash/login" className="text-gray-400 hover:text-red-500 transition-colors flex items-center"><span className="mr-2">›</span> Admin Login</a></li>
             </ul>
           </div>
 

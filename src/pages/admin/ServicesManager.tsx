@@ -1,18 +1,24 @@
 import { useEffect, useState } from 'react';
-import { Plus, Trash, Edit, Check, X, Upload, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash, Edit, Check, X, Code, Smartphone, Globe, PenTool, ShoppingCart, Share2, Search } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+
+const iconList = [
+  { name: 'Code', icon: Code },
+  { name: 'Smartphone', icon: Smartphone },
+  { name: 'Globe', icon: Globe },
+  { name: 'PenTool', icon: PenTool },
+  { name: 'ShoppingCart', icon: ShoppingCart },
+  { name: 'Share2', icon: Share2 },
+];
 
 export default function ServicesManager() {
   const [services, setServices] = useState<any[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [currentService, setCurrentService] = useState<any>({
     title: '',
-    slug: '',
     description: '',
     icon: 'Code',
-    color: 'bg-red-900/20 text-red-400',
-    image: '',
+    color: 'bg-red-500/10 text-red-500',
   });
 
   useEffect(() => {
@@ -30,54 +36,9 @@ export default function ServicesManager() {
     }
   };
 
-  const generateSlug = (text: string) => {
-    return text
-      .toLowerCase()
-      .replace(/[^\w ]+/g, '')
-      .replace(/ +/g, '-');
-  };
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const title = e.target.value;
-    setCurrentService({
-      ...currentService,
-      title,
-      slug: isEditing ? currentService.slug : generateSlug(title)
-    });
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      setUploading(true);
-      if (!e.target.files || e.target.files.length === 0) return;
-      
-      const file = e.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `services/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('agency-assets')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('agency-assets')
-        .getPublicUrl(filePath);
-
-      setCurrentService({ ...currentService, image: publicUrl });
-      alert('Image uploaded successfully!');
-    } catch (error: any) {
-      alert('Error uploading image: ' + error.message + '\nMake sure you have created a public bucket named "agency-assets" in Supabase Storage.');
-    } finally {
-      setUploading(false);
-    }
-  };
-
   const handleSave = async () => {
-    if (!currentService.title || !currentService.description || !currentService.slug) {
-      alert('Please fill in all required fields (Title, Slug, Description)');
+    if (!currentService.title || !currentService.description) {
+      alert('Please fill in Title and Description');
       return;
     }
 
@@ -85,11 +46,9 @@ export default function ServicesManager() {
       let error;
       const payload = {
         title: currentService.title,
-        slug: currentService.slug,
         description: currentService.description,
         icon: currentService.icon,
         color: currentService.color,
-        image: currentService.image
       };
 
       if (isEditing) {
@@ -102,16 +61,16 @@ export default function ServicesManager() {
       
       if (error) {
         console.error('Supabase error:', error);
-        alert(`Error saving service: ${error.message}. Make sure the 'services' table has 'slug' and 'image' columns.`);
+        alert(`Error saving service: ${error.message}`);
       } else {
         alert(isEditing ? 'Service updated successfully!' : 'Service added successfully!');
         setIsEditing(false);
-        setCurrentService({ title: '', slug: '', description: '', icon: 'Code', color: 'bg-red-900/20 text-red-400', image: '' });
+        setCurrentService({ title: '', description: '', icon: 'Code', color: 'bg-red-500/10 text-red-500' });
         fetchServices();
       }
     } catch (error: any) {
       console.error('Error saving service:', error);
-      alert('An unexpected error occurred. Check the console for details.');
+      alert('An unexpected error occurred.');
     }
   };
 
@@ -147,43 +106,39 @@ export default function ServicesManager() {
                 type="text"
                 placeholder="e.g. Web Development"
                 value={currentService.title}
-                onChange={handleTitleChange}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Slug (URL friendly)</label>
-              <input
-                type="text"
-                placeholder="e.g. web-development"
-                value={currentService.slug}
-                onChange={(e) => setCurrentService({ ...currentService, slug: e.target.value })}
+                onChange={(e) => setCurrentService({ ...currentService, title: e.target.value })}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Icon Name</label>
-                <input
-                  type="text"
-                  placeholder="Code, Globe, etc."
-                  value={currentService.icon}
-                  onChange={(e) => setCurrentService({ ...currentService, icon: e.target.value })}
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
-                />
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-3">Select Icon</label>
+              <div className="grid grid-cols-3 gap-3">
+                {iconList.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.name}
+                      onClick={() => setCurrentService({ ...currentService, icon: item.name })}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all ${currentService.icon === item.name ? 'bg-red-500/20 border-red-500 text-red-500' : 'bg-zinc-800 border-zinc-700 text-gray-400 hover:border-zinc-600'}`}
+                    >
+                      <Icon size={24} />
+                      <span className="text-xs mt-2">{item.name}</span>
+                    </button>
+                  );
+                })}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Color Class</label>
-                <input
-                  type="text"
-                  placeholder="Tailwind classes"
-                  value={currentService.color}
-                  onChange={(e) => setCurrentService({ ...currentService, color: e.target.value })}
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
-                />
-              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Custom Icon Name (Optional)</label>
+              <input
+                type="text"
+                placeholder="Lucide icon name"
+                value={currentService.icon}
+                onChange={(e) => setCurrentService({ ...currentService, icon: e.target.value })}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+              />
             </div>
           </div>
 
@@ -192,7 +147,7 @@ export default function ServicesManager() {
               <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
               <textarea
                 placeholder="Describe this service..."
-                rows={4}
+                rows={6}
                 value={currentService.description}
                 onChange={(e) => setCurrentService({ ...currentService, description: e.target.value })}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all resize-none"
@@ -200,30 +155,14 @@ export default function ServicesManager() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Service Image</label>
-              <div className="flex items-center gap-4">
-                <div className="flex-1 relative">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="image-upload"
-                    disabled={uploading}
-                  />
-                  <label
-                    htmlFor="image-upload"
-                    className={`flex items-center justify-center gap-2 w-full bg-zinc-800 border-2 border-dashed border-zinc-700 rounded-xl px-4 py-3 text-gray-400 cursor-pointer hover:border-red-500/50 hover:text-white transition-all ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    {uploading ? 'Uploading...' : <><Upload size={18} /> Attach Image</>}
-                  </label>
-                </div>
-                {currentService.image && (
-                  <div className="w-16 h-16 rounded-lg overflow-hidden border border-zinc-700 bg-zinc-800 flex items-center justify-center">
-                    <img src={currentService.image} alt="Preview" className="w-full h-full object-cover" />
-                  </div>
-                )}
-              </div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Color Class (Tailwind)</label>
+              <input
+                type="text"
+                placeholder="e.g. bg-blue-500/10 text-blue-500"
+                value={currentService.color}
+                onChange={(e) => setCurrentService({ ...currentService, color: e.target.value })}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+              />
             </div>
           </div>
         </div>
@@ -237,7 +176,7 @@ export default function ServicesManager() {
           </button>
           {isEditing && (
             <button 
-              onClick={() => { setIsEditing(false); setCurrentService({ title: '', slug: '', description: '', icon: 'Code', color: 'bg-red-900/20 text-red-400', image: '' }); }} 
+              onClick={() => { setIsEditing(false); setCurrentService({ title: '', description: '', icon: 'Code', color: 'bg-red-500/10 text-red-500' }); }} 
               className="bg-zinc-800 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-zinc-700 transition-all"
             >
               <X size={20} /> Cancel
@@ -258,16 +197,12 @@ export default function ServicesManager() {
             services.map((service) => (
               <div key={service.id} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex items-center justify-between group hover:border-zinc-700 transition-all">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-zinc-800 flex items-center justify-center overflow-hidden">
-                    {service.image ? (
-                      <img src={service.image} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <ImageIcon className="text-zinc-600" size={20} />
-                    )}
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${service.color || 'bg-zinc-800 text-gray-400'}`}>
+                    <Code size={20} />
                   </div>
                   <div>
                     <h3 className="text-white font-bold">{service.title}</h3>
-                    <p className="text-gray-500 text-xs font-mono">{service.slug}</p>
+                    <p className="text-gray-500 text-xs">{service.icon}</p>
                   </div>
                 </div>
                 
