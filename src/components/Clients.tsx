@@ -24,7 +24,7 @@ export default function Clients() {
         </div>
 
         <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
-          {clients.map((client, index) => (
+          {clients.filter(c => c.logo).map((client, index) => (
             <motion.div
               key={client.id}
               initial={{ opacity: 0, y: 10 }}
@@ -34,16 +34,12 @@ export default function Clients() {
               transition={{ delay: index * 0.1 }}
               className="flex items-center justify-center"
             >
-              {client.logo ? (
-                <img
-                  src={client.logo}
-                  alt={client.name}
-                  className="h-8 md:h-10 object-contain brightness-0 invert opacity-50 hover:opacity-100 transition-opacity duration-300"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span className="text-zinc-500 font-bold text-xl opacity-50">{client.name}</span>
-              )}
+              <img
+                src={client.logo}
+                alt={client.name}
+                className="h-12 md:h-16 w-auto max-w-[150px] object-contain brightness-0 invert opacity-50 hover:opacity-100 transition-opacity duration-300"
+                referrerPolicy="no-referrer"
+              />
             </motion.div>
           ))}
         </div>
