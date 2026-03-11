@@ -57,8 +57,8 @@ export default function TeamManager() {
   };
 
   const handleSave = async () => {
-    if (!currentMember.name || !currentMember.role || !currentMember.image) {
-      alert('Please fill in all required fields (Name, Role, Image)');
+    if (!currentMember.name || !currentMember.role) {
+      alert('Please fill in Name and Role');
       return;
     }
 

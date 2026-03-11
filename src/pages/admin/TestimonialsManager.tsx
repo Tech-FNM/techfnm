@@ -59,7 +59,7 @@ export default function TestimonialsManager() {
 
   const handleSave = async () => {
     if (!currentTestimonial.name || !currentTestimonial.role || !currentTestimonial.content) {
-      alert('Please fill in all required fields (Name, Role, Content)');
+      alert('Please fill in Name, Role, and Content');
       return;
     }
 
