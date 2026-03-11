@@ -13,7 +13,7 @@ export default function Header() {
           <div className="flex-shrink-0 flex items-center">
             <a href="/" className="block">
               <img 
-                src="https://rpnaqrmquddupmxvvcjg.supabase.co/storage/v1/object/public/agency-assets/projects/0.569918561129375.png" 
+                src="/image/agency-assets/projects/0.569918561129375.png" 
                 alt="TechFNM Logo" 
                 className="h-10 md:h-12 w-auto object-contain"
                 onError={(e) => {

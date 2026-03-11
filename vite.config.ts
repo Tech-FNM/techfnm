@@ -20,6 +20,13 @@ export default defineConfig(({mode}) => {
       port: 3000,
       host: '0.0.0.0',
       hmr: process.env.DISABLE_HMR !== 'true',
+      proxy: {
+        '/image': {
+          target: 'https://rpnaqrmquddupmxvvcjg.supabase.co/storage/v1/object/public',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/image/, '')
+        }
+      }
     },
   };
 });

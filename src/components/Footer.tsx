@@ -7,7 +7,19 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* About */}
           <div>
-            <h3 className="text-2xl font-bold mb-6">Tech<span className="text-red-600">FNM</span></h3>
+            <div className="mb-6">
+              <img 
+                src="/image/agency-assets/projects/0.569918561129375.png" 
+                alt="TechFNM Logo" 
+                className="h-10 md:h-12 w-auto object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  target.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+              <h3 className="hidden text-2xl font-bold">Tech<span className="text-red-600">FNM</span></h3>
+            </div>
             <p className="text-gray-400 mb-6 leading-relaxed">
               We specialize in custom web development, mobile apps, and SEO solutions. We develop digital future.
             </p>

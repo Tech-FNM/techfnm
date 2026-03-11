@@ -47,7 +47,9 @@ export default function ProjectsManager() {
         .from('agency-assets')
         .getPublicUrl(filePath);
 
-      setCurrentProject({ ...currentProject, image: publicUrl });
+      const customUrl = publicUrl.replace('https://rpnaqrmquddupmxvvcjg.supabase.co/storage/v1/object/public', '/image');
+
+      setCurrentProject({ ...currentProject, image: customUrl });
       alert('Image uploaded successfully!');
     } catch (error: any) {
       console.error('Upload error details:', error);

@@ -47,7 +47,9 @@ export default function ClientsManager() {
         .from('agency-assets')
         .getPublicUrl(filePath);
 
-      setCurrentClient({ ...currentClient, logo: publicUrl });
+      const customUrl = publicUrl.replace('https://rpnaqrmquddupmxvvcjg.supabase.co/storage/v1/object/public', '/image');
+
+      setCurrentClient({ ...currentClient, logo: customUrl });
       alert('Logo uploaded successfully!');
     } catch (error: any) {
       console.error('Upload error details:', error);
