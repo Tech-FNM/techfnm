@@ -89,7 +89,7 @@ export default function Portfolio() {
               <img
                 src={project.image || 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800'}
                 alt={project.title}
-                className="w-full h-64 object-contain bg-zinc-900 transform group-hover:scale-110 transition-transform duration-500"
+                className="w-full h-64 object-cover transform group-hover:scale-110 transition-transform duration-500"
                 referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
