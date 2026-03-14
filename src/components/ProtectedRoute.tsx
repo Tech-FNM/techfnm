@@ -12,8 +12,14 @@ export default function ProtectedRoute() {
     };
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Only update authentication state if the session explicitly changes
+      // or if the user signs out.
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        setIsAuthenticated(false);
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        setIsAuthenticated(!!session);
+      }
     });
 
     return () => subscription.unsubscribe();
