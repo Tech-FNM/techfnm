@@ -1,4 +1,5 @@
-import { Mail, MapPin, Phone, Facebook, Youtube, Instagram, MessageCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { Mail, MapPin, Phone, Facebook, Youtube, Instagram, CheckCircle2, Loader2 } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useState } from 'react';
 
 export default function Footer() {
@@ -57,17 +58,17 @@ export default function Footer() {
               We specialize in custom web development, mobile apps, and SEO solutions. We develop digital future.
             </p>
             <div className="flex space-x-4">
-              <a href="https://www.facebook.com/techfnm" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full hover:bg-blue-600 transition-colors">
+              <a href="https://www.facebook.com/techfnm" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
                 <Facebook size={20} />
               </a>
-              <a href="https://www.youtube.com/@techhfnm" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full hover:bg-red-600 transition-colors">
+              <a href="https://www.youtube.com/@techhfnm" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
                 <Youtube size={20} />
               </a>
-              <a href="https://www.instagram.com/techfnm" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full hover:bg-pink-600 transition-colors">
+              <a href="https://www.instagram.com/techfnm" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="https://wa.me/+923139023118" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full hover:bg-green-600 transition-colors">
-                <MessageCircle size={20} />
+              <a href="https://wa.me/+923139023118" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
+                <FaWhatsapp size={20} />
               </a>
             </div>
           </div>
