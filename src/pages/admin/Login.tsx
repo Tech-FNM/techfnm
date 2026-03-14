@@ -13,17 +13,14 @@ export default function Login() {
     setLoading(true);
     
     try {
-      // Simulate network request
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      // Simple static check since we removed the custom backend
-      if (email === 'admin@techfnm.com' && password === 'admin123') {
-        const fakeToken = btoa(email + ':' + Date.now());
-        localStorage.setItem('admin_token', fakeToken);
-        navigate('/admindash/dashboard');
-      } else {
-        throw new Error('Invalid email or password');
-      }
+      if (error) throw error;
+
+      navigate('/admindash/dashboard');
     } catch (error: any) {
       console.error('Login error:', error);
       alert(error.message || 'Login failed. Please check your credentials.');
@@ -35,10 +32,7 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="bg-zinc-900 p-8 rounded-2xl shadow-xl w-full max-w-md border border-zinc-800">
-        <h2 className="text-2xl font-bold text-white mb-2 text-center">Admin Login</h2>
-        <p className="text-gray-500 text-sm text-center mb-6">
-          Use default credentials to access the dashboard
-        </p>
+        <h2 className="text-2xl font-bold text-white mb-6 text-center">Admin Login</h2>
         
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
@@ -59,7 +53,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-red-500"
-              placeholder="admin123"
+              placeholder="••••••••"
               required
             />
           </div>
@@ -71,12 +65,6 @@ export default function Login() {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-
-        <div className="mt-6 p-4 bg-zinc-800/50 rounded-lg border border-zinc-700/50">
-          <p className="text-xs text-gray-400 mb-1">Default Credentials:</p>
-          <p className="text-xs text-gray-500">Email: <span className="text-gray-300">admin@techfnm.com</span></p>
-          <p className="text-xs text-gray-500">Password: <span className="text-gray-300">admin123</span></p>
-        </div>
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import TeamManager from './pages/admin/TeamManager';
 import TestimonialsManager from './pages/admin/TestimonialsManager';
 import ClientsManager from './pages/admin/ClientsManager';
 import FAQManager from './pages/admin/FAQManager';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -19,15 +20,17 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admindash/login" element={<Login />} />
         
-        <Route path="/admindash" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/admindash/dashboard" replace />} />
-          <Route path="dashboard" element={<DashboardHome />} />
-          <Route path="services" element={<ServicesManager />} />
-          <Route path="projects" element={<ProjectsManager />} />
-          <Route path="team" element={<TeamManager />} />
-          <Route path="testimonials" element={<TestimonialsManager />} />
-          <Route path="clients" element={<ClientsManager />} />
-          <Route path="faqs" element={<FAQManager />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admindash" element={<AdminLayout />}>
+            <Route index element={<Navigate to="/admindash/dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardHome />} />
+            <Route path="services" element={<ServicesManager />} />
+            <Route path="projects" element={<ProjectsManager />} />
+            <Route path="team" element={<TeamManager />} />
+            <Route path="testimonials" element={<TestimonialsManager />} />
+            <Route path="clients" element={<ClientsManager />} />
+            <Route path="faqs" element={<FAQManager />} />
+          </Route>
         </Route>
         
         {/* Catch all */}
