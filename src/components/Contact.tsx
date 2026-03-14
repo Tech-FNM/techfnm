@@ -174,7 +174,7 @@ export default function Contact() {
                 <p className="text-gray-400 leading-relaxed">
                   Korangi Karachi Pakistan
                 </p>
-                <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:text-red-400 font-medium mt-2 inline-block">
+                <a href="https://share.google/TyAcugdidNceKYFmh" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:text-red-400 font-medium mt-2 inline-block">
                   View on Map &rarr;
                 </a>
               </div>
