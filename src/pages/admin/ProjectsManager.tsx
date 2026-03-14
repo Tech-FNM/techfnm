@@ -181,7 +181,7 @@ export default function ProjectsManager() {
                 </div>
                 {currentProject.image && (
                   <div className="w-16 h-16 rounded-lg overflow-hidden border border-zinc-700 bg-zinc-800 flex items-center justify-center">
-                    <img src={currentProject.image} alt="Preview" className="w-full h-full object-cover" />
+                    <img src={currentProject.image} alt="Preview" className="w-full h-full object-contain" />
                   </div>
                 )}
               </div>
@@ -221,7 +221,7 @@ export default function ProjectsManager() {
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-zinc-800 flex items-center justify-center overflow-hidden">
                     {project.image ? (
-                      <img src={project.image} alt="" className="w-full h-full object-cover" />
+                      <img src={project.image} alt="" className="w-full h-full object-contain" />
                     ) : (
                       <ImageIcon className="text-zinc-600" size={20} />
                     )}
