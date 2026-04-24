@@ -158,7 +158,7 @@ export default function ServicesManager() {
               <label className="block text-sm font-medium text-gray-400 mb-1">Color Class (Tailwind)</label>
               <input
                 type="text"
-                placeholder="e.g. bg-blue-500/10 text-blue-500"
+                placeholder="e.g. bg-green-900/20 text-green-400"
                 value={currentService.color}
                 onChange={(e) => setCurrentService({ ...currentService, color: e.target.value })}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
