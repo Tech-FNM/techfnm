@@ -22,7 +22,7 @@ export default function About() {
             </div>
             <div className="absolute -bottom-6 -right-6 bg-zinc-900 p-6 rounded-xl shadow-xl hidden md:block border border-zinc-800">
               <div className="flex items-center gap-4">
-                <div className="bg-red-900/20 p-3 rounded-full text-red-500 font-bold text-xl">10+</div>
+                <div className="bg-red-900/20 p-3 rounded-full text-red-500 font-bold text-xl">5+</div>
                 <div>
                   <p className="text-white font-bold">Years Experience</p>
                   <p className="text-gray-400 text-sm">In Digital Solutions</p>
