@@ -142,11 +142,14 @@ export default function ProjectsManager() {
                 onChange={(e) => setCurrentProject({ ...currentProject, category: e.target.value })}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
               >
-                <option value="Web Development">Web Development</option>
-                <option value="Mobile App">Mobile App</option>
-                <option value="UI/UX Design">UI/UX Design</option>
+                <option value="Web/App Development">Web/App Development</option>
+                <option value="SEO">SEO</option>
+                <option value="Ads & PPC Management">Ads & PPC Management</option>
                 <option value="Digital Marketing">Digital Marketing</option>
-                <option value="Logo Design">Logo Design</option>
+                <option value="Graphic Designing">Graphic Designing</option>
+                <option value="Content Writing">Content Writing</option>
+                <option value="Social Media">Social Media</option>
+                <option value="Ecommerce">Ecommerce</option>
               </select>
             </div>
 
