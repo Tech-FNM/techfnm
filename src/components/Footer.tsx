@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone, Facebook, Youtube, Instagram, CheckCircle2, Loader2 } from 'lucide-react';
+import { Mail, MapPin, Phone, Facebook, Youtube, Instagram, Linkedin, CheckCircle2, Loader2 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useState } from 'react';
 
