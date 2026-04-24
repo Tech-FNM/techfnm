@@ -81,17 +81,6 @@ export default function Team() {
                   className="w-full h-80 object-cover object-top transform group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-red-600/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-4">
-                  <a href="#" className="text-white hover:text-red-100 transition-colors bg-white/20 p-2 rounded-full backdrop-blur-sm">
-                    <Linkedin size={20} />
-                  </a>
-                  <a href="#" className="text-white hover:text-red-100 transition-colors bg-white/20 p-2 rounded-full backdrop-blur-sm">
-                    <Twitter size={20} />
-                  </a>
-                  <a href="#" className="text-white hover:text-red-100 transition-colors bg-white/20 p-2 rounded-full backdrop-blur-sm">
-                    <Facebook size={20} />
-                  </a>
-                </div>
               </div>
               <div className="p-6 text-center">
                 <h3 className="text-xl font-bold text-white">{member.name}</h3>
