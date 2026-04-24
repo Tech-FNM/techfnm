@@ -67,6 +67,9 @@ export default function Footer() {
               <a href="https://www.instagram.com/techfnm" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
                 <Instagram size={20} />
               </a>
+              <a href="https://www.linkedin.com/company/techfnm" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
+                <Linkedin size={20} />
+              </a>
               <a href="https://wa.me/+923139023118" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
                 <FaWhatsapp size={20} />
               </a>
