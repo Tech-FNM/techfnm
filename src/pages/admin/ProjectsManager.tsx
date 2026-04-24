@@ -146,6 +146,7 @@ export default function ProjectsManager() {
                 <option value="Mobile App">Mobile App</option>
                 <option value="UI/UX Design">UI/UX Design</option>
                 <option value="Digital Marketing">Digital Marketing</option>
+                <option value="Logo Design">Logo Design</option>
               </select>
             </div>
 
