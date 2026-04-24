@@ -172,9 +172,9 @@ export default function Contact() {
               <div>
                 <h4 className="text-xl font-bold text-white mb-2">Our Location</h4>
                 <p className="text-gray-400 leading-relaxed">
-                  Korangi Karachi Pakistan
+                  Pakistan
                 </p>
-                <a href="https://share.google/TyAcugdidNceKYFmh" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:text-red-400 font-medium mt-2 inline-block">
+                <a href="https://maps.app.goo.gl/ieJ4Ko2D1zhtWhRA6" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:text-red-400 font-medium mt-2 inline-block">
                   View on Map &rarr;
                 </a>
               </div>
