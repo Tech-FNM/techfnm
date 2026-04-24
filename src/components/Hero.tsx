@@ -18,7 +18,7 @@ export default function Hero() {
           transition={{ duration: 0.8 }}
         >
           <span className="inline-block py-1 px-3 rounded-full bg-red-900/50 text-red-200 text-sm font-semibold mb-6 border border-red-500/30">
-            Creative Solutions
+            Tech FNM
           </span>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6">
             We Build What You <span className="text-red-500">Imagine</span>
