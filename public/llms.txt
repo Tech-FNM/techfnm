@@ -10,9 +10,10 @@ TechFNM is a digital agency based in Karachi, Pakistan. We provide high-quality 
 - Mobile App Development
 - SEO (Search Engine Optimization) Solutions
 - UI/UX Design
+- Ads Management 
 
 ## Contact Information
 - Email: techhfnm@gmail.com
 - Phone: 0313-9023118
-- Location: Korangi, Karachi, Pakistan
+- Location: Pakistan
 - Website: https://techfnm.com
