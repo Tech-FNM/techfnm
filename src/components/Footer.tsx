@@ -92,7 +92,7 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <MapPin className="text-red-500 mr-3 mt-1 flex-shrink-0" size={20} />
-                <span className="text-gray-400">Korangi Karachi Pakistan</span>
+                <span className="text-gray-400">Pakistan</span>
               </li>
               <li className="flex items-center">
                 <Phone className="text-red-500 mr-3 flex-shrink-0" size={20} />
