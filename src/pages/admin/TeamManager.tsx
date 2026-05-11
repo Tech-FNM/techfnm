@@ -207,7 +207,7 @@ export default function TeamManager() {
         <div className="mt-6">
           <button 
             onClick={saveSectionHeaders}
-            className="text-white bg-orange-500 hover:bg-orange-600 font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-orange-500/20"
+            className="text-white bg-[#FF3B30] hover:bg-[#E0342B] font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-red-500/20"
           >
             Save Section Text
           </button>
@@ -217,7 +217,7 @@ export default function TeamManager() {
       {/* Form Section */}
       <div className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800 mb-12 shadow-xl">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-          {isEditing ? <Edit size={20} className="text-blue-500" /> : <Plus size={20} className="text-red-500" />}
+          {isEditing ? <Edit size={20} className="text-blue-500" /> : <Edit size={20} className="text-red-500" />}
           {isEditing ? 'Edit Owner Detail' : 'Edit Detail'}
         </h2>
         
