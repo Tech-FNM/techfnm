@@ -42,17 +42,22 @@ export default function TeamManager() {
 
   const fetchTeam = async () => {
     try {
-      // Fetch section headers from Supabase
-      const { data: settingsData } = await supabase
-        .from('site_settings')
-        .select('content')
-        .eq('id', 'team_section')
-        .single();
-      
-      if (settingsData) {
-        setSectionHeaders(settingsData.content);
+      // 1. Fetch section headers (wrapped to not block team fetch)
+      try {
+        const { data: settingsData, error: settingsError } = await supabase
+          .from('site_settings')
+          .select('content')
+          .eq('id', 'team_section')
+          .maybeSingle(); // maybeSingle doesn't error if not found
+        
+        if (settingsData && !settingsError) {
+          setSectionHeaders(settingsData.content);
+        }
+      } catch (e) {
+        console.warn('Site settings fetch failed (possibly table missing):', e);
       }
 
+      // 2. Fetch Team
       const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
       if (data && data.length > 0) {
         setTeam(data);
@@ -137,11 +142,10 @@ export default function TeamManager() {
       
       if (error) {
         console.error('Supabase error:', error);
-        alert(`Error saving team member: ${error.message}\n\nNote: You may need to add columns (sub_titles, quote, bio, badge_text, is_leader) to your 'team' table in Supabase.`);
+        alert(`Error saving team member: ${error.message}\n\nNote: Please run the SQL commands provided to add missing columns to your 'team' table.`);
       } else {
-        alert(isEditing ? 'Team member updated successfully!' : 'Team member added successfully!');
-        setIsEditing(false);
-        setCurrentMember({ name: '', role: '', image: '', sub_titles: '', quote: '', bio: '', badge_text: '', is_leader: false });
+        alert(isEditing ? 'Details updated successfully!' : 'Details added successfully!');
+        // Don't reset if we want to keep editing the same data
         fetchTeam();
       }
     } catch (error: any) {
@@ -204,7 +208,7 @@ export default function TeamManager() {
         <div className="mt-6">
           <button 
             onClick={saveSectionHeaders}
-            className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+            className="text-white bg-orange-600 hover:bg-orange-700 font-bold px-6 py-2 rounded-lg transition-all"
           >
             Save Section Text
           </button>
