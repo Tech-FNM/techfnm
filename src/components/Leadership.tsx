@@ -50,6 +50,14 @@ export default function Leadership() {
     fetchData();
   }, []);
 
+  const ensureAbsoluteUrl = (url: string) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return `https://${url}`;
+  };
+
   return (
     <section id="leadership" className="py-24 bg-zinc-950 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -131,17 +139,17 @@ export default function Leadership() {
 
               <div className="flex space-x-4 pt-4">
                 {leader.linkedin_url && (
-                  <a href={leader.linkedin_url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-gray-500">
+                  <a href={ensureAbsoluteUrl(leader.linkedin_url)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-gray-500">
                     <Linkedin size={18} />
                   </a>
                 )}
                 {leader.twitter_url && (
-                  <a href={leader.twitter_url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-gray-500">
+                  <a href={ensureAbsoluteUrl(leader.twitter_url)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-gray-500">
                     <Twitter size={18} />
                   </a>
                 )}
                 {leader.facebook_url && (
-                  <a href={leader.facebook_url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-gray-500">
+                  <a href={ensureAbsoluteUrl(leader.facebook_url)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-gray-500">
                     <Facebook size={18} />
                   </a>
                 )}
