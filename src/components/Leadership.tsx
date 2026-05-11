@@ -130,15 +130,21 @@ export default function Leadership() {
               </div>
 
               <div className="flex space-x-4 pt-4">
-                <a href="#" className="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-gray-500">
-                  <Linkedin size={18} />
-                </a>
-                <a href="#" className="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-gray-500">
-                  <Twitter size={18} />
-                </a>
-                <a href="#" className="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-gray-500">
-                  <Facebook size={18} />
-                </a>
+                {leader.linkedin_url && (
+                  <a href={leader.linkedin_url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-gray-500">
+                    <Linkedin size={18} />
+                  </a>
+                )}
+                {leader.twitter_url && (
+                  <a href={leader.twitter_url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-gray-500">
+                    <Twitter size={18} />
+                  </a>
+                )}
+                {leader.facebook_url && (
+                  <a href={leader.facebook_url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all text-gray-500">
+                    <Facebook size={18} />
+                  </a>
+                )}
               </div>
             </motion.div>
           </div>
