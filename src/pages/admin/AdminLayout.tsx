@@ -17,7 +17,7 @@ export default function AdminLayout() {
     { path: '/admindash/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/admindash/services', icon: Layers, label: 'Services' },
     { path: '/admindash/projects', icon: Briefcase, label: 'Projects' },
-    { path: '/admindash/team', icon: Users, label: 'Team' },
+    { path: '/admindash/leadership', icon: Users, label: 'Leadership' },
     { path: '/admindash/testimonials', icon: MessageSquare, label: 'Testimonials' },
     { path: '/admindash/clients', icon: Globe, label: 'Clients' },
     { path: '/admindash/faqs', icon: HelpCircle, label: 'FAQs' },
