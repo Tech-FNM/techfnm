@@ -16,14 +16,18 @@ export default function Team() {
     const fetchTeam = async () => {
       try {
         // Fetch Section Headers
-        const { data: settingsData } = await supabase
-          .from('site_settings')
-          .select('content')
-          .eq('id', 'team_section')
-          .single();
-        
-        if (settingsData) {
-          setHeaders(settingsData.content);
+        try {
+          const { data: settingsData } = await supabase
+            .from('site_settings')
+            .select('content')
+            .eq('id', 'team_section')
+            .maybeSingle();
+          
+          if (settingsData) {
+            setHeaders(settingsData.content);
+          }
+        } catch (e) {
+          console.warn('Headers fetch failed:', e);
         }
 
         const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
