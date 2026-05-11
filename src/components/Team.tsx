@@ -14,8 +14,18 @@ export default function Team() {
 
   useEffect(() => {
     const fetchTeam = async () => {
-      // ... existing fetch logic ...
       try {
+        // Fetch Section Headers
+        const { data: settingsData } = await supabase
+          .from('site_settings')
+          .select('content')
+          .eq('id', 'team_section')
+          .single();
+        
+        if (settingsData) {
+          setHeaders(settingsData.content);
+        }
+
         const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
         
         if (error) {
@@ -127,11 +137,11 @@ export default function Team() {
 
               <div className="space-y-6 text-gray-400 leading-relaxed font-light">
                 {leader.bio ? (
-                  leader.bio.split('\n\n').map((para: string, i: number) => (
+                  leader.bio.split('\n').filter((p: string) => p.trim() !== '').map((para: string, i: number) => (
                     <p key={i}>{para}</p>
                   ))
                 ) : (
-                  <p>Our leader is committed to delivering excellence through years of specialized experience and a focus on customer integrity.</p>
+                  <p>Our leadership is committed to delivering exceptional results through years of professional expertise.</p>
                 )}
               </div>
 
