@@ -25,25 +25,52 @@ export default function TeamManager() {
 
   useEffect(() => {
     fetchTeam();
-    // In a real app, I'd fetch these from a 'settings' table.
-    // For now, I'll check if they're in localStorage or just let them stay in state.
-    const saved = localStorage.getItem('team_section_headers');
-    if (saved) setSectionHeaders(JSON.parse(saved));
   }, []);
 
-  const saveSectionHeaders = () => {
-    localStorage.setItem('team_section_headers', JSON.stringify(sectionHeaders));
-    alert('Section headers saved! (Locally - you can update them in code or DB for persistence)');
+  const saveSectionHeaders = async () => {
+    try {
+      const { error } = await supabase
+        .from('site_settings')
+        .upsert({ id: 'team_section', content: sectionHeaders });
+
+      if (error) throw error;
+      alert('Section headers saved to database!');
+    } catch (error: any) {
+      alert('Error saving headers: ' + error.message);
+    }
   };
 
   const fetchTeam = async () => {
     try {
+      // Fetch section headers from Supabase
+      const { data: settingsData } = await supabase
+        .from('site_settings')
+        .select('content')
+        .eq('id', 'team_section')
+        .single();
+      
+      if (settingsData) {
+        setSectionHeaders(settingsData.content);
+      }
+
       const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
       if (data && data.length > 0) {
         setTeam(data);
         // Automatically load the first member (owner) for editing
-        const existingMember = data.find((m: any) => m.is_leader) || data[0];
-        setCurrentMember(existingMember);
+        const m = data.find((member: any) => member.is_leader) || data[0];
+        
+        // Ensure null values from DB are converted to empty strings for form inputs
+        setCurrentMember({
+          id: m.id,
+          name: m.name || '',
+          role: m.role || '',
+          image: m.image || '',
+          sub_titles: m.sub_titles || '',
+          quote: m.quote || '',
+          bio: m.bio || '',
+          badge_text: m.badge_text || '',
+          is_leader: !!m.is_leader,
+        });
         setIsEditing(true);
       }
     } catch (error) {
@@ -177,7 +204,7 @@ export default function TeamManager() {
         <div className="mt-6">
           <button 
             onClick={saveSectionHeaders}
-            className="text-white bg-orange-600 hover:bg-orange-700 font-bold px-6 py-2 rounded-lg transition-all"
+            className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
           >
             Save Section Text
           </button>
