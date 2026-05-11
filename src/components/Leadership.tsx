@@ -3,8 +3,7 @@ import { motion } from 'motion/react';
 import { Linkedin, Twitter, Facebook, Quote } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
-export default function Team() {
-  const [team, setTeam] = useState<any[]>([]);
+export default function Leadership() {
   const [leader, setLeader] = useState<any>(null);
   const [headers, setHeaders] = useState({
     subtitle: 'Our Leadership',
@@ -13,64 +12,46 @@ export default function Team() {
   });
 
   useEffect(() => {
-    const fetchTeam = async () => {
+    const fetchData = async () => {
       try {
         // Fetch Section Headers
-        try {
-          const { data: settingsData } = await supabase
-            .from('site_settings')
-            .select('content')
-            .eq('id', 'team_section')
-            .maybeSingle();
-          
-          if (settingsData) {
-            setHeaders(settingsData.content);
-          }
-        } catch (e) {
-          console.warn('Headers fetch failed:', e);
-        }
-
-        const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
+        const { data: settingsData } = await supabase
+          .from('site_settings')
+          .select('content')
+          .eq('id', 'leadership_section')
+          .maybeSingle();
         
-        if (error) {
-          console.error('Supabase error fetching team:', error);
+        if (settingsData) {
+          setHeaders(settingsData.content);
         }
 
-        // Fetch headers from locally saved data if available
-        const savedHeaders = localStorage.getItem('team_section_headers');
-        if (savedHeaders) {
-          setHeaders(JSON.parse(savedHeaders));
-        }
-
-        if (data && data.length > 0) {
-          // Find the first member or one marked as is_leader
-          const mainLeader = data.find((m: any) => m.is_leader) || data[0];
-          setLeader(mainLeader);
-          setTeam(data.filter((m: any) => m.id !== mainLeader.id));
+        // Fetch Leader
+        const { data, error } = await supabase.from('leadership').select('*').limit(1).maybeSingle();
+        
+        if (data) {
+          setLeader(data);
         } else {
-          const fallbackLeader = {
-            id: 1,
+          // Fallback if no data in DB
+          setLeader({
             name: 'Brandon Anderson',
             role: 'Founder',
             sub_titles: 'U.S. ARMY VETERAN | GLOBALLY LICENSED COMBAT SPORTS OFFICIAL',
             quote: 'Eagle Revolution was built to be more than just a remodeling company. It was built to lead a movement.',
-            bio: 'Based in O\'Fallon, Missouri, Eagle Revolution was founded by Brandon Anderson, an Army veteran and globally licensed combat sports official who brings discipline, precision, and accountability to every project. With years of leadership experience at some of the largest home improvement companies in North North America, Brandon saw firsthand how the industry had shifted away from homeowners and toward profits, leaving people with high prices, poor communication, and broken trust.',
+            bio: "Based in O'Fallon, Missouri, Eagle Revolution was founded by Brandon Anderson, an Army veteran and globally licensed combat sports official who brings discipline, precision, and accountability to every project. With years of leadership experience at some of the largest home improvement companies in North America, Brandon saw firsthand how the industry had shifted away from homeowners and toward profits, leaving people with high prices, poor communication, and broken trust.",
             badge_text: 'ProVia | IKO | CertainTeed',
-            image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800',
-            is_leader: true
-          };
-          setLeader(fallbackLeader);
-          setTeam([]);
+            image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800'
+          });
         }
       } catch (err) {
-        console.error('Error in fetchTeam:', err);
+        console.error('Error in Leadership fetch:', err);
       }
     };
-    fetchTeam();
+
+    fetchData();
   }, []);
 
   return (
-    <section id="team" className="py-24 bg-zinc-950 text-white">
+    <section id="leadership" className="py-24 bg-zinc-950 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-20">
@@ -89,7 +70,7 @@ export default function Team() {
 
         {/* Leader Profile */}
         {leader && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center mb-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -113,7 +94,6 @@ export default function Team() {
                 </div>
               </div>
               
-              {/* Decorative background elements */}
               <div className="absolute -z-10 top-12 -left-12 w-full h-full bg-red-500/5 rounded-[2rem]"></div>
             </motion.div>
 
@@ -161,33 +141,6 @@ export default function Team() {
                 </a>
               </div>
             </motion.div>
-          </div>
-        )}
-
-        {/* Other Team Members */}
-        {team.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12 border-t border-zinc-900 pt-20">
-            {team.map((member, index) => (
-              <motion.div
-                key={member.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="group relative"
-              >
-                <div className="aspect-square rounded-3xl overflow-hidden mb-6 border border-zinc-800">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-                <h4 className="text-xl font-bold text-white group-hover:text-red-500 transition-colors">{member.name}</h4>
-                <p className="text-red-500 text-sm font-medium uppercase tracking-wider">{member.role}</p>
-              </motion.div>
-            ))}
           </div>
         )}
       </div>
