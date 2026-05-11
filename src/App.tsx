@@ -5,7 +5,7 @@ import Login from './pages/admin/Login';
 import DashboardHome from './pages/admin/DashboardHome';
 import ServicesManager from './pages/admin/ServicesManager';
 import ProjectsManager from './pages/admin/ProjectsManager';
-import TeamManager from './pages/admin/TeamManager';
+import LeadershipManager from './pages/admin/LeadershipManager';
 import TestimonialsManager from './pages/admin/TestimonialsManager';
 import ClientsManager from './pages/admin/ClientsManager';
 import FAQManager from './pages/admin/FAQManager';
@@ -26,7 +26,7 @@ function App() {
             <Route path="dashboard" element={<DashboardHome />} />
             <Route path="services" element={<ServicesManager />} />
             <Route path="projects" element={<ProjectsManager />} />
-            <Route path="team" element={<TeamManager />} />
+            <Route path="leadership" element={<LeadershipManager />} />
             <Route path="testimonials" element={<TestimonialsManager />} />
             <Route path="clients" element={<ClientsManager />} />
             <Route path="faqs" element={<FAQManager />} />
