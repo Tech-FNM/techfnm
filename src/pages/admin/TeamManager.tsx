@@ -14,7 +14,7 @@ export default function TeamManager() {
     quote: '',
     bio: '',
     badge_text: '',
-    is_leader: false,
+    is_leader: true,
   });
 
   const [sectionHeaders, setSectionHeaders] = useState({
@@ -36,35 +36,34 @@ export default function TeamManager() {
       if (error) throw error;
       alert('Section headers saved to database!');
     } catch (error: any) {
-      alert('Error saving headers: ' + error.message);
+      alert('Error saving headers: ' + error.message + '\n\nMake sure the site_settings table exists in Supabase.');
     }
   };
 
   const fetchTeam = async () => {
     try {
-      // 1. Fetch section headers (wrapped to not block team fetch)
+      // 1. Fetch section headers
       try {
-        const { data: settingsData, error: settingsError } = await supabase
+        const { data: settingsData } = await supabase
           .from('site_settings')
           .select('content')
           .eq('id', 'team_section')
-          .maybeSingle(); // maybeSingle doesn't error if not found
+          .maybeSingle();
         
-        if (settingsData && !settingsError) {
+        if (settingsData) {
           setSectionHeaders(settingsData.content);
         }
       } catch (e) {
-        console.warn('Site settings fetch failed (possibly table missing):', e);
+        console.warn('Site settings fetch failed:', e);
       }
 
       // 2. Fetch Team
       const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
       if (data && data.length > 0) {
         setTeam(data);
-        // Automatically load the first member (owner) for editing
+        // Automatically load the leader for editing
         const m = data.find((member: any) => member.is_leader) || data[0];
         
-        // Ensure null values from DB are converted to empty strings for form inputs
         setCurrentMember({
           id: m.id,
           name: m.name || '',
@@ -74,7 +73,7 @@ export default function TeamManager() {
           quote: m.quote || '',
           bio: m.bio || '',
           badge_text: m.badge_text || '',
-          is_leader: !!m.is_leader,
+          is_leader: true, // Always owner in this view
         });
         setIsEditing(true);
       }
@@ -208,7 +207,7 @@ export default function TeamManager() {
         <div className="mt-6">
           <button 
             onClick={saveSectionHeaders}
-            className="text-white bg-orange-600 hover:bg-orange-700 font-bold px-6 py-2 rounded-lg transition-all"
+            className="text-white bg-orange-500 hover:bg-orange-600 font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-orange-500/20"
           >
             Save Section Text
           </button>
@@ -219,7 +218,7 @@ export default function TeamManager() {
       <div className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800 mb-12 shadow-xl">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
           {isEditing ? <Edit size={20} className="text-blue-500" /> : <Plus size={20} className="text-red-500" />}
-          {isEditing ? 'Update Detail' : 'Edit Detail'}
+          {isEditing ? 'Edit Owner Detail' : 'Edit Detail'}
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
