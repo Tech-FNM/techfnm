@@ -173,7 +173,7 @@ export default function TeamManager() {
         <div className="mt-6">
           <button 
             onClick={saveSectionHeaders}
-            className="text-white bg-blue-600 hover:bg-blue-700 font-bold px-6 py-2 rounded-lg transition-all"
+            className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
           >
             Save Section Text
           </button>
