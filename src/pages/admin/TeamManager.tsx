@@ -39,8 +39,12 @@ export default function TeamManager() {
   const fetchTeam = async () => {
     try {
       const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
-      if (data) {
+      if (data && data.length > 0) {
         setTeam(data);
+        // Automatically load the first member (owner) for editing
+        const existingMember = data.find((m: any) => m.is_leader) || data[0];
+        setCurrentMember(existingMember);
+        setIsEditing(true);
       }
     } catch (error) {
       console.error('Error fetching team:', error);
@@ -134,7 +138,7 @@ export default function TeamManager() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold text-white mb-8">Manage Team</h1>
+      <h1 className="text-3xl font-bold text-white mb-8">Owner Info / Leadership</h1>
 
       {/* Section Headers Settings */}
       <div className="bg-zinc-900/50 p-8 rounded-2xl border border-zinc-800 mb-12 backdrop-blur-sm">
@@ -173,7 +177,7 @@ export default function TeamManager() {
         <div className="mt-6">
           <button 
             onClick={saveSectionHeaders}
-            className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+            className="text-white bg-orange-600 hover:bg-orange-700 font-bold px-6 py-2 rounded-lg transition-all"
           >
             Save Section Text
           </button>
@@ -184,7 +188,7 @@ export default function TeamManager() {
       <div className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800 mb-12 shadow-xl">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
           {isEditing ? <Edit size={20} className="text-blue-500" /> : <Plus size={20} className="text-red-500" />}
-          {isEditing ? 'Edit Team Member' : 'Add New Member'}
+          {isEditing ? 'Update Detail' : 'Edit Detail'}
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -299,11 +303,11 @@ export default function TeamManager() {
             onClick={handleSave} 
             className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
           >
-            <Check size={20} /> {isEditing ? 'Update Member' : 'Add Member'}
+            <Check size={20} /> {isEditing ? 'Save Detail' : 'Save Info'}
           </button>
           {isEditing && (
             <button 
-              onClick={() => { setIsEditing(false); setCurrentMember({ name: '', role: '', image: '' }); }} 
+              onClick={() => { setIsEditing(false); setCurrentMember({ name: '', role: '', image: '', sub_titles: '', quote: '', bio: '', badge_text: '', is_leader: false }); }} 
               className="bg-zinc-800 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-zinc-700 transition-all"
             >
               <X size={20} /> Cancel
@@ -312,66 +316,7 @@ export default function TeamManager() {
         </div>
       </div>
 
-      {/* List Section */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold text-white mb-4">Current Team</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {team.length === 0 ? (
-            <div className="col-span-2 text-center py-12 bg-zinc-900 rounded-2xl border border-zinc-800 text-gray-500">
-              No team members found. Add your first member above.
-            </div>
-          ) : (
-            team.map((member) => (
-              <div key={member.id} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex items-center justify-between group hover:border-zinc-700 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden border border-zinc-700">
-                    {member.image ? (
-                      <img src={member.image} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <ImageIcon className="text-zinc-600" size={20} />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="text-white font-bold">{member.name}</h3>
-                    <p className="text-red-500 text-xs font-semibold uppercase">{member.role}</p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => { 
-                      setIsEditing(true); 
-                      setCurrentMember({
-                        name: '',
-                        role: '',
-                        image: '',
-                        sub_titles: '',
-                        quote: '',
-                        bio: '',
-                        badge_text: '',
-                        is_leader: false,
-                        ...member
-                      }); 
-                      window.scrollTo({ top: 0, behavior: 'smooth' }); 
-                    }} 
-                    className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all"
-                    title="Edit"
-                  >
-                    <Edit size={18} />
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(member.id)} 
-                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                    title="Delete"
-                  >
-                    <Trash size={18} />
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+      {/* List Section Removed */}
     </div>
   );
 }
