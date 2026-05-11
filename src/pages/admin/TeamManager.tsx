@@ -10,15 +10,35 @@ export default function TeamManager() {
     name: '',
     role: '',
     image: '',
+    sub_titles: '',
+    quote: '',
+    bio: '',
+    badge_text: '',
+    is_leader: false,
+  });
+
+  const [sectionHeaders, setSectionHeaders] = useState({
+    subtitle: 'Our Leadership',
+    title: 'Veteran-Owned & Mission-Driven',
+    description: 'Battlefield discipline meets boardroom precision. Eagle Revolution brings honor, integrity, and craftsmanship back to the remodeling industry.'
   });
 
   useEffect(() => {
     fetchTeam();
+    // In a real app, I'd fetch these from a 'settings' table.
+    // For now, I'll check if they're in localStorage or just let them stay in state.
+    const saved = localStorage.getItem('team_section_headers');
+    if (saved) setSectionHeaders(JSON.parse(saved));
   }, []);
+
+  const saveSectionHeaders = () => {
+    localStorage.setItem('team_section_headers', JSON.stringify(sectionHeaders));
+    alert('Section headers saved! (Locally - you can update them in code or DB for persistence)');
+  };
 
   const fetchTeam = async () => {
     try {
-      const { data, error } = await supabase.from('team').select('*');
+      const { data, error } = await supabase.from('team').select('*').order('created_at', { ascending: true });
       if (data) {
         setTeam(data);
       }
@@ -68,7 +88,12 @@ export default function TeamManager() {
       const payload = {
         name: currentMember.name,
         role: currentMember.role,
-        image: currentMember.image
+        image: currentMember.image,
+        sub_titles: currentMember.sub_titles,
+        quote: currentMember.quote,
+        bio: currentMember.bio,
+        badge_text: currentMember.badge_text,
+        is_leader: currentMember.is_leader,
       };
 
       if (isEditing) {
@@ -81,11 +106,11 @@ export default function TeamManager() {
       
       if (error) {
         console.error('Supabase error:', error);
-        alert(`Error saving team member: ${error.message}`);
+        alert(`Error saving team member: ${error.message}\n\nNote: You may need to add columns (sub_titles, quote, bio, badge_text, is_leader) to your 'team' table in Supabase.`);
       } else {
         alert(isEditing ? 'Team member updated successfully!' : 'Team member added successfully!');
         setIsEditing(false);
-        setCurrentMember({ name: '', role: '', image: '' });
+        setCurrentMember({ name: '', role: '', image: '', sub_titles: '', quote: '', bio: '', badge_text: '', is_leader: false });
         fetchTeam();
       }
     } catch (error: any) {
@@ -111,6 +136,50 @@ export default function TeamManager() {
     <div className="p-8 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold text-white mb-8">Manage Team</h1>
 
+      {/* Section Headers Settings */}
+      <div className="bg-zinc-900/50 p-8 rounded-2xl border border-zinc-800 mb-12 backdrop-blur-sm">
+        <h2 className="text-xl font-bold text-white mb-6">Section Text Content</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Small Subtitle</label>
+              <input
+                type="text"
+                value={sectionHeaders.subtitle}
+                onChange={(e) => setSectionHeaders({ ...sectionHeaders, subtitle: e.target.value })}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Main Section Title</label>
+              <input
+                type="text"
+                value={sectionHeaders.title}
+                onChange={(e) => setSectionHeaders({ ...sectionHeaders, title: e.target.value })}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">Section Paragraph</label>
+            <textarea
+              rows={4}
+              value={sectionHeaders.description}
+              onChange={(e) => setSectionHeaders({ ...sectionHeaders, description: e.target.value })}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+            />
+          </div>
+        </div>
+        <div className="mt-6">
+          <button 
+            onClick={saveSectionHeaders}
+            className="text-white bg-blue-600 hover:bg-blue-700 font-bold px-6 py-2 rounded-lg transition-all"
+          >
+            Save Section Text
+          </button>
+        </div>
+      </div>
+
       {/* Form Section */}
       <div className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800 mb-12 shadow-xl">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
@@ -124,19 +193,29 @@ export default function TeamManager() {
               <label className="block text-sm font-medium text-gray-400 mb-1">Full Name</label>
               <input
                 type="text"
-                placeholder="e.g. John Doe"
+                placeholder="e.g. Brandon Anderson"
                 value={currentMember.name}
                 onChange={(e) => setCurrentMember({ ...currentMember, name: e.target.value })}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Role / Position</label>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Main Role / Position</label>
               <input
                 type="text"
-                placeholder="e.g. Senior Developer"
+                placeholder="e.g. Founder"
                 value={currentMember.role}
                 onChange={(e) => setCurrentMember({ ...currentMember, role: e.target.value })}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Sub-Titles (Optional)</label>
+              <input
+                type="text"
+                placeholder="e.g. U.S. ARMY VETERAN | GLOBALLY LICENSED"
+                value={currentMember.sub_titles}
+                onChange={(e) => setCurrentMember({ ...currentMember, sub_titles: e.target.value })}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
               />
             </div>
@@ -163,12 +242,55 @@ export default function TeamManager() {
                   </label>
                 </div>
                 {currentMember.image && (
-                  <div className="w-16 h-16 rounded-full overflow-hidden border border-zinc-700 bg-zinc-800 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-3xl overflow-hidden border border-zinc-700 bg-zinc-800 flex items-center justify-center">
                     <img src={currentMember.image} alt="Preview" className="w-full h-full object-cover" />
                   </div>
                 )}
               </div>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Badge Text (e.g. ProVia | CertainTeed)</label>
+              <input
+                type="text"
+                placeholder="Displayed on the image"
+                value={currentMember.badge_text}
+                onChange={(e) => setCurrentMember({ ...currentMember, badge_text: e.target.value })}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+              />
+            </div>
+            <div className="flex items-center gap-2 pt-2">
+              <input
+                type="checkbox"
+                id="is-leader"
+                checked={currentMember.is_leader}
+                onChange={(e) => setCurrentMember({ ...currentMember, is_leader: e.target.checked })}
+                className="w-5 h-5 rounded bg-zinc-800 border-zinc-700 text-red-600 focus:ring-red-500/50"
+              />
+              <label htmlFor="is-leader" className="text-white font-medium cursor-pointer">Show as Spotlight Leader</label>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">Inspiring Quote (Optional)</label>
+            <input
+              type="text"
+              placeholder="e.g. Eagle Revolution was built to be more than just a remodeling company..."
+              value={currentMember.quote}
+              onChange={(e) => setCurrentMember({ ...currentMember, quote: e.target.value })}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">Full Biography / Long Description</label>
+            <textarea
+              rows={5}
+              placeholder="Tell the founder's story..."
+              value={currentMember.bio}
+              onChange={(e) => setCurrentMember({ ...currentMember, bio: e.target.value })}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+            />
           </div>
         </div>
 
@@ -217,7 +339,21 @@ export default function TeamManager() {
                 
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => { setIsEditing(true); setCurrentMember(member); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
+                    onClick={() => { 
+                      setIsEditing(true); 
+                      setCurrentMember({
+                        name: '',
+                        role: '',
+                        image: '',
+                        sub_titles: '',
+                        quote: '',
+                        bio: '',
+                        badge_text: '',
+                        is_leader: false,
+                        ...member
+                      }); 
+                      window.scrollTo({ top: 0, behavior: 'smooth' }); 
+                    }} 
                     className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all"
                     title="Edit"
                   >
