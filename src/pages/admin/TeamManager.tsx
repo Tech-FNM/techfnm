@@ -73,9 +73,12 @@ export default function TeamManager() {
           quote: m.quote || '',
           bio: m.bio || '',
           badge_text: m.badge_text || '',
-          is_leader: true, // Always owner in this view
+          is_leader: true,
         });
         setIsEditing(true);
+      } else {
+        // If no data, enable Add mode
+        setIsEditing(false);
       }
     } catch (error) {
       console.error('Error fetching team:', error);
@@ -120,7 +123,7 @@ export default function TeamManager() {
 
     try {
       let error;
-      const payload = {
+      const payload: any = {
         name: currentMember.name,
         role: currentMember.role,
         image: currentMember.image,
@@ -128,28 +131,32 @@ export default function TeamManager() {
         quote: currentMember.quote,
         bio: currentMember.bio,
         badge_text: currentMember.badge_text,
-        is_leader: currentMember.is_leader,
+        is_leader: true, // Always true for the owner view
       };
 
-      if (isEditing) {
-        const { error: updateError } = await supabase.from('team').update(payload).eq('id', currentMember.id);
+      if (isEditing && currentMember.id) {
+        const { error: updateError } = await supabase
+          .from('team')
+          .update(payload)
+          .eq('id', currentMember.id);
         error = updateError;
       } else {
-        const { error: insertError } = await supabase.from('team').insert([payload]);
+        const { error: insertError } = await supabase
+          .from('team')
+          .insert([payload]);
         error = insertError;
       }
       
       if (error) {
         console.error('Supabase error:', error);
-        alert(`Error saving team member: ${error.message}\n\nNote: Please run the SQL commands provided to add missing columns to your 'team' table.`);
+        alert(`Error saving: ${error.message}\n\n1. Run the SQL Command provided.\n2. Ensure RLS is disabled or allows writes for this table.`);
       } else {
-        alert(isEditing ? 'Details updated successfully!' : 'Details added successfully!');
-        // Don't reset if we want to keep editing the same data
-        fetchTeam();
+        alert('Data saved successfully to database!');
+        fetchTeam(); // Refresh state
       }
     } catch (error: any) {
       console.error('Error saving team member:', error);
-      alert('An unexpected error occurred. Check the console for details.');
+      alert('Error: ' + error.message);
     }
   };
 
@@ -207,7 +214,7 @@ export default function TeamManager() {
         <div className="mt-6">
           <button 
             onClick={saveSectionHeaders}
-            className="text-white bg-[#FF3B30] hover:bg-[#E0342B] font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-red-500/20"
+            className="text-white bg-orange-600 hover:bg-orange-700 font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-orange-600/20"
           >
             Save Section Text
           </button>
