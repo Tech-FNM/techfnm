@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Save, Edit, Check, Image as ImageIcon, Briefcase, Award, MessageSquare, User } from 'lucide-react';
+import { Save, Edit, Check, Image as ImageIcon, Briefcase, Award, MessageSquare, User, Upload, Linkedin, Twitter, Facebook } from 'lucide-react';
 
 export default function LeadershipManager() {
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [leader, setLeader] = useState({
     id: '',
     name: '',
@@ -13,6 +14,9 @@ export default function LeadershipManager() {
     quote: '',
     bio: '',
     badge_text: '',
+    linkedin_url: '',
+    twitter_url: '',
+    facebook_url: '',
   });
 
   const [sectionHeaders, setSectionHeaders] = useState({
@@ -55,10 +59,42 @@ export default function LeadershipManager() {
           quote: leaderData.quote || '',
           bio: leaderData.bio || '',
           badge_text: leaderData.badge_text || '',
+          linkedin_url: leaderData.linkedin_url || '',
+          twitter_url: leaderData.twitter_url || '',
+          facebook_url: leaderData.facebook_url || '',
         });
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `leadership/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('leadership_images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('leadership_images')
+        .getPublicUrl(filePath);
+
+      setLeader({ ...leader, image: data.publicUrl });
+      alert('Image uploaded successfully!');
+    } catch (error: any) {
+      alert('Error uploading image: ' + error.message);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -86,6 +122,9 @@ export default function LeadershipManager() {
         quote: leader.quote,
         bio: leader.bio,
         badge_text: leader.badge_text,
+        linkedin_url: leader.linkedin_url,
+        twitter_url: leader.twitter_url,
+        facebook_url: leader.facebook_url,
       };
 
       let error;
@@ -165,10 +204,10 @@ export default function LeadershipManager() {
           Edit Detail
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1 text-xs uppercase tracking-wider font-bold">Owner Name</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2 text-xs uppercase tracking-wider font-bold">Owner Name</label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                 <input
@@ -181,7 +220,7 @@ export default function LeadershipManager() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1 text-xs uppercase tracking-wider font-bold">Main Role</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2 text-xs uppercase tracking-wider font-bold">Main Role</label>
               <div className="relative">
                 <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                 <input
@@ -189,6 +228,87 @@ export default function LeadershipManager() {
                   placeholder="e.g. Founder"
                   value={leader.role}
                   onChange={(e) => setLeader({ ...leader, role: e.target.value })}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2 text-xs uppercase tracking-wider font-bold">Social Media Links</label>
+              <div className="space-y-3">
+                <div className="relative">
+                  <Linkedin className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0077B5]" size={18} />
+                  <input
+                    type="text"
+                    placeholder="LinkedIn Profile URL"
+                    value={leader.linkedin_url}
+                    onChange={(e) => setLeader({ ...leader, linkedin_url: e.target.value })}
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-12 pr-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 text-sm"
+                  />
+                </div>
+                <div className="relative">
+                  <Twitter className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1DA1F2]" size={18} />
+                  <input
+                    type="text"
+                    placeholder="Twitter Profile URL"
+                    value={leader.twitter_url}
+                    onChange={(e) => setLeader({ ...leader, twitter_url: e.target.value })}
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-12 pr-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 text-sm"
+                  />
+                </div>
+                <div className="relative">
+                  <Facebook className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1877F2]" size={18} />
+                  <input
+                    type="text"
+                    placeholder="Facebook Profile URL"
+                    value={leader.facebook_url}
+                    onChange={(e) => setLeader({ ...leader, facebook_url: e.target.value })}
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-12 pr-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2 text-xs uppercase tracking-wider font-bold">Profile Picture</label>
+              <div className="flex items-start gap-4">
+                <div className="w-24 h-24 rounded-2xl bg-zinc-800 border-2 border-dashed border-zinc-700 flex items-center justify-center overflow-hidden">
+                  {leader.image ? (
+                    <img src={leader.image} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <ImageIcon className="text-zinc-600" size={32} />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <label className="flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-bold py-3 px-4 rounded-xl cursor-pointer transition-all">
+                    <Upload size={18} />
+                    {uploading ? 'Uploading...' : 'Upload Photo'}
+                    <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
+                  </label>
+                  <p className="text-[10px] text-gray-500 mt-2">Recommended: 800x1000px portrait</p>
+                </div>
+              </div>
+              <div className="mt-3">
+                <label className="block text-xs text-zinc-500 mb-1">Or paste Unsplash URL:</label>
+                <input
+                  type="text"
+                  placeholder="https://..."
+                  value={leader.image}
+                  onChange={(e) => setLeader({ ...leader, image: e.target.value })}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-white text-xs focus:outline-none focus:ring-1 focus:ring-zinc-600"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2 text-xs uppercase tracking-wider font-bold">Badge Text (Logo labels)</label>
+              <div className="relative">
+                <Award className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                <input
+                  type="text"
+                  placeholder="e.g. ProVia | IKO | CertainTeed"
+                  value={leader.badge_text}
+                  onChange={(e) => setLeader({ ...leader, badge_text: e.target.value })}
                   className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50"
                 />
               </div>
@@ -204,43 +324,9 @@ export default function LeadershipManager() {
               />
             </div>
           </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1 text-xs uppercase tracking-wider font-bold">Profile Picture URL</label>
-              <div className="relative">
-                <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                <input
-                  type="text"
-                  placeholder="Paste Unsplash or direct image link"
-                  value={leader.image}
-                  onChange={(e) => setLeader({ ...leader, image: e.target.value })}
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1 text-xs uppercase tracking-wider font-bold">Badge Text (Logo labels)</label>
-              <div className="relative">
-                <Award className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                <input
-                  type="text"
-                  placeholder="e.g. IKO | CertainTeed | Pella"
-                  value={leader.badge_text}
-                  onChange={(e) => setLeader({ ...leader, badge_text: e.target.value })}
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50"
-                />
-              </div>
-            </div>
-            {leader.image && (
-              <div className="pt-2">
-                 <img src={leader.image} alt="Preview" className="w-16 h-16 rounded-xl object-cover border border-zinc-700" />
-              </div>
-            )}
-          </div>
         </div>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-8 space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1 text-xs uppercase tracking-wider font-bold">Inspiring Quote</label>
             <div className="relative">
@@ -266,13 +352,13 @@ export default function LeadershipManager() {
           </div>
         </div>
 
-        <div className="mt-10">
+        <div className="mt-10 pt-6 border-t border-zinc-800">
           <button 
             onClick={saveLeaderDetail} 
             disabled={loading}
             className="bg-red-600 text-white px-10 py-4 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg active:scale-95 disabled:opacity-50"
           >
-            <Check size={20} /> {loading ? 'Saving...' : 'Save Info'}
+            <Check size={20} /> {loading ? 'Saving...' : 'Save All Changes'}
           </button>
         </div>
       </div>
