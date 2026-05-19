@@ -28,6 +28,53 @@ export default function ProjectsManager() {
     }
   };
 
+  const compressAndGetBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% quality JPEG
+            resolve(compressedBase64);
+          } else {
+            resolve(event.target?.result as string);
+          }
+        };
+        img.onerror = (err) => {
+          reject(err);
+        };
+      };
+      reader.onerror = (err) => {
+        reject(err);
+      };
+    });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
@@ -38,23 +85,43 @@ export default function ProjectsManager() {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `projects/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('agency-assets')
-        .upload(filePath, file, { upsert: true });
+      let uploadSuccess = false;
+      let finalUrl = '';
 
-      if (uploadError) throw uploadError;
+      try {
+        const { error: uploadError } = await supabase.storage
+          .from('agency-assets')
+          .upload(filePath, file, { upsert: true });
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('agency-assets')
-        .getPublicUrl(filePath);
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('agency-assets')
+            .getPublicUrl(filePath);
 
-      const customUrl = publicUrl.replace('https://rpnaqrmquddupmxvvcjg.supabase.co/storage/v1/object/public', '/image');
+          const customUrl = publicUrl.replace('https://rpnaqrmquddupmxvvcjg.supabase.co/storage/v1/object/public', '/image');
+          finalUrl = customUrl;
+          uploadSuccess = true;
+        }
+      } catch (err) {
+        console.warn('Storage upload failed, using fallback...', err);
+      }
 
-      setCurrentProject({ ...currentProject, image: customUrl });
+      if (!uploadSuccess) {
+        try {
+          const base64 = await compressAndGetBase64(file);
+          setCurrentProject({ ...currentProject, image: base64 });
+          alert('Image uploaded successfully! (Stored as compressed direct data due to Supabase Storage RLS restrictions)');
+          return;
+        } catch (base64Err: any) {
+          throw new Error('All upload mechanisms failed: ' + base64Err.message);
+        }
+      }
+
+      setCurrentProject({ ...currentProject, image: finalUrl });
       alert('Image uploaded successfully!');
     } catch (error: any) {
       console.error('Upload error details:', error);
-      alert('Upload failed: ' + (error.message || 'Unknown error') + '\n\nIf the bucket exists, please check your Storage Policies (RLS) in Supabase.');
+      alert('Upload failed: ' + (error.message || 'Unknown error'));
     } finally {
       setUploading(false);
     }
@@ -142,14 +209,10 @@ export default function ProjectsManager() {
                 onChange={(e) => setCurrentProject({ ...currentProject, category: e.target.value })}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
               >
-                <option value="Web/App Development">Web/App Development</option>
-                <option value="SEO">SEO</option>
-                <option value="Ads & PPC Management">Ads & PPC Management</option>
+                <option value="Web Development">Web Development</option>
+                <option value="Mobile App">Mobile App</option>
+                <option value="UI/UX Design">UI/UX Design</option>
                 <option value="Digital Marketing">Digital Marketing</option>
-                <option value="Graphic Designing">Graphic Designing</option>
-                <option value="Content Writing">Content Writing</option>
-                <option value="Social Media">Social Media</option>
-                <option value="Ecommerce">Ecommerce</option>
               </select>
             </div>
 
@@ -185,7 +248,7 @@ export default function ProjectsManager() {
                 </div>
                 {currentProject.image && (
                   <div className="w-16 h-16 rounded-lg overflow-hidden border border-zinc-700 bg-zinc-800 flex items-center justify-center">
-                    <img src={currentProject.image} alt="Preview" className="w-full h-full object-cover" />
+                    <img src={currentProject.image} alt="Preview" className="w-full h-full object-contain" />
                   </div>
                 )}
               </div>
@@ -225,7 +288,7 @@ export default function ProjectsManager() {
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-zinc-800 flex items-center justify-center overflow-hidden">
                     {project.image ? (
-                      <img src={project.image} alt="" className="w-full h-full object-cover" />
+                      <img src={project.image} alt="" className="w-full h-full object-contain" />
                     ) : (
                       <ImageIcon className="text-zinc-600" size={20} />
                     )}
