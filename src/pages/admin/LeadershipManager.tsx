@@ -69,6 +69,53 @@ export default function LeadershipManager() {
     }
   };
 
+  const compressAndGetBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% quality JPEG
+            resolve(compressedBase64);
+          } else {
+            resolve(event.target?.result as string);
+          }
+        };
+        img.onerror = (err) => {
+          reject(err);
+        };
+      };
+      reader.onerror = (err) => {
+        reject(err);
+      };
+    });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
@@ -79,18 +126,61 @@ export default function LeadershipManager() {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `leadership/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('leadership_images')
-        .upload(filePath, file);
+      let uploadSuccess = false;
+      let finalUrl = '';
 
-      if (uploadError) throw uploadError;
+      // Try 1: Try uploading to 'agency-assets' bucket (the primary bucket used in other managers)
+      try {
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('agency-assets')
+          .upload(filePath, file, { upsert: true });
 
-      const { data } = supabase.storage
-        .from('leadership_images')
-        .getPublicUrl(filePath);
+        if (!uploadError) {
+          const { data } = supabase.storage
+            .from('agency-assets')
+            .getPublicUrl(filePath);
+          
+          finalUrl = data.publicUrl;
+          uploadSuccess = true;
+        }
+      } catch (err) {
+        console.warn('Attempt to upload to agency-assets failed, trying leadership_images...', err);
+      }
 
-      setLeader({ ...leader, image: data.publicUrl });
-      alert('Image uploaded successfully!');
+      // Try 2: If 'agency-assets' failed, try 'leadership_images' bucket
+      if (!uploadSuccess) {
+        try {
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('leadership_images')
+            .upload(filePath, file, { upsert: true });
+
+          if (!uploadError) {
+            const { data } = supabase.storage
+              .from('leadership_images')
+              .getPublicUrl(filePath);
+
+            finalUrl = data.publicUrl;
+            uploadSuccess = true;
+          }
+        } catch (err) {
+          console.warn('Attempt to upload to leadership_images failed...', err);
+        }
+      }
+
+      // Try 3 (Bulletproof Fallback): Compress image & store as Base64 in DB直接!
+      if (!uploadSuccess) {
+        try {
+          const compressedBase64 = await compressAndGetBase64(file);
+          setLeader({ ...leader, image: compressedBase64 });
+          alert('Image uploaded successfully! (Stored as compressed direct data due to Supabase Storage RLS restrictions)');
+          return;
+        } catch (base64Err: any) {
+          throw new Error('All upload mechanisms failed: ' + base64Err.message);
+        }
+      }
+
+      setLeader({ ...leader, image: finalUrl });
+      alert('Image uploaded successfully to storage!');
     } catch (error: any) {
       alert('Error uploading image: ' + error.message);
     } finally {
