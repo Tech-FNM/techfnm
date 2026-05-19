@@ -28,6 +28,53 @@ export default function TestimonialsManager() {
     }
   };
 
+  const compressAndGetBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% quality JPEG
+            resolve(compressedBase64);
+          } else {
+            resolve(event.target?.result as string);
+          }
+        };
+        img.onerror = (err) => {
+          reject(err);
+        };
+      };
+      reader.onerror = (err) => {
+        reject(err);
+      };
+    });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
@@ -38,21 +85,42 @@ export default function TestimonialsManager() {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `testimonials/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('agency-assets')
-        .upload(filePath, file, { upsert: true });
+      let uploadSuccess = false;
+      let finalUrl = '';
 
-      if (uploadError) throw uploadError;
+      try {
+        const { error: uploadError } = await supabase.storage
+          .from('agency-assets')
+          .upload(filePath, file, { upsert: true });
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('agency-assets')
-        .getPublicUrl(filePath);
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('agency-assets')
+            .getPublicUrl(filePath);
 
-      setCurrentTestimonial({ ...currentTestimonial, image: publicUrl });
+          finalUrl = publicUrl;
+          uploadSuccess = true;
+        }
+      } catch (err) {
+        console.warn('Storage upload failed, using fallback...', err);
+      }
+
+      if (!uploadSuccess) {
+        try {
+          const base64 = await compressAndGetBase64(file);
+          setCurrentTestimonial({ ...currentTestimonial, image: base64 });
+          alert('Image uploaded successfully! (Stored as compressed direct data due to Supabase Storage RLS restrictions)');
+          return;
+        } catch (base64Err: any) {
+          throw new Error('All upload mechanisms failed: ' + base64Err.message);
+        }
+      }
+
+      setCurrentTestimonial({ ...currentTestimonial, image: finalUrl });
       alert('Image uploaded successfully!');
     } catch (error: any) {
       console.error('Upload error details:', error);
-      alert('Upload failed: ' + (error.message || 'Unknown error') + '\n\nIf the bucket exists, please check your Storage Policies (RLS) in Supabase.');
+      alert('Upload failed: ' + (error.message || 'Unknown error'));
     } finally {
       setUploading(false);
     }
