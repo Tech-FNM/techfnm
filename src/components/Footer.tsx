@@ -1,10 +1,42 @@
 import { Mail, MapPin, Phone, Facebook, Youtube, Instagram, Linkedin, CheckCircle2, Loader2 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [settings, setSettings] = useState({
+    description: 'We specialize in custom web development, mobile apps, and SEO solutions. We develop digital future.',
+    facebookUrl: 'https://www.facebook.com/techfnm',
+    youtubeUrl: 'https://www.youtube.com/@techhfnm',
+    instagramUrl: 'https://www.instagram.com/techfnm',
+    linkedinUrl: 'https://www.linkedin.com/company/techfnm',
+    whatsappUrl: 'https://wa.me/+923139023118',
+    address: 'Pakistan',
+    phone: '0313-9023118',
+    email: 'techhfnm@gmail.com',
+  });
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('content')
+        .eq('id', 'footer_settings')
+        .maybeSingle();
+
+      if (data && data.content) {
+        setSettings(prev => ({ ...prev, ...data.content }));
+      }
+    } catch (err) {
+      console.error('Error fetching footer settings:', err);
+    }
+  };
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,24 +87,24 @@ export default function Footer() {
               <h3 className="hidden text-2xl font-bold">Tech<span className="text-red-600">FNM</span></h3>
             </div>
             <p className="text-gray-400 mb-6 leading-relaxed">
-              We specialize in custom web development, mobile apps, and SEO solutions. We develop digital future.
+              {settings.description}
             </p>
             <div className="flex space-x-4">
-              <a href="https://www.facebook.com/techfnm" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
+              {settings.facebookUrl && <a href={settings.facebookUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
                 <Facebook size={20} />
-              </a>
-              <a href="https://www.youtube.com/@techhfnm" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
+              </a>}
+              {settings.youtubeUrl && <a href={settings.youtubeUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
                 <Youtube size={20} />
-              </a>
-              <a href="https://www.instagram.com/techfnm" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
+              </a>}
+              {settings.instagramUrl && <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
                 <Instagram size={20} />
-              </a>
-              <a href="https://www.linkedin.com/company/techfnm" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
+              </a>}
+              {settings.linkedinUrl && <a href={settings.linkedinUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
                 <Linkedin size={20} />
-              </a>
-              <a href="https://wa.me/+923139023118" target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
+              </a>}
+              {settings.whatsappUrl && <a href={settings.whatsappUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
                 <FaWhatsapp size={20} />
-              </a>
+              </a>}
             </div>
           </div>
 
@@ -95,15 +127,15 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <MapPin className="text-red-500 mr-3 mt-1 flex-shrink-0" size={20} />
-                <span className="text-gray-400">Pakistan</span>
+                <span className="text-gray-400">{settings.address}</span>
               </li>
               <li className="flex items-center">
                 <Phone className="text-red-500 mr-3 flex-shrink-0" size={20} />
-                <a href="tel:0313-9023118" className="text-gray-400 hover:text-white transition-colors">0313-9023118</a>
+                <a href={`tel:${settings.phone}`} className="text-gray-400 hover:text-white transition-colors">{settings.phone}</a>
               </li>
               <li className="flex items-center">
                 <Mail className="text-red-500 mr-3 flex-shrink-0" size={20} />
-                <a href="mailto:techhfnm@gmail.com" className="text-gray-400 hover:text-white transition-colors">techhfnm@gmail.com</a>
+                <a href={`mailto:${settings.email}`} className="text-gray-400 hover:text-white transition-colors">{settings.email}</a>
               </li>
             </ul>
           </div>

@@ -10,6 +10,7 @@ import TestimonialsManager from './pages/admin/TestimonialsManager';
 import ClientsManager from './pages/admin/ClientsManager';
 import FAQManager from './pages/admin/FAQManager';
 import ScriptsManager from './pages/admin/ScriptsManager';
+import FooterManager from './pages/admin/FooterManager';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
             <Route path="clients" element={<ClientsManager />} />
             <Route path="faqs" element={<FAQManager />} />
             <Route path="scripts" element={<ScriptsManager />} />
+            <Route path="footer" element={<FooterManager />} />
           </Route>
         </Route>
         
