@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Save, LayoutPanelBottom, Loader2 } from 'lucide-react';
+import { Save, PanelBottom, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface FooterSettings {
@@ -83,7 +83,7 @@ export default function FooterManager() {
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 md:p-8">
         <div className="flex items-start gap-4">
           <div className="p-3 bg-red-600/10 rounded-xl border border-red-500/20 text-red-500">
-            <LayoutPanelBottom size={24} />
+            <PanelBottom size={24} />
           </div>
           <div className="flex-1">
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
