@@ -1,0 +1,45 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Home from './pages/Home';
+import AdminLayout from './pages/admin/AdminLayout';
+import Login from './pages/admin/Login';
+import DashboardHome from './pages/admin/DashboardHome';
+import ServicesManager from './pages/admin/ServicesManager';
+import ProjectsManager from './pages/admin/ProjectsManager';
+import LeadershipManager from './pages/admin/LeadershipManager';
+import TestimonialsManager from './pages/admin/TestimonialsManager';
+import ClientsManager from './pages/admin/ClientsManager';
+import FAQManager from './pages/admin/FAQManager';
+import ScriptsManager from './pages/admin/ScriptsManager';
+import ProtectedRoute from './components/ProtectedRoute';
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        
+        {/* Admin Routes */}
+        <Route path="/admindash/login" element={<Login />} />
+        
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admindash" element={<AdminLayout />}>
+            <Route index element={<Navigate to="/admindash/dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardHome />} />
+            <Route path="services" element={<ServicesManager />} />
+            <Route path="projects" element={<ProjectsManager />} />
+            <Route path="leadership" element={<LeadershipManager />} />
+            <Route path="testimonials" element={<TestimonialsManager />} />
+            <Route path="clients" element={<ClientsManager />} />
+            <Route path="faqs" element={<FAQManager />} />
+            <Route path="scripts" element={<ScriptsManager />} />
+          </Route>
+        </Route>
+        
+        {/* Catch all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;

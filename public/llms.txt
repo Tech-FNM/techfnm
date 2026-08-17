@@ -1,0 +1,19 @@
+# TechFNM
+
+> TechFNM specializes in custom web development, mobile apps, and SEO solutions. We develop the digital future for businesses worldwide.
+
+## About Us
+TechFNM is a digital agency based in Karachi, Pakistan. We provide high-quality software development and digital marketing services to help businesses grow online.
+
+## Services
+- Custom Web Development
+- Mobile App Development
+- SEO (Search Engine Optimization) Solutions
+- UI/UX Design
+- Ads Management 
+
+## Contact Information
+- Email: techhfnm@gmail.com
+- Phone: 0313-9023118
+- Location: Pakistan
+- Website: https://techfnm.com
