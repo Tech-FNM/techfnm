@@ -1,5 +1,4 @@
-import { Mail, MapPin, Phone, Facebook, Youtube, Instagram, Linkedin, CheckCircle2, Loader2 } from 'lucide-react';
-import { FaWhatsapp } from 'react-icons/fa';
+import { Mail, MapPin, Phone, Facebook, Youtube, Instagram, Linkedin, Github, CheckCircle2, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
@@ -12,7 +11,7 @@ export default function Footer() {
     youtubeUrl: 'https://www.youtube.com/@techhfnm',
     instagramUrl: 'https://www.instagram.com/techfnm',
     linkedinUrl: 'https://www.linkedin.com/company/techfnm',
-    whatsappUrl: 'https://wa.me/+923139023118',
+    githubUrl: 'https://github.com/Tech-FNM',
     address: 'Pakistan',
     phone: '0313-9023118',
     email: 'techhfnm@gmail.com',
@@ -102,8 +101,8 @@ export default function Footer() {
               {settings.linkedinUrl && <a href={settings.linkedinUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
                 <Linkedin size={20} />
               </a>}
-              {settings.whatsappUrl && <a href={settings.whatsappUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
-                <FaWhatsapp size={20} />
+              {settings.githubUrl && <a href={settings.githubUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
+                <Github size={20} />
               </a>}
             </div>
           </div>

@@ -8,7 +8,7 @@ interface FooterSettings {
   youtubeUrl: string;
   instagramUrl: string;
   linkedinUrl: string;
-  whatsappUrl: string;
+  githubUrl: string;
   address: string;
   phone: string;
   email: string;
@@ -23,7 +23,7 @@ export default function FooterManager() {
     youtubeUrl: 'https://www.youtube.com/@techhfnm',
     instagramUrl: 'https://www.instagram.com/techfnm',
     linkedinUrl: 'https://www.linkedin.com/company/techfnm',
-    whatsappUrl: 'https://wa.me/+923139023118',
+    githubUrl: 'https://github.com/Tech-FNM',
     address: 'Pakistan',
     phone: '0313-9023118',
     email: 'techhfnm@gmail.com',
@@ -142,8 +142,8 @@ export default function FooterManager() {
             <input type="text" name="linkedinUrl" value={settings.linkedinUrl} onChange={handleChange} className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-white" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">WhatsApp URL</label>
-            <input type="text" name="whatsappUrl" value={settings.whatsappUrl} onChange={handleChange} className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-white" />
+            <label className="block text-sm font-medium text-gray-300 mb-2">GitHub URL</label>
+            <input type="text" name="githubUrl" value={settings.githubUrl} onChange={handleChange} className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-white" />
           </div>
         </div>
 
