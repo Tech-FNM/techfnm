@@ -1,9 +1,26 @@
 import { Menu, Phone, X } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'motion/react';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    if (path === '/' && location.pathname !== '/') return false;
+    return location.pathname.startsWith(path);
+  };
+
+  const navLinks = [
+    { name: 'Home', path: '/' },
+    { name: 'About Us', path: '/about' },
+    { name: 'Services', path: '/services' },
+    { name: 'Portfolio', path: '/portfolio' },
+    { name: 'Blog', path: '/blog' },
+    { name: 'FAQ', path: '/faq' },
+    { name: 'Contact Us', path: '/contact' },
+  ];
 
   return (
     <header className="fixed w-full bg-black/90 backdrop-blur-md z-50 shadow-sm border-b border-white/10">
@@ -11,7 +28,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <a href="/" className="block">
+            <Link to="/" className="block">
               <img 
                 src="/image/agency-assets/projects/0.569918561129375.png" 
                 alt="TechFNM Logo" 
@@ -25,28 +42,32 @@ export default function Header() {
               <div className="hidden text-2xl font-bold text-white">
                 Tech<span className="text-red-600 ml-1 font-extrabold">FNM</span>
               </div>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            <a href="#home" className="text-gray-300 hover:text-red-500 font-medium transition-colors">Home</a>
-            <a href="#about" className="text-gray-300 hover:text-red-500 font-medium transition-colors">About Us</a>
-            <a href="#services" className="text-gray-300 hover:text-red-500 font-medium transition-colors">Services</a>
-            <a href="#portfolio" className="text-gray-300 hover:text-red-500 font-medium transition-colors">Portfolio</a>
-            <a href="#contact" className="text-gray-300 hover:text-red-500 font-medium transition-colors">Contact Us</a>
+          <nav className="hidden lg:flex space-x-6">
+            {navLinks.map((link) => (
+              <Link 
+                key={link.path}
+                to={link.path} 
+                className={`${isActive(link.path) ? 'text-red-500' : 'text-gray-300'} hover:text-red-500 font-medium transition-colors text-sm`}
+              >
+                {link.name}
+              </Link>
+            ))}
           </nav>
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center">
-            <a href="tel:0313-9023118" className="flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-full font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20">
-              <Phone size={18} />
+            <a href="tel:0313-9023118" className="flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-full font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20 text-sm">
+              <Phone size={16} />
               <span>0313-9023118</span>
             </a>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
+          <div className="lg:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="text-gray-300 hover:text-red-500 focus:outline-none"
@@ -63,14 +84,19 @@ export default function Header() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="md:hidden bg-gray-900 border-t border-gray-800 shadow-lg"
+          className="lg:hidden bg-gray-900 border-t border-gray-800 shadow-lg max-h-[80vh] overflow-y-auto"
         >
           <div className="px-4 pt-2 pb-6 space-y-1">
-            <a href="#home" className="block px-3 py-3 text-base font-medium text-gray-300 hover:text-red-500 hover:bg-gray-800 rounded-md" onClick={() => setIsOpen(false)}>Home</a>
-            <a href="#about" className="block px-3 py-3 text-base font-medium text-gray-300 hover:text-red-500 hover:bg-gray-800 rounded-md" onClick={() => setIsOpen(false)}>About Us</a>
-            <a href="#services" className="block px-3 py-3 text-base font-medium text-gray-300 hover:text-red-500 hover:bg-gray-800 rounded-md" onClick={() => setIsOpen(false)}>Services</a>
-            <a href="#portfolio" className="block px-3 py-3 text-base font-medium text-gray-300 hover:text-red-500 hover:bg-gray-800 rounded-md" onClick={() => setIsOpen(false)}>Portfolio</a>
-            <a href="#contact" className="block px-3 py-3 text-base font-medium text-gray-300 hover:text-red-500 hover:bg-gray-800 rounded-md" onClick={() => setIsOpen(false)}>Contact Us</a>
+            {navLinks.map((link) => (
+              <Link 
+                key={link.path}
+                to={link.path} 
+                className={`block px-3 py-3 text-base font-medium rounded-md ${isActive(link.path) ? 'text-red-500 bg-gray-800' : 'text-gray-300 hover:text-red-500 hover:bg-gray-800'}`}
+                onClick={() => setIsOpen(false)}
+              >
+                {link.name}
+              </Link>
+            ))}
             <div className="pt-4">
               <a href="tel:0313-9023118" className="flex items-center justify-center gap-2 w-full bg-red-600 text-white px-5 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors">
                 <Phone size={18} />

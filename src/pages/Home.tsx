@@ -10,10 +10,12 @@ import FAQ from '../components/FAQ';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 import ScriptInjector from '../components/ScriptInjector';
+import SeoHead from '../components/SeoHead';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-black font-sans text-white scroll-smooth overflow-x-hidden w-full">
+      <SeoHead pageId="home" />
       <ScriptInjector />
       <Header />
       <main>

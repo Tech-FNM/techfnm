@@ -14,11 +14,15 @@ const iconList = [
 export default function ServicesManager() {
   const [services, setServices] = useState<any[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentService, setCurrentService] = useState<any>({
+    const [currentService, setCurrentService] = useState<any>({
     title: '',
     description: '',
     icon: 'Code',
     color: 'bg-red-500/10 text-red-500',
+    slug: '',
+    content: '',
+    meta_title: '',
+    meta_description: ''
   });
 
   useEffect(() => {
@@ -49,6 +53,10 @@ export default function ServicesManager() {
         description: currentService.description,
         icon: currentService.icon,
         color: currentService.color,
+        slug: currentService.slug,
+        content: currentService.content,
+        meta_title: currentService.meta_title,
+        meta_description: currentService.meta_description
       };
 
       if (isEditing) {
@@ -65,7 +73,7 @@ export default function ServicesManager() {
       } else {
         alert(isEditing ? 'Service updated successfully!' : 'Service added successfully!');
         setIsEditing(false);
-        setCurrentService({ title: '', description: '', icon: 'Code', color: 'bg-red-500/10 text-red-500' });
+        setCurrentService({ title: '', description: '', icon: 'Code', color: 'bg-red-500/10 text-red-500', slug: '', content: '', meta_title: '', meta_description: '' });
         fetchServices();
       }
     } catch (error: any) {
@@ -106,7 +114,21 @@ export default function ServicesManager() {
                 type="text"
                 placeholder="e.g. Web Development"
                 value={currentService.title}
-                onChange={(e) => setCurrentService({ ...currentService, title: e.target.value })}
+                onChange={(e) => {
+                  const title = e.target.value;
+                  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                  setCurrentService({ ...currentService, title, slug: currentService.slug ? currentService.slug : slug });
+                }}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Slug</label>
+              <input
+                type="text"
+                value={currentService.slug}
+                onChange={(e) => setCurrentService({ ...currentService, slug: e.target.value })}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
               />
             </div>
@@ -129,40 +151,50 @@ export default function ServicesManager() {
                 })}
               </div>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Custom Icon Name (Optional)</label>
-              <input
-                type="text"
-                placeholder="Lucide icon name"
-                value={currentService.icon}
-                onChange={(e) => setCurrentService({ ...currentService, icon: e.target.value })}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
-              />
-            </div>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Short Description</label>
               <textarea
-                placeholder="Describe this service..."
-                rows={6}
+                placeholder="Describe this service for the card..."
+                rows={3}
                 value={currentService.description}
                 onChange={(e) => setCurrentService({ ...currentService, description: e.target.value })}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all resize-none"
               />
             </div>
-
+            
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Color Class (Tailwind)</label>
-              <input
-                type="text"
-                placeholder="e.g. bg-green-900/20 text-green-400"
-                value={currentService.color}
-                onChange={(e) => setCurrentService({ ...currentService, color: e.target.value })}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+              <label className="block text-sm font-medium text-gray-400 mb-1">Full Content (Markdown Supported)</label>
+              <textarea
+                placeholder="Detailed content for the service page..."
+                rows={5}
+                value={currentService.content || ''}
+                onChange={(e) => setCurrentService({ ...currentService, content: e.target.value })}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all font-mono text-sm"
               />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">SEO Title</label>
+                <input
+                  type="text"
+                  value={currentService.meta_title || ''}
+                  onChange={(e) => setCurrentService({ ...currentService, meta_title: e.target.value })}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">SEO Description</label>
+                <input
+                  type="text"
+                  value={currentService.meta_description || ''}
+                  onChange={(e) => setCurrentService({ ...currentService, meta_description: e.target.value })}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                />
+              </div>
             </div>
           </div>
         </div>

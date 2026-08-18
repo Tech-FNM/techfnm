@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Briefcase, Users, MessageSquare, LogOut, Layers, HelpCircle, Globe, Menu, X, Code, PanelBottom } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Users, MessageSquare, LogOut, Layers, HelpCircle, Globe, Menu, X, Code, PanelBottom, FileText, Search } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function AdminLayout() {
@@ -17,10 +17,12 @@ export default function AdminLayout() {
     { path: '/admindash/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/admindash/services', icon: Layers, label: 'Services' },
     { path: '/admindash/projects', icon: Briefcase, label: 'Projects' },
+    { path: '/admindash/blogs', icon: FileText, label: 'Blogs' },
     { path: '/admindash/leadership', icon: Users, label: 'Leadership' },
     { path: '/admindash/testimonials', icon: MessageSquare, label: 'Testimonials' },
     { path: '/admindash/clients', icon: Globe, label: 'Clients' },
     { path: '/admindash/faqs', icon: HelpCircle, label: 'FAQs' },
+    { path: '/admindash/seo', icon: Search, label: 'SEO Settings' },
     { path: '/admindash/scripts', icon: Code, label: 'Custom Scripts' },
     { path: '/admindash/footer', icon: PanelBottom, label: 'Footer' },
   ];
