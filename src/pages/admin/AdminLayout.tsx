@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Briefcase, Users, MessageSquare, LogOut, 
   Layers, HelpCircle, Globe, Menu, X, Code, PanelBottom, 
   FileText, Search, ChevronDown, ChevronRight, ExternalLink, User,
-  Image, Settings, Paintbrush, Star, Plus
+  Image, Settings, Paintbrush, Star, Plus, Inbox
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -44,6 +44,11 @@ export default function AdminLayout() {
       label: 'Dashboard', 
       icon: LayoutDashboard, 
       path: '/admindash/dashboard' 
+    },
+    {
+      label: 'Leads',
+      icon: Inbox,
+      path: '/admindash/leads'
     },
     {
       label: 'Posts',

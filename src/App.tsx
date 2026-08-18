@@ -27,6 +27,7 @@ import HomepageManager from './pages/admin/HomepageManager';
 import PagesContentManager from './pages/admin/PagesContentManager';
 import MediaManager from './pages/admin/MediaManager';
 import HeaderManager from './pages/admin/HeaderManager';
+import LeadsManager from './pages/admin/LeadsManager';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
           <Route path="/admindash" element={<AdminLayout />}>
             <Route index element={<Navigate to="/admindash/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardHome />} />
+            <Route path="leads" element={<LeadsManager />} />
             <Route path="services" element={<ServicesManager />} />
             <Route path="projects" element={<ProjectsManager />} />
             <Route path="blogs" element={<BlogManager />} />

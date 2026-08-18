@@ -88,6 +88,7 @@ export default function RequestServicePage() {
     setIsSubmitting(true);
 
     try {
+      // 1. Save to Supabase Dashboard
       const { error } = await supabase.from('service_requests').insert([{
         name: formData.name,
         email: formData.email,
@@ -104,6 +105,23 @@ export default function RequestServicePage() {
       }]);
 
       if (error) throw error;
+
+      // 2. Send Email via Web3Forms (if access key is configured)
+      const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+      if (accessKey) {
+        await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: accessKey,
+            subject: `New Service Request from ${formData.name} - TechFNM`,
+            from_name: 'TechFNM Leads',
+            ...formData,
+            seo_issues: formData.seo_issues.join(', ')
+          })
+        });
+      }
+
       setIsSubmitted(true);
     } catch (err: any) {
       console.error(err);
