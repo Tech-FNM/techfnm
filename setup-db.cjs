@@ -56,6 +56,27 @@ async function setup() {
     `);
     console.log('Created pages_content table.');
 
+    // 5. Create service_requests table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS service_requests (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        business_name TEXT NOT NULL,
+        business_website TEXT,
+        business_type TEXT NOT NULL,
+        service TEXT NOT NULL,
+        seo_issues JSONB DEFAULT '[]'::jsonb,
+        why_choose_us TEXT,
+        how_found TEXT NOT NULL,
+        description TEXT NOT NULL,
+        preferred_contact TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+      );
+    `);
+    console.log('Created service_requests table.');
+
   } catch (error) {
     console.error('Error during setup:', error);
   } finally {

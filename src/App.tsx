@@ -8,6 +8,7 @@ import ContactPage from './pages/public/ContactPage';
 import FAQPage from './pages/public/FAQPage';
 import BlogPage from './pages/public/BlogPage';
 import BlogDetail from './pages/public/BlogDetail';
+import RequestServicePage from './pages/public/RequestServicePage';
 
 import AdminLayout from './pages/admin/AdminLayout';
 import Login from './pages/admin/Login';
@@ -41,6 +42,7 @@ function App() {
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:slug" element={<BlogDetail />} />
+        <Route path="/request-service" element={<RequestServicePage />} />
         
         {/* Admin Routes */}
         <Route path="/admindash/login" element={<Login />} />
