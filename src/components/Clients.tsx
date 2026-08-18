@@ -48,8 +48,12 @@ export default function Clients() {
                   </div>
                 );
 
-                return client.website ? (
-                  <a href={client.website} target="_blank" rel="noopener noreferrer" className="block w-full">
+                const websiteUrl = client.website && !client.website.startsWith('http') 
+                  ? `https://${client.website}` 
+                  : client.website;
+
+                return websiteUrl ? (
+                  <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="block w-full">
                     {content}
                   </a>
                 ) : content;
