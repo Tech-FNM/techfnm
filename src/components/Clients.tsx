@@ -34,18 +34,26 @@ export default function Clients() {
               transition={{ delay: index * 0.1 }}
               className="flex items-center justify-center w-24 md:w-32 lg:w-40"
             >
-              {client.logo ? (
-                <img
-                  src={client.logo}
-                  alt={client.name}
-                  className="h-12 md:h-16 w-full object-contain hover:scale-105 transition-transform duration-300"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className="text-center w-full">
-                  <span className="text-zinc-500 font-bold text-sm md:text-base opacity-50 block truncate w-full">{client.name}</span>
-                </div>
-              )}
+            {(() => {
+                const content = client.logo ? (
+                  <img
+                    src={client.logo}
+                    alt={client.name}
+                    className="h-12 md:h-16 w-full object-contain hover:scale-105 transition-transform duration-300"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="text-center w-full">
+                    <span className="text-zinc-500 font-bold text-sm md:text-base opacity-50 block truncate w-full">{client.name}</span>
+                  </div>
+                );
+
+                return (client.link || client.url) ? (
+                  <a href={client.link || client.url} target="_blank" rel="noopener noreferrer" className="block w-full">
+                    {content}
+                  </a>
+                ) : content;
+              })()}
             </motion.div>
           ))}
         </div>
