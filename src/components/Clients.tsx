@@ -48,8 +48,8 @@ export default function Clients() {
                   </div>
                 );
 
-                return (client.link || client.url) ? (
-                  <a href={client.link || client.url} target="_blank" rel="noopener noreferrer" className="block w-full">
+                return client.website ? (
+                  <a href={client.website} target="_blank" rel="noopener noreferrer" className="block w-full">
                     {content}
                   </a>
                 ) : content;
