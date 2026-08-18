@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Save, Check, Search } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 const SECTIONS = [
@@ -16,11 +16,71 @@ const SECTIONS = [
   },
   {
     id: 'home_about',
-    name: 'About Summary',
+    name: 'About Summary Section',
     fields: [
       { key: 'subtitle', label: 'Small Subtitle', type: 'text' },
       { key: 'title', label: 'Main Title', type: 'text' },
       { key: 'description', label: 'Description Text', type: 'textarea' },
+    ]
+  },
+  {
+    id: 'home_services',
+    name: 'Services Section',
+    fields: [
+      { key: 'subtitle', label: 'Small Subtitle', type: 'text' },
+      { key: 'title', label: 'Main Title', type: 'text' },
+      { key: 'description', label: 'Description Text', type: 'textarea' },
+    ]
+  },
+  {
+    id: 'home_portfolio',
+    name: 'Portfolio Section',
+    fields: [
+      { key: 'subtitle', label: 'Small Subtitle', type: 'text' },
+      { key: 'title', label: 'Main Title', type: 'text' },
+      { key: 'description', label: 'Description Text', type: 'textarea' },
+    ]
+  },
+  {
+    id: 'home_leadership',
+    name: 'Leadership / Team Section',
+    fields: [
+      { key: 'subtitle', label: 'Small Subtitle', type: 'text' },
+      { key: 'title', label: 'Main Title', type: 'text' },
+      { key: 'description', label: 'Description Text', type: 'textarea' },
+    ]
+  },
+  {
+    id: 'home_testimonials',
+    name: 'Testimonials Section',
+    fields: [
+      { key: 'subtitle', label: 'Small Subtitle', type: 'text' },
+      { key: 'title', label: 'Main Title', type: 'text' },
+    ]
+  },
+  {
+    id: 'home_clients',
+    name: 'Clients Section',
+    fields: [
+      { key: 'subtitle', label: 'Small Subtitle', type: 'text' },
+      { key: 'title', label: 'Main Title', type: 'text' },
+    ]
+  },
+  {
+    id: 'home_faq',
+    name: 'FAQ Section',
+    fields: [
+      { key: 'subtitle', label: 'Small Subtitle', type: 'text' },
+      { key: 'title', label: 'Main Title', type: 'text' },
+    ]
+  },
+  {
+    id: 'home_contact',
+    name: 'Contact Section',
+    fields: [
+      { key: 'subtitle', label: 'Small Subtitle', type: 'text' },
+      { key: 'title', label: 'Main Title', type: 'text' },
+      { key: 'description', label: 'Description', type: 'textarea' },
     ]
   },
   {
@@ -37,7 +97,7 @@ const SECTIONS = [
 export default function HomepageManager() {
   const [content, setContent] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [savingId, setSavingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchContent();
@@ -45,7 +105,7 @@ export default function HomepageManager() {
 
   const fetchContent = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('pages_content')
       .select('*')
       .eq('page_name', 'home');
@@ -71,7 +131,7 @@ export default function HomepageManager() {
   };
 
   const handleSave = async (sectionId: string, sectionName: string) => {
-    setSaving(true);
+    setSavingId(sectionId);
     const payload = {
       id: sectionId,
       page_name: 'home',
@@ -83,7 +143,7 @@ export default function HomepageManager() {
       .from('pages_content')
       .upsert(payload, { onConflict: 'id' });
 
-    setSaving(false);
+    setSavingId(null);
     if (error) {
       alert('Error saving section');
       console.error(error);
@@ -93,45 +153,42 @@ export default function HomepageManager() {
   };
 
   if (loading) {
-    return <div className="text-white p-8">Loading content...</div>;
+    return <div className="text-zinc-400 p-6">Loading content...</div>;
   }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center text-red-500">
-          <Search size={24} />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold text-white">Homepage Content</h1>
-          <p className="text-gray-400 mt-1">Manage the text and sections of your public homepage.</p>
-        </div>
+    <div className="p-4 md:p-6 max-w-4xl">
+      <div className="flex items-center gap-3 mb-4">
+        <h1 className="text-xl text-white font-normal">Edit Homepage</h1>
       </div>
+      <p className="text-zinc-500 text-sm mb-6">
+        Manage the text and content of all sections on the homepage. Changes will reflect on the public site after saving.
+      </p>
 
-      <div className="space-y-8">
+      <div className="space-y-4">
         {SECTIONS.map((section) => (
-          <div key={section.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 md:p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-white">{section.name}</h2>
+          <div key={section.id} className="bg-zinc-900 border border-zinc-800">
+            <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-2">
+              <h2 className="text-white text-xs font-medium">{section.name}</h2>
               <button
                 onClick={() => handleSave(section.id, section.name)}
-                disabled={saving}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+                disabled={savingId === section.id}
+                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-xs font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50"
               >
-                <Save size={16} /> Save Section
+                <Save size={12} /> {savingId === section.id ? 'Saving...' : 'Save'}
               </button>
             </div>
 
-            <div className="grid grid-cols-1 gap-6">
+            <div className="p-4 space-y-3">
               {section.fields.map((field) => (
                 <div key={field.key}>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">{field.label}</label>
+                  <label className="block text-xs text-zinc-500 mb-1">{field.label}</label>
                   {field.type === 'textarea' ? (
                     <textarea
-                      rows={4}
+                      rows={3}
                       value={content[section.id]?.[field.key] || ''}
                       onChange={(e) => handleUpdateField(section.id, field.key, e.target.value)}
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors"
+                      className="w-full bg-zinc-950 border border-zinc-800 px-2 py-1.5 text-white text-sm focus:outline-none focus:border-red-500 resize-none"
                       placeholder={`Enter ${field.label.toLowerCase()}...`}
                     />
                   ) : (
@@ -139,7 +196,7 @@ export default function HomepageManager() {
                       type="text"
                       value={content[section.id]?.[field.key] || ''}
                       onChange={(e) => handleUpdateField(section.id, field.key, e.target.value)}
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors"
+                      className="w-full bg-zinc-950 border border-zinc-800 px-2 py-1.5 text-white text-sm focus:outline-none focus:border-red-500"
                       placeholder={`Enter ${field.label.toLowerCase()}...`}
                     />
                   )}
