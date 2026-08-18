@@ -4,13 +4,20 @@ import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
 import { supabase } from '../../lib/supabase';
 import { motion } from 'motion/react';
-import { ArrowUpRight, MessageSquareQuote, CheckCircle } from 'lucide-react';
+import { ArrowUpRight, MessageSquareQuote, CheckCircle, BarChart } from 'lucide-react';
 
 export default function PortfolioPage() {
   const [projects, setProjects] = useState<any[]>([]);
+  const [content, setContent] = useState<any>({
+    portfolio_hero: {
+      title: 'Work We Are Proud Of',
+      description: 'Explore our diverse range of successful projects. We combine creativity and technology to deliver outstanding results for our clients.'
+    }
+  });
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchData = async () => {
+      // Fetch Projects
       try {
         const { data, error } = await supabase.from('projects').select('*');
         if (data && data.length > 0) {
@@ -20,14 +27,21 @@ export default function PortfolioPage() {
             { id: 1, title: 'E-Commerce Platform', category: 'Web Development', image: 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800', description: 'A fully custom headless commerce solution.' },
             { id: 2, title: 'Fitness Tracking App', category: 'Mobile App', image: 'https://images.unsplash.com/photo-1526506114642-903c5e470580?auto=format&fit=crop&q=80&w=800', description: 'Cross-platform app for fitness enthusiasts.' },
             { id: 3, title: 'Corporate Dashboard', category: 'UI/UX Design', image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800', description: 'Internal data visualization tool.' },
-            { id: 4, title: 'Real Estate Portal', category: 'Web Development', image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=800', description: 'Property listing and management system.' },
-            { id: 5, title: 'Food Delivery App', category: 'Mobile App', image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=800', description: 'Real-time tracking and ordering.' },
-            { id: 6, title: 'Marketing Campaign', category: 'Digital Marketing', image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800', description: 'Comprehensive SEO and SEM strategy.' }
           ]);
         }
       } catch (err) {}
+
+      // Fetch Content
+      const { data: contentData } = await supabase.from('pages_content').select('*').eq('page_name', 'portfolio');
+      if (contentData) {
+        const formatted: Record<string, any> = {};
+        contentData.forEach(item => {
+          formatted[item.id] = item.content || {};
+        });
+        setContent((prev: any) => ({ ...prev, ...formatted }));
+      }
     };
-    fetchProjects();
+    fetchData();
   }, []);
 
   return (
@@ -46,21 +60,25 @@ export default function PortfolioPage() {
           >
             <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">Portfolio & Case Studies</span>
             <h1 className="mt-4 text-5xl md:text-7xl font-extrabold text-white tracking-tight">
-              Work We Are <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Proud Of</span>
+              {content.portfolio_hero?.title?.split(' ').map((word: string, i: number, arr: string[]) => 
+                i >= arr.length - 2 ? 
+                <span key={i} className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500"> {word}</span> : 
+                ` ${word}`
+              ) || 'Work We Are Proud Of'}
             </h1>
             <p className="mt-6 text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed">
-              Explore our diverse range of successful projects. We combine creativity and technology to deliver outstanding results for our clients.
+              {content.portfolio_hero?.description}
             </p>
           </motion.div>
         </section>
 
-        {/* Featured Case Study (Static for visual impact) */}
+        {/* Featured Case Study */}
         <section className="pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="group relative rounded-[2.5rem] overflow-hidden bg-zinc-900 border border-zinc-800 flex flex-col lg:flex-row"
+            className="group relative rounded-[2.5rem] overflow-hidden bg-zinc-900 border border-zinc-800 flex flex-col lg:flex-row shadow-2xl shadow-red-500/5"
           >
             <div className="lg:w-1/2 p-12 md:p-16 flex flex-col justify-center">
               <span className="inline-block px-4 py-1.5 rounded-full bg-red-500/10 text-red-500 font-medium text-sm mb-6 w-max">Featured Case Study</span>
@@ -90,6 +108,31 @@ export default function PortfolioPage() {
           </motion.div>
         </section>
 
+        {/* Stats Section (New) */}
+        <section className="py-24 bg-zinc-950 border-t border-zinc-900">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {[
+                  { value: '150+', label: 'Projects Completed' },
+                  { value: '50+', label: 'Happy Clients' },
+                  { value: '10+', label: 'Awards Won' },
+                  { value: '99%', label: 'Client Retention' }
+                ].map((stat, i) => (
+                  <motion.div 
+                     key={i}
+                     initial={{ opacity: 0, scale: 0.8 }}
+                     whileInView={{ opacity: 1, scale: 1 }}
+                     viewport={{ once: true }}
+                     transition={{ delay: i * 0.1 }}
+                  >
+                     <h3 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-red-400 to-red-600 mb-2">{stat.value}</h3>
+                     <p className="text-zinc-400 font-medium uppercase tracking-wider text-sm">{stat.label}</p>
+                  </motion.div>
+                ))}
+             </div>
+          </div>
+        </section>
+
         {/* Portfolio Grid */}
         <section className="py-24 bg-zinc-900/30 border-y border-zinc-800/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -106,7 +149,7 @@ export default function PortfolioPage() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="group relative overflow-hidden rounded-3xl bg-zinc-900 border border-zinc-800 cursor-pointer"
+                  className="group relative overflow-hidden rounded-3xl bg-zinc-900 border border-zinc-800 cursor-pointer shadow-lg"
                 >
                   <div className="h-64 overflow-hidden relative">
                     <img
@@ -131,33 +174,6 @@ export default function PortfolioPage() {
                 </motion.div>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* Client Success / Testimonial */}
-        <section className="py-24 bg-black">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <MessageSquareQuote className="w-16 h-16 text-red-500/20 mx-auto mb-8" />
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <p className="text-2xl md:text-4xl font-medium leading-relaxed text-zinc-300 mb-10">
-                "TechFNM completely revolutionized our digital presence. Their team didn't just build a website; they built a scalable platform that drove our sales up by 150% in the first quarter."
-              </p>
-              <div className="flex items-center justify-center gap-4">
-                <img 
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" 
-                  alt="Client" 
-                  className="w-14 h-14 rounded-full border-2 border-red-500 object-cover"
-                />
-                <div className="text-left">
-                  <h4 className="text-white font-bold text-lg">Michael Chen</h4>
-                  <span className="text-zinc-500">CEO, TechNova Inc.</span>
-                </div>
-              </div>
-            </motion.div>
           </div>
         </section>
 

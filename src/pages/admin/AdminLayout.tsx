@@ -15,6 +15,8 @@ export default function AdminLayout() {
 
   const menuItems = [
     { path: '/admindash/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/admindash/homepage', icon: LayoutDashboard, label: 'Homepage Content' },
+    { path: '/admindash/pages', icon: Layers, label: 'Pages Content' },
     { path: '/admindash/services', icon: Layers, label: 'Services' },
     { path: '/admindash/projects', icon: Briefcase, label: 'Projects' },
     { path: '/admindash/blogs', icon: FileText, label: 'Blogs' },

@@ -22,6 +22,8 @@ import ScriptsManager from './pages/admin/ScriptsManager';
 import FooterManager from './pages/admin/FooterManager';
 import BlogManager from './pages/admin/BlogManager';
 import SeoManager from './pages/admin/SeoManager';
+import HomepageManager from './pages/admin/HomepageManager';
+import PagesContentManager from './pages/admin/PagesContentManager';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -55,6 +57,8 @@ function App() {
             <Route path="seo" element={<SeoManager />} />
             <Route path="scripts" element={<ScriptsManager />} />
             <Route path="footer" element={<FooterManager />} />
+            <Route path="homepage" element={<HomepageManager />} />
+            <Route path="pages" element={<PagesContentManager />} />
           </Route>
         </Route>
         

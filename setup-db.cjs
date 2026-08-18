@@ -45,6 +45,17 @@ async function setup() {
     `);
     console.log('Created seo_settings table.');
 
+    // 4. Create pages_content table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS pages_content (
+        id TEXT PRIMARY KEY,
+        page_name TEXT NOT NULL,
+        section_name TEXT NOT NULL,
+        content JSONB DEFAULT '{}'::jsonb
+      );
+    `);
+    console.log('Created pages_content table.');
+
   } catch (error) {
     console.error('Error during setup:', error);
   } finally {

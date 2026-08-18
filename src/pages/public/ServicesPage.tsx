@@ -6,18 +6,43 @@ import SeoHead from '../../components/SeoHead';
 import { supabase } from '../../lib/supabase';
 import { motion } from 'motion/react';
 import * as LucideIcons from 'lucide-react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, HelpCircle, ChevronDown } from 'lucide-react';
 
 export default function ServicesPage() {
   const [services, setServices] = useState<any[]>([]);
+  const [content, setContent] = useState<any>({
+    services_hero: {
+      title: 'Transforming Ideas into Digital Solutions',
+      description: 'We offer comprehensive tech services designed to scale your business, optimize workflows, and engage your users with stunning experiences.'
+    },
+    services_process: {
+      subtitle: 'A streamlined approach to ensure transparency, quality, and on-time delivery for every project.'
+    }
+  });
+  const [activeFaq, setActiveFaq] = useState<number | null>(0);
 
   useEffect(() => {
-    const fetchServices = async () => {
-      const { data } = await supabase.from('services').select('*').order('created_at', { ascending: false });
-      if (data) setServices(data);
+    const fetchData = async () => {
+      const { data: servicesData } = await supabase.from('services').select('*').order('created_at', { ascending: false });
+      if (servicesData) setServices(servicesData);
+
+      const { data: contentData } = await supabase.from('pages_content').select('*').eq('page_name', 'services');
+      if (contentData) {
+        const formatted: Record<string, any> = {};
+        contentData.forEach(item => {
+          formatted[item.id] = item.content || {};
+        });
+        setContent((prev: any) => ({ ...prev, ...formatted }));
+      }
     };
-    fetchServices();
+    fetchData();
   }, []);
+
+  const faqs = [
+    { q: "Do you offer custom software development?", a: "Yes, we specialize in building custom software tailored to your specific business requirements from scratch." },
+    { q: "How do you ensure code quality?", a: "We follow industry best practices, conduct rigorous code reviews, and implement automated testing pipelines for all our projects." },
+    { q: "Can you help migrate our existing systems?", a: "Absolutely. We have extensive experience in legacy system modernization and seamless cloud migrations." },
+  ];
 
   return (
     <div className="min-h-screen bg-black font-sans text-white flex flex-col w-full">
@@ -35,10 +60,14 @@ export default function ServicesPage() {
           >
             <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">What We Do</span>
             <h1 className="mt-4 text-5xl md:text-7xl font-extrabold text-white tracking-tight">
-              Transforming Ideas into <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Digital Solutions</span>
+              {content.services_hero?.title?.split(' ').map((word: string, i: number, arr: string[]) => 
+                i === arr.length - 2 || i === arr.length - 1 ? 
+                <span key={i} className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500"> {word}</span> : 
+                ` ${word}`
+              ) || 'Transforming Ideas into Digital Solutions'}
             </h1>
             <p className="mt-6 text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed">
-              We offer comprehensive tech services designed to scale your business, optimize workflows, and engage your users with stunning experiences.
+              {content.services_hero?.description}
             </p>
           </motion.div>
         </section>
@@ -85,7 +114,7 @@ export default function ServicesPage() {
               <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">Our Process</span>
               <h2 className="mt-4 text-4xl md:text-5xl font-bold">How We Work</h2>
               <p className="mt-6 text-zinc-400 max-w-2xl mx-auto text-xl">
-                A streamlined approach to ensure transparency, quality, and on-time delivery for every project.
+                {content.services_process?.subtitle}
               </p>
             </div>
             
@@ -116,9 +145,35 @@ export default function ServicesPage() {
             </div>
           </div>
         </section>
+
+        {/* Services FAQ (New Section) */}
+        <section className="py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div className="text-center mb-16">
+              <HelpCircle className="w-12 h-12 text-red-500 mx-auto mb-6" />
+              <h2 className="text-4xl font-bold">Service FAQs</h2>
+            </div>
+            <div className="space-y-4">
+               {faqs.map((faq, idx) => (
+                  <div key={idx} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden transition-all duration-300">
+                    <button 
+                      onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
+                      className="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-zinc-800/50 transition-colors"
+                    >
+                       <span className="font-bold text-lg">{faq.q}</span>
+                       <ChevronDown className={`w-5 h-5 text-red-500 transition-transform duration-300 ${activeFaq === idx ? 'rotate-180' : ''}`} />
+                    </button>
+                    {activeFaq === idx && (
+                       <div className="px-6 pb-6 text-zinc-400">
+                          {faq.a}
+                       </div>
+                    )}
+                  </div>
+               ))}
+            </div>
+        </section>
         
         {/* Call to Action */}
-        <section className="py-24 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <section className="py-24 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center border-t border-zinc-900">
            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}

@@ -1,13 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
 import { motion } from 'motion/react';
 import { Mail, Phone, MapPin, Send, MessageCircle } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [content, setContent] = useState<any>({
+    contact_hero: {
+      title: 'Get in Touch',
+      description: 'Have a project in mind or just want to say hi? We\'d love to hear from you. Drop us a line and our team will get back to you within 24 hours.'
+    },
+    contact_info: {
+      email: 'hello@techfnm.com',
+      phone: '+1 (234) 567-890',
+      address: '123 Tech Avenue, Suite 400\nSan Francisco, CA 94105'
+    }
+  });
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      const { data } = await supabase.from('pages_content').select('*').eq('page_name', 'contact');
+      if (data) {
+        const formatted: Record<string, any> = {};
+        data.forEach(item => {
+          formatted[item.id] = item.content || {};
+        });
+        setContent((prev: any) => ({ ...prev, ...formatted }));
+      }
+    };
+    fetchContent();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,10 +62,14 @@ export default function ContactPage() {
           >
             <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">Let's Connect</span>
             <h1 className="mt-4 text-5xl md:text-7xl font-extrabold text-white tracking-tight">
-              Get in <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Touch</span>
+              {content.contact_hero?.title?.split(' ').map((word: string, i: number, arr: string[]) => 
+                i === arr.length - 1 ? 
+                <span key={i} className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500"> {word}</span> : 
+                ` ${word}`
+              ) || 'Get in Touch'}
             </h1>
             <p className="mt-6 text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed">
-              Have a project in mind or just want to say hi? We'd love to hear from you. Drop us a line and our team will get back to you within 24 hours.
+              {content.contact_hero?.description}
             </p>
           </motion.div>
         </section>
@@ -67,7 +97,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <span className="text-sm text-zinc-500 font-medium uppercase tracking-wider block mb-1">Email Us</span>
-                      <a href="mailto:hello@techfnm.com" className="text-lg text-white hover:text-red-500 transition-colors">hello@techfnm.com</a>
+                      <a href={`mailto:${content.contact_info?.email}`} className="text-lg text-white hover:text-red-500 transition-colors">{content.contact_info?.email}</a>
                     </div>
                   </div>
                   
@@ -77,7 +107,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <span className="text-sm text-zinc-500 font-medium uppercase tracking-wider block mb-1">Call Us</span>
-                      <a href="tel:+1234567890" className="text-lg text-white hover:text-red-500 transition-colors">+1 (234) 567-890</a>
+                      <a href={`tel:${content.contact_info?.phone}`} className="text-lg text-white hover:text-red-500 transition-colors">{content.contact_info?.phone}</a>
                     </div>
                   </div>
                   
@@ -87,7 +117,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <span className="text-sm text-zinc-500 font-medium uppercase tracking-wider block mb-1">Visit Us</span>
-                      <p className="text-lg text-white">123 Tech Avenue, Suite 400<br/>San Francisco, CA 94105</p>
+                      <p className="text-lg text-white whitespace-pre-line">{content.contact_info?.address}</p>
                     </div>
                   </div>
                 </div>
@@ -166,35 +196,6 @@ export default function ContactPage() {
                 </button>
               </form>
             </motion.div>
-          </div>
-        </section>
-
-        {/* FAQ Section */}
-        <section className="py-24 bg-zinc-950 border-t border-zinc-900">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold">Frequently Asked Questions</h2>
-            </div>
-            
-            <div className="space-y-6">
-              {[
-                { q: "What is your typical project timeline?", a: "Timelines vary depending on the complexity of the project. A standard web application usually takes 4-8 weeks from discovery to launch." },
-                { q: "Do you offer post-launch support?", a: "Yes, we offer comprehensive maintenance and support packages to ensure your application runs smoothly and stays up-to-date." },
-                { q: "What technologies do you specialize in?", a: "We primarily focus on the modern JavaScript ecosystem (React, Node.js, Next.js) but are proficient in various other stacks depending on the project requirements." }
-              ].map((faq, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-zinc-900/50 border border-zinc-800 p-8 rounded-2xl"
-                >
-                  <h4 className="text-xl font-bold text-white mb-3">{faq.q}</h4>
-                  <p className="text-zinc-400 leading-relaxed">{faq.a}</p>
-                </motion.div>
-              ))}
-            </div>
           </div>
         </section>
 
