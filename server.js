@@ -27,7 +27,7 @@ app.post('/api/send-email', async (req, res) => {
 
     const mailOptions = {
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      to: process.env.ADMIN_EMAIL || process.env.SMTP_USER,
+      to: process.env.SMTP_USER,
       subject: `New Service Request from ${name} - TechFNM`,
       text: `
         Name: ${name}
