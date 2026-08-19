@@ -56,6 +56,43 @@ app.post('/api/send-email', async (req, res) => {
   }
 });
 
+app.post('/api/send-contact-email', async (req, res) => {
+  const { name, email, subject, message } = req.body;
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      to: process.env.SMTP_USER,
+      subject: `New Contact Form Submission: ${subject} - TechFNM`,
+      text: `
+        Name: ${name}
+        Email: ${email}
+        Subject: ${subject}
+        
+        Message:
+        ${message}
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Contact email sent:', info.messageId);
+    res.status(200).json({ success: true, message: 'Contact email sent successfully' });
+  } catch (error) {
+    console.error('Error sending contact email:', error);
+    res.status(500).json({ success: false, error: 'Failed to send contact email' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Backend server running on http://localhost:${PORT}`);
 });

@@ -35,15 +35,36 @@ export default function ContactPage() {
     fetchContent();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    
+    try {
+      const formElement = e.target as HTMLFormElement;
+      const formData = {
+        name: (formElement.elements.namedItem('name') as HTMLInputElement).value,
+        email: (formElement.elements.namedItem('email') as HTMLInputElement).value,
+        subject: (formElement.elements.namedItem('subject') as HTMLInputElement).value,
+        message: (formElement.elements.namedItem('message') as HTMLTextAreaElement).value,
+      };
+
+      const response = await fetch('/api/send-contact-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) throw new Error('Failed to send message');
+
       setIsSubmitted(true);
+      formElement.reset();
       setTimeout(() => setIsSubmitted(false), 5000);
-    }, 1500);
+    } catch (err) {
+      console.error('Error sending message:', err);
+      alert('Failed to send message. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -141,7 +162,8 @@ export default function ContactPage() {
                     <label htmlFor="name" className="text-sm font-medium text-zinc-400">Full Name</label>
                     <input 
                       type="text" 
-                      id="name" 
+                      id="name"
+                      name="name"
                       required
                       className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600"
                       placeholder="John Doe"
@@ -151,7 +173,8 @@ export default function ContactPage() {
                     <label htmlFor="email" className="text-sm font-medium text-zinc-400">Email Address</label>
                     <input 
                       type="email" 
-                      id="email" 
+                      id="email"
+                      name="email"
                       required
                       className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600"
                       placeholder="john@example.com"
@@ -163,7 +186,8 @@ export default function ContactPage() {
                   <label htmlFor="subject" className="text-sm font-medium text-zinc-400">Subject</label>
                   <input 
                     type="text" 
-                    id="subject" 
+                    id="subject"
+                    name="subject"
                     required
                     className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600"
                     placeholder="How can we help you?"
@@ -173,7 +197,8 @@ export default function ContactPage() {
                 <div className="space-y-2">
                   <label htmlFor="message" className="text-sm font-medium text-zinc-400">Message</label>
                   <textarea 
-                    id="message" 
+                    id="message"
+                    name="message"
                     rows={5}
                     required
                     className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600 resize-none"

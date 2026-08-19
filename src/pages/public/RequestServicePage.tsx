@@ -107,7 +107,7 @@ export default function RequestServicePage() {
       if (error) throw error;
 
       // 2. Send Email via Custom SMTP Backend
-      await fetch('http://localhost:3001/api/send-email', {
+      await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

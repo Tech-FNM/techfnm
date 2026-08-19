@@ -25,6 +25,10 @@ export default defineConfig(({mode}) => {
           target: 'https://rpnaqrmquddupmxvvcjg.supabase.co/storage/v1/object/public',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/image/, '')
+        },
+        '/api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true
         }
       }
     },
