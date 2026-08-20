@@ -355,71 +355,183 @@ export default function PagesContentManager() {
     );
   }
 
+  const insertWysiwygText = (sectionId: string, key: string, tag: string, textEnd: string = '') => {
+    const txtArea = document.getElementById(`wysiwyg-${sectionId}-${key}`) as HTMLTextAreaElement;
+    if (!txtArea) return;
+    const start = txtArea.selectionStart;
+    const end = txtArea.selectionEnd;
+    const selText = txtArea.value.substring(start, end);
+    const replacement = tag + (selText || 'text') + textEnd;
+    const newVal = txtArea.value.substring(0, start) + replacement + txtArea.value.substring(end);
+    handleUpdateField(sectionId, key, newVal);
+    setTimeout(() => {
+      txtArea.focus();
+      txtArea.setSelectionRange(start + tag.length, start + tag.length + (selText || 'text').length);
+    }, 50);
+  };
+
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center text-red-500">
-            <FileText size={20} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-normal text-white">Edit Page</h1>
-            <p className="text-gray-500 text-xs mt-0.5">Edit page content blocks sequentially.</p>
-          </div>
-        </div>
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
+      
+      {/* WordPress Editor Layout Heading */}
+      <div className="flex items-center gap-3">
+        <h1 className="text-2xl font-light text-white">Edit Page</h1>
         <button 
-          onClick={() => setViewMode('list')}
-          className="text-zinc-400 hover:text-white text-xs border border-zinc-800 px-3 py-1.5 rounded-lg"
+          onClick={() => { startEditingPage('home'); }}
+          className="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white px-2.5 py-1 text-xs transition-colors"
         >
-          ← Back to Pages List
+          Add New
         </button>
       </div>
 
-      {loading ? (
-        <div className="text-zinc-500 text-sm">Loading page sections...</div>
-      ) : (
-        <div className="space-y-6">
-          {currentSections.map((section) => (
-            <div key={section.id} className="bg-zinc-900 border border-zinc-800 rounded-xl">
-              <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
-                <h2 className="text-sm font-semibold text-white">{section.name}</h2>
-                <button
-                  onClick={() => handleSave(section.id, section.name)}
-                  disabled={savingId === section.id}
-                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50"
+      {/* WordPress Backup Banner Notification */}
+      <div className="bg-zinc-900 border-l-4 border-amber-500 p-4 flex items-center justify-between rounded-r-lg text-sm text-zinc-350">
+        <div className="flex items-center gap-2">
+          <span>The backup of this post in your browser is different from the version below.</span>
+          <button className="bg-zinc-800 hover:bg-zinc-750 text-white text-xs px-2.5 py-1 border border-zinc-700 rounded font-medium">Restore the backup</button>
+        </div>
+        <button onClick={() => {}} className="text-zinc-500 hover:text-white">✕</button>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        
+        {/* Main Editor Columns (Left Side) */}
+        <div className="flex-1 space-y-6 w-full">
+          
+          {/* WordPress Page Title & Permalink */}
+          <div className="space-y-2 bg-zinc-900/40 p-4 rounded-xl border border-zinc-850">
+            <input 
+              type="text" 
+              value={PAGES_LIST.find(p => p.id === activePage)?.title || ''} 
+              readOnly
+              className="w-full bg-zinc-950 border border-zinc-800 px-3 py-2 text-white text-xl font-bold focus:outline-none"
+            />
+            <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+              <span>Permalink:</span>
+              <span className="text-red-500 underline cursor-pointer">http://techfnm.com/{activePage === 'home' ? '' : activePage}</span>
+              <button className="bg-zinc-800 px-2 py-0.5 border border-zinc-700 rounded text-[10px] text-zinc-300">Edit</button>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="text-zinc-500 text-sm">Loading page content blocks...</div>
+          ) : (
+            <div className="space-y-6">
+              {currentSections.map((section) => (
+                <div key={section.id} className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-lg">
+                  <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/60 px-4 py-2.5">
+                    <h2 className="text-xs font-semibold text-zinc-300">{section.name}</h2>
+                    <span className="text-[10px] text-zinc-500 font-mono">#{section.id}</span>
+                  </div>
+
+                  <div className="p-4 space-y-4">
+                    {section.fields.map((field: any) => (
+                      <div key={field.key} className="space-y-2">
+                        <label className="block text-xs font-medium text-gray-400">{field.label}</label>
+                        {field.type === 'textarea' ? (
+                          <div className="border border-zinc-800 rounded-xl bg-zinc-950 overflow-hidden">
+                            <div className="border-b border-zinc-850 px-3 py-2 flex flex-wrap gap-1.5 items-center bg-zinc-900/80">
+                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '# ', '\n')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold">H1</button>
+                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '## ', '\n')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold">H2</button>
+                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '### ', '\n')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold">H3</button>
+                              <span className="text-zinc-800">|</span>
+                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '**', '**')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold">B</button>
+                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '*', '*')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] italic">I</button>
+                              <span className="text-zinc-800">|</span>
+                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '- ', '\n')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px]">List</button>
+                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '[', '](url)')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px]">Link</button>
+                            </div>
+                            <textarea
+                              id={`wysiwyg-${section.id}-${field.key}`}
+                              rows={4}
+                              value={content[section.id]?.[field.key] || ''}
+                              onChange={(e) => handleUpdateField(section.id, field.key, e.target.value)}
+                              className="w-full bg-transparent px-3 py-2 text-white text-sm focus:outline-none resize-none font-mono"
+                              placeholder={`Enter ${field.label.toLowerCase()}...`}
+                            />
+                          </div>
+                        ) : (
+                          <input
+                            type="text"
+                            value={content[section.id]?.[field.key] || ''}
+                            onChange={(e) => handleUpdateField(section.id, field.key, e.target.value)}
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-red-500 transition-colors"
+                            placeholder={`Enter ${field.label.toLowerCase()}...`}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Sidebar Metabox Panels (Right Side) */}
+        <div className="w-full lg:w-72 space-y-4 shrink-0">
+          
+          {/* WordPress Publish Metabox Widget */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-lg">
+            <div className="border-b border-zinc-800 px-3 py-2 text-zinc-300 text-xs font-semibold bg-zinc-900/60">
+              Publish
+            </div>
+            <div className="p-3.5 space-y-3.5 text-xs">
+              <div className="flex gap-2">
+                <button type="button" onClick={() => {}} className="flex-1 bg-zinc-800 hover:bg-zinc-750 text-zinc-300 py-1.5 rounded font-medium border border-zinc-700">Preview Changes</button>
+              </div>
+              <div className="space-y-2 text-zinc-400">
+                <div className="flex justify-between">
+                  <span>Status:</span> <span className="text-white font-medium">Published</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Visibility:</span> <span className="text-white font-medium">Public</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Revisions:</span> <span className="text-white font-medium">13 revisions</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-zinc-850">
+                <button type="button" onClick={() => setViewMode('list')} className="text-red-500 hover:underline">Move to Trash</button>
+                <button 
+                  type="button" 
+                  disabled={savingId !== null}
+                  onClick={async () => {
+                    for (const section of currentSections) {
+                      await handleSave(section.id, section.name);
+                    }
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded font-bold transition-all disabled:opacity-50"
                 >
-                  <Save size={14} /> {savingId === section.id ? 'Saving...' : 'Save Section'}
+                  {savingId ? 'Updating...' : 'Update'}
                 </button>
               </div>
+            </div>
+          </div>
 
-              <div className="p-4 space-y-4">
-                {section.fields.map((field: any) => (
-                  <div key={field.key}>
-                    <label className="block text-xs font-medium text-gray-400 mb-1.5">{field.label}</label>
-                    {field.type === 'textarea' ? (
-                      <textarea
-                        rows={4}
-                        value={content[section.id]?.[field.key] || ''}
-                        onChange={(e) => handleUpdateField(section.id, field.key, e.target.value)}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-red-500 transition-colors"
-                        placeholder={`Enter ${field.label.toLowerCase()}...`}
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        value={content[section.id]?.[field.key] || ''}
-                        onChange={(e) => handleUpdateField(section.id, field.key, e.target.value)}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-red-500 transition-colors"
-                        placeholder={`Enter ${field.label.toLowerCase()}...`}
-                      />
-                    )}
-                  </div>
-                ))}
+          {/* WordPress Page Attributes Widget */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-lg">
+            <div className="border-b border-zinc-800 px-3 py-2 text-zinc-300 text-xs font-semibold bg-zinc-900/60">
+              Page Attributes
+            </div>
+            <div className="p-3.5 space-y-3 text-xs">
+              <div>
+                <label className="text-zinc-400 block mb-1">Parent</label>
+                <select className="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 p-1.5 focus:outline-none rounded">
+                  <option>(no parent)</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-zinc-400 block mb-1">Template</label>
+                <select className="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 p-1.5 focus:outline-none rounded">
+                  <option>Default template</option>
+                </select>
               </div>
             </div>
-          ))}
+          </div>
         </div>
-      )}
+
+      </div>
     </div>
   );
 }
