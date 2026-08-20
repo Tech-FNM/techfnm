@@ -65,10 +65,7 @@ export default function AdminLayout() {
     {
       label: 'Pages',
       icon: Layers,
-      children: [
-        { path: '/admindash/homepage', label: 'Homepage' },
-        { path: '/admindash/pages', label: 'Inner Pages' },
-      ]
+      path: '/admindash/pages',
     },
     {
       label: 'Services',
@@ -112,6 +109,7 @@ export default function AdminLayout() {
       label: 'Settings',
       icon: Settings,
       children: [
+        { path: '/admindash/profile', label: 'Profile Settings' },
         { path: '/admindash/scripts', label: 'Custom Scripts' },
       ]
     },

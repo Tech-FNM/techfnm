@@ -10,14 +10,15 @@ export default function BlogManager() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     id: '',
     title: '',
     slug: '',
     content: '',
     image: '',
     meta_title: '',
-    meta_description: ''
+    meta_description: '',
+    faqs: []
   });
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function BlogManager() {
       const { error: uploadError } = await supabase.storage.from('agency-assets').upload(filePath, file);
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from('agency-assets').getPublicUrl(filePath);
-      setFormData(prev => ({ ...prev, image: publicUrl }));
+      setFormData((prev: any) => ({ ...prev, image: publicUrl }));
     } catch (error) {
       alert('Error uploading image');
     }
@@ -51,21 +52,25 @@ export default function BlogManager() {
     e.preventDefault();
     setIsSaving(true);
     try {
+      const payload = {
+        title: formData.title,
+        slug: formData.slug,
+        content: formData.content,
+        image: formData.image,
+        meta_title: formData.meta_title,
+        meta_description: formData.meta_description,
+        faqs: Array.isArray(formData.faqs) ? formData.faqs : []
+      };
+
       if (formData.id) {
-        const { error } = await supabase.from('blogs').update({
-          title: formData.title, slug: formData.slug, content: formData.content,
-          image: formData.image, meta_title: formData.meta_title, meta_description: formData.meta_description
-        }).eq('id', formData.id);
+        const { error } = await supabase.from('blogs').update(payload).eq('id', formData.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('blogs').insert([{
-          title: formData.title, slug: formData.slug, content: formData.content,
-          image: formData.image, meta_title: formData.meta_title, meta_description: formData.meta_description
-        }]);
+        const { error } = await supabase.from('blogs').insert([payload]);
         if (error) throw error;
       }
       setIsEditing(false);
-      setFormData({ id: '', title: '', slug: '', content: '', image: '', meta_title: '', meta_description: '' });
+      setFormData({ id: '', title: '', slug: '', content: '', image: '', meta_title: '', meta_description: '', faqs: [] });
       fetchBlogs();
     } catch (error: any) {
       alert(error.message || 'Error saving blog');
@@ -103,6 +108,37 @@ export default function BlogManager() {
     b.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const addFaqItem = () => {
+    const list = Array.isArray(formData.faqs) ? [...formData.faqs] : [];
+    setFormData({ ...formData, faqs: [...list, { question: '', answer: '' }] });
+  };
+
+  const updateFaqItem = (index: number, key: string, value: string) => {
+    const list = Array.isArray(formData.faqs) ? [...formData.faqs] : [];
+    list[index] = { ...list[index], [key]: value };
+    setFormData({ ...formData, faqs: list });
+  };
+
+  const removeFaqItem = (index: number) => {
+    const list = Array.isArray(formData.faqs) ? [...formData.faqs] : [];
+    setFormData({ ...formData, faqs: list.filter((_, i) => i !== index) });
+  };
+
+  const insertWysiwygText = (tag: string, textEnd: string = '') => {
+    const txtArea = document.getElementById('wysiwyg-content') as HTMLTextAreaElement;
+    if (!txtArea) return;
+    const start = txtArea.selectionStart;
+    const end = txtArea.selectionEnd;
+    const selText = txtArea.value.substring(start, end);
+    const replacement = tag + (selText || 'text') + textEnd;
+    const newVal = txtArea.value.substring(0, start) + replacement + txtArea.value.substring(end);
+    setFormData({ ...formData, content: newVal });
+    setTimeout(() => {
+      txtArea.focus();
+      txtArea.setSelectionRange(start + tag.length, start + tag.length + (selText || 'text').length);
+    }, 50);
+  };
+
   if (isLoading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-red-500" size={32} /></div>;
 
   // EDITOR VIEW
@@ -111,7 +147,7 @@ export default function BlogManager() {
       <div className="p-4 md:p-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl text-white font-normal">{formData.id ? 'Edit Post' : 'Add New Post'}</h1>
-          <button onClick={() => { setIsEditing(false); setFormData({ id: '', title: '', slug: '', content: '', image: '', meta_title: '', meta_description: '' }); }} className="text-zinc-400 hover:text-white text-sm flex items-center gap-1">
+          <button onClick={() => { setIsEditing(false); setFormData({ id: '', title: '', slug: '', content: '', image: '', meta_title: '', meta_description: '', faqs: [] }); }} className="text-zinc-400 hover:text-white text-sm flex items-center gap-1">
             <X size={16} /> Back to all posts
           </button>
         </div>
@@ -141,11 +177,26 @@ export default function BlogManager() {
             {/* Main Content */}
             <div className="flex-1 space-y-4">
               <div className="bg-zinc-900 border border-zinc-800">
-                <div className="border-b border-zinc-800 px-3 py-2 text-zinc-400 text-xs font-medium">Content (Markdown)</div>
+                <div className="border-b border-zinc-800 px-3 py-2 flex flex-wrap gap-2 items-center bg-zinc-900/90 sticky top-0">
+                  <button type="button" onClick={() => insertWysiwygText('# ', '\n')} className="px-2 py-1 bg-zinc-850 hover:bg-zinc-800 text-white rounded text-xs font-bold">H1</button>
+                  <button type="button" onClick={() => insertWysiwygText('## ', '\n')} className="px-2 py-1 bg-zinc-850 hover:bg-zinc-800 text-white rounded text-xs font-bold">H2</button>
+                  <button type="button" onClick={() => insertWysiwygText('### ', '\n')} className="px-2 py-1 bg-zinc-850 hover:bg-zinc-800 text-white rounded text-xs font-bold">H3</button>
+                  <span className="text-zinc-800">|</span>
+                  <button type="button" onClick={() => insertWysiwygText('**', '**')} className="px-2 py-1 bg-zinc-850 hover:bg-zinc-800 text-white rounded text-xs font-bold">B</button>
+                  <button type="button" onClick={() => insertWysiwygText('*', '*')} className="px-2 py-1 bg-zinc-850 hover:bg-zinc-800 text-white rounded text-xs italic">I</button>
+                  <span className="text-zinc-800">|</span>
+                  <button type="button" onClick={() => insertWysiwygText('- ', '\n')} className="px-2 py-1 bg-zinc-850 hover:bg-zinc-800 text-white rounded text-xs">List</button>
+                  <button type="button" onClick={() => insertWysiwygText('[', '](url)')} className="px-2 py-1 bg-zinc-850 hover:bg-zinc-800 text-white rounded text-xs">Link</button>
+                  <button type="button" onClick={() => insertWysiwygText('![', '](img-url)')} className="px-2 py-1 bg-zinc-850 hover:bg-zinc-800 text-white rounded text-xs">Image</button>
+                  <button type="button" onClick={() => insertWysiwygText('```\n', '\n```')} className="px-2 py-1 bg-zinc-850 hover:bg-zinc-800 text-white rounded text-xs">Code</button>
+                  <button type="button" onClick={() => insertWysiwygText('| Header | Header |\n|------|------|\n| Cell | Cell |', '')} className="px-2 py-1 bg-zinc-850 hover:bg-zinc-800 text-white rounded text-xs">Table</button>
+                </div>
                 <textarea 
+                  id="wysiwyg-content"
                   required rows={18} value={formData.content}
                   onChange={e => setFormData({ ...formData, content: e.target.value })}
                   className="w-full bg-transparent px-3 py-2 text-white font-mono text-sm focus:outline-none resize-none"
+                  placeholder="Start writing rich post content block..."
                 />
               </div>
             </div>
@@ -164,6 +215,34 @@ export default function BlogManager() {
                       {isSaving ? 'Saving...' : formData.id ? 'Update' : 'Publish'}
                     </button>
                   </div>
+                </div>
+              </div>
+
+              {/* Dynamic Post FAQs */}
+              <div className="bg-zinc-900 border border-zinc-800">
+                <div className="border-b border-zinc-800 px-3 py-2 text-white text-xs font-medium flex items-center justify-between">
+                  <span>Post FAQs</span>
+                  <button type="button" onClick={addFaqItem} className="text-red-500 hover:underline text-[10px]">+ Add FAQ</button>
+                </div>
+                <div className="p-3 space-y-3 max-h-60 overflow-y-auto">
+                  {(formData.faqs || []).map((faq: any, idx: number) => (
+                    <div key={idx} className="p-2 border border-zinc-850 bg-black/40 rounded-lg relative space-y-1">
+                      <button type="button" onClick={() => removeFaqItem(idx)} className="absolute top-1 right-1 text-red-500 hover:text-red-300 text-[10px]">✕</button>
+                      <input 
+                        type="text" placeholder="Question" value={faq.question || faq.q || ''} 
+                        onChange={e => updateFaqItem(idx, 'question', e.target.value)}
+                        className="w-full bg-zinc-950 border border-zinc-800 px-1.5 py-0.5 text-xs text-white"
+                      />
+                      <textarea 
+                        rows={2} placeholder="Answer" value={faq.answer || faq.a || ''} 
+                        onChange={e => updateFaqItem(idx, 'answer', e.target.value)}
+                        className="w-full bg-zinc-950 border border-zinc-800 px-1.5 py-0.5 text-xs text-white resize-none"
+                      />
+                    </div>
+                  ))}
+                  {(formData.faqs || []).length === 0 && (
+                    <div className="text-zinc-600 text-xs text-center">No post FAQs added yet.</div>
+                  )}
                 </div>
               </div>
 

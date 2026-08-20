@@ -20,6 +20,11 @@ export default function ServicesPage() {
     }
   });
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
+  const [faqs, setFaqs] = useState<any[]>([
+    { q: "Do you offer custom software development?", a: "Yes, we specialize in building custom software tailored to your specific business requirements from scratch." },
+    { q: "How do you ensure code quality?", a: "We follow industry best practices, conduct rigorous code reviews, and implement automated testing pipelines for all our projects." },
+    { q: "Can you help migrate our existing systems?", a: "Absolutely. We have extensive experience in legacy system modernization and seamless cloud migrations." },
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,15 +39,14 @@ export default function ServicesPage() {
         });
         setContent((prev: any) => ({ ...prev, ...formatted }));
       }
+
+      const { data: faqData } = await supabase.from('faqs').select('*').eq('category', 'Services');
+      if (faqData && faqData.length > 0) {
+        setFaqs(faqData.map(f => ({ q: f.question, a: f.answer })));
+      }
     };
     fetchData();
   }, []);
-
-  const faqs = [
-    { q: "Do you offer custom software development?", a: "Yes, we specialize in building custom software tailored to your specific business requirements from scratch." },
-    { q: "How do you ensure code quality?", a: "We follow industry best practices, conduct rigorous code reviews, and implement automated testing pipelines for all our projects." },
-    { q: "Can you help migrate our existing systems?", a: "Absolutely. We have extensive experience in legacy system modernization and seamless cloud migrations." },
-  ];
 
   return (
     <div className="min-h-screen bg-black font-sans text-white flex flex-col w-full">

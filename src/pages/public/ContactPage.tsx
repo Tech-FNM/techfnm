@@ -35,9 +35,12 @@ export default function ContactPage() {
     fetchContent();
   }, []);
 
+  const [errorMessage, setErrorMessage] = useState('');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage('');
     
     try {
       const formElement = e.target as HTMLFormElement;
@@ -54,14 +57,15 @@ export default function ContactPage() {
         body: JSON.stringify(formData)
       });
 
-      if (!response.ok) throw new Error('Failed to send message');
+      const resData = await response.json();
+      if (!response.ok) throw new Error(resData.error || 'Failed to send message');
 
       setIsSubmitted(true);
       formElement.reset();
       setTimeout(() => setIsSubmitted(false), 5000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error sending message:', err);
-      alert('Failed to send message. Please try again later.');
+      setErrorMessage(err.message || 'Failed to send message. Please check server connections and try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -145,7 +149,6 @@ export default function ContactPage() {
               </div>
             </motion.div>
 
-            {/* Interactive Form (Right Side) */}
             <motion.div 
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -156,6 +159,12 @@ export default function ContactPage() {
               
               <h2 className="text-3xl font-bold mb-8 relative z-10">Send a Message</h2>
               
+              {errorMessage && (
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl">
+                  {errorMessage}
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">

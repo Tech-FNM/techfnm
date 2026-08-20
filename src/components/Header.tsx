@@ -1,26 +1,42 @@
 import { Menu, Phone, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const [content, setContent] = useState<any>({
+    logo_text: 'Tech',
+    logo_highlight: 'FNM',
+    nav_links: [
+      { label: 'Home', href: '/' },
+      { label: 'About Us', href: '/about' },
+      { label: 'Services', href: '/services' },
+      { label: 'Portfolio', href: '/portfolio' },
+      { label: 'Blog', href: '/blog' },
+      { label: 'FAQ', href: '/faq' },
+      { label: 'Contact Us', href: '/contact' },
+    ],
+    cta_text: '0313-9023118',
+    cta_link: 'tel:0313-9023118',
+  });
+
+  useEffect(() => {
+    const fetchHeader = async () => {
+      const { data } = await supabase.from('pages_content').select('content').eq('id', 'site_header').maybeSingle();
+      if (data && data.content && Object.keys(data.content).length > 0) {
+        setContent((prev: any) => ({ ...prev, ...data.content }));
+      }
+    };
+    fetchHeader();
+  }, []);
 
   const isActive = (path: string) => {
     if (path === '/' && location.pathname !== '/') return false;
     return location.pathname.startsWith(path);
   };
-
-  const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'About Us', path: '/about' },
-    { name: 'Services', path: '/services' },
-    { name: 'Portfolio', path: '/portfolio' },
-    { name: 'Blog', path: '/blog' },
-    { name: 'FAQ', path: '/faq' },
-    { name: 'Contact Us', path: '/contact' },
-  ];
 
   return (
     <header className="fixed w-full bg-black/90 backdrop-blur-md z-50 shadow-sm border-b border-white/10">
@@ -40,29 +56,29 @@ export default function Header() {
                 }}
               />
               <div className="hidden text-2xl font-bold text-white">
-                Tech<span className="text-red-600 ml-1 font-extrabold">FNM</span>
+                {content.logo_text}<span className="text-red-600 ml-1 font-extrabold">{content.logo_highlight}</span>
               </div>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex space-x-6">
-            {navLinks.map((link) => (
+            {content.nav_links.map((link: any, idx: number) => (
               <Link 
-                key={link.path}
-                to={link.path} 
-                className={`${isActive(link.path) ? 'text-red-500' : 'text-gray-300'} hover:text-red-500 font-medium transition-colors text-sm`}
+                key={idx}
+                to={link.href} 
+                className={`${isActive(link.href) ? 'text-red-500' : 'text-gray-300'} hover:text-red-500 font-medium transition-colors text-sm`}
               >
-                {link.name}
+                {link.label}
               </Link>
             ))}
           </nav>
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center">
-            <a href="tel:0313-9023118" className="flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-full font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20 text-sm">
+            <a href={content.cta_link} className="flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-full font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20 text-sm">
               <Phone size={16} />
-              <span>0313-9023118</span>
+              <span>{content.cta_text}</span>
             </a>
           </div>
 
@@ -87,20 +103,20 @@ export default function Header() {
           className="lg:hidden bg-gray-900 border-t border-gray-800 shadow-lg max-h-[80vh] overflow-y-auto"
         >
           <div className="px-4 pt-2 pb-6 space-y-1">
-            {navLinks.map((link) => (
+            {content.nav_links.map((link: any, idx: number) => (
               <Link 
-                key={link.path}
-                to={link.path} 
-                className={`block px-3 py-3 text-base font-medium rounded-md ${isActive(link.path) ? 'text-red-500 bg-gray-800' : 'text-gray-300 hover:text-red-500 hover:bg-gray-800'}`}
+                key={idx}
+                to={link.href} 
+                className={`block px-3 py-3 text-base font-medium rounded-md ${isActive(link.href) ? 'text-red-500 bg-gray-800' : 'text-gray-300 hover:text-red-500 hover:bg-gray-800'}`}
                 onClick={() => setIsOpen(false)}
               >
-                {link.name}
+                {link.label}
               </Link>
             ))}
             <div className="pt-4">
-              <a href="tel:0313-9023118" className="flex items-center justify-center gap-2 w-full bg-red-600 text-white px-5 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors">
+              <a href={content.cta_link} className="flex items-center justify-center gap-2 w-full bg-red-600 text-white px-5 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors">
                 <Phone size={18} />
-                <span>Call Us Today</span>
+                <span>{content.cta_text}</span>
               </a>
             </div>
           </div>

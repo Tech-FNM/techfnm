@@ -6,10 +6,23 @@ import { supabase } from '../lib/supabase';
 export default function FAQ() {
   const [faqs, setFaqs] = useState<any[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [content, setContent] = useState<any>({
+    subtitle: 'HAVE QUESTIONS?',
+    title: 'Frequently Asked Questions',
+    description: 'Everything you need to know about our services and process.'
+  });
 
   useEffect(() => {
     fetchFaqs();
+    fetchHeaders();
   }, []);
+
+  const fetchHeaders = async () => {
+    const { data } = await supabase.from('pages_content').select('content').eq('id', 'home_faq').maybeSingle();
+    if (data && data.content && Object.keys(data.content).length > 0) {
+      setContent((prev: any) => ({ ...prev, ...data.content }));
+    }
+  };
 
   const fetchFaqs = async () => {
     try {
@@ -36,7 +49,7 @@ export default function FAQ() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-bold mb-4"
           >
             <HelpCircle size={16} />
-            HAVE QUESTIONS?
+            {content.subtitle}
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -45,7 +58,7 @@ export default function FAQ() {
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-5xl font-bold text-white mb-6"
           >
-            Frequently Asked <span className="text-red-600 italic">Questions</span>
+            {content.title}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -54,7 +67,7 @@ export default function FAQ() {
             transition={{ delay: 0.2 }}
             className="text-gray-400 text-lg"
           >
-            Everything you need to know about our services and process.
+            {content.description}
           </motion.p>
         </div>
 

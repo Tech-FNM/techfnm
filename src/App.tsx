@@ -28,6 +28,7 @@ import PagesContentManager from './pages/admin/PagesContentManager';
 import MediaManager from './pages/admin/MediaManager';
 import HeaderManager from './pages/admin/HeaderManager';
 import LeadsManager from './pages/admin/LeadsManager';
+import ProfileManager from './pages/admin/ProfileManager';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -67,6 +68,7 @@ function App() {
             <Route path="homepage" element={<HomepageManager />} />
             <Route path="pages" element={<PagesContentManager />} />
             <Route path="media" element={<MediaManager />} />
+            <Route path="profile" element={<ProfileManager />} />
           </Route>
         </Route>
         

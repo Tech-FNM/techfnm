@@ -4,13 +4,14 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
 import { supabase } from '../../lib/supabase';
-import { Loader2, ArrowLeft, Calendar, User } from 'lucide-react';
+import { Loader2, ArrowLeft, Calendar, User, ChevronDown, HelpCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 export default function BlogDetail() {
   const { slug } = useParams();
   const [blog, setBlog] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchBlog = async () => {
@@ -37,6 +38,8 @@ export default function BlogDetail() {
       </div>
     );
   }
+
+  const postFaqs = Array.isArray(blog.faqs) ? blog.faqs : [];
 
   return (
     <div className="min-h-screen bg-black font-sans text-white flex flex-col w-full">
@@ -65,13 +68,40 @@ export default function BlogDetail() {
             </div>
           )}
           
-          <div className="prose prose-invert prose-red prose-lg max-w-none prose-img:rounded-xl">
+          <div className="prose prose-invert prose-red prose-lg max-w-none prose-img:rounded-xl mb-16">
             {blog.content ? (
               <ReactMarkdown>{blog.content}</ReactMarkdown>
             ) : (
               <p>No content provided.</p>
             )}
           </div>
+
+          {/* Interactive FAQs Section */}
+          {postFaqs.length > 0 && (
+            <section className="border-t border-zinc-800 pt-12 mt-12">
+              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <HelpCircle className="text-red-500" /> Frequently Asked Questions
+              </h3>
+              <div className="space-y-4">
+                {postFaqs.map((faq: any, idx: number) => (
+                  <div key={idx} className="bg-zinc-900/60 border border-zinc-800 rounded-xl overflow-hidden transition-all duration-300">
+                    <button
+                      onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
+                      className="w-full px-5 py-4 text-left flex justify-between items-center hover:bg-zinc-800/40 transition-colors"
+                    >
+                      <span className="font-semibold text-white">{faq.q || faq.question}</span>
+                      <ChevronDown className={`w-5 h-5 text-red-500 transition-transform duration-300 ${activeFaq === idx ? 'rotate-180' : ''}`} />
+                    </button>
+                    {activeFaq === idx && (
+                      <div className="px-5 pb-4 text-sm text-zinc-400 border-t border-zinc-800/40 pt-3">
+                        {faq.a || faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </article>
       </main>
       <Footer />
