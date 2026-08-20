@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Save, Layers } from 'lucide-react';
+import { Save, Layers, Search, FileText } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+
+const PAGES_LIST = [
+  { id: 'home', title: 'Home Page', author: 'admin', date: 'Published' },
+  { id: 'about', title: 'About Page', author: 'admin', date: 'Published' },
+  { id: 'services', title: 'Services Listing Page', author: 'admin', date: 'Published' },
+  { id: 'portfolio', title: 'Portfolio Page', author: 'admin', date: 'Published' },
+  { id: 'contact', title: 'Contact Page', author: 'admin', date: 'Published' }
+];
 
 const PAGE_SECTIONS: Record<string, any[]> = {
   home: [
@@ -171,14 +179,19 @@ const PAGE_SECTIONS: Record<string, any[]> = {
 };
 
 export default function PagesContentManager() {
+  const [viewMode, setViewMode] = useState<'list' | 'edit'>('list');
   const [activePage, setActivePage] = useState('home');
   const [content, setContent] = useState<Record<string, any>>({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selected, setSelected] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchContent(activePage);
-  }, [activePage]);
+    if (viewMode === 'edit') {
+      fetchContent(activePage);
+    }
+  }, [activePage, viewMode]);
 
   const fetchContent = async (pageName: string) => {
     setLoading(true);
@@ -231,39 +244,139 @@ export default function PagesContentManager() {
     }
   };
 
+  const startEditingPage = (pageId: string) => {
+    setActivePage(pageId);
+    setViewMode('edit');
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelected(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+  };
+
+  const toggleAll = () => {
+    if (selected.length === filteredPages.length) setSelected([]);
+    else setSelected(filteredPages.map(p => p.id));
+  };
+
+  const filteredPages = PAGES_LIST.filter(p => 
+    p.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const currentSections = PAGE_SECTIONS[activePage] || [];
+
+  if (viewMode === 'list') {
+    return (
+      <div className="p-4 md:p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <h1 className="text-xl text-white font-normal">Pages</h1>
+          <button 
+            onClick={() => { startEditingPage('home'); }}
+            className="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white px-3 py-1 text-sm transition-colors"
+          >
+            Add New
+          </button>
+        </div>
+
+        {/* Filter bar */}
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-red-500">All ({PAGES_LIST.length})</span>
+            <span className="text-zinc-650">|</span>
+            <span className="text-zinc-500 hover:text-white cursor-pointer">Published ({PAGES_LIST.length})</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <input 
+              type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+              placeholder="Search Pages" 
+              className="bg-zinc-900 border border-zinc-800 px-2 py-1 text-sm text-white focus:outline-none focus:border-red-500 w-40"
+            />
+            <button className="bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 text-sm hover:text-white transition-colors">
+              Search Pages
+            </button>
+          </div>
+        </div>
+
+        {/* Bulk actions */}
+        <div className="flex items-center gap-2 mb-2 text-sm">
+          <select className="bg-zinc-900 border border-zinc-800 text-zinc-400 px-2 py-1 text-sm focus:outline-none">
+            <option>Bulk actions</option>
+            <option>Edit</option>
+          </select>
+          <button className="bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 text-sm hover:text-white transition-colors">Apply</button>
+          <span className="text-zinc-600 ml-auto">{filteredPages.length} item{filteredPages.length !== 1 ? 's' : ''}</span>
+        </div>
+
+        {/* WordPress Style Table */}
+        <div className="border border-zinc-800 overflow-x-auto bg-zinc-900/10">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-zinc-800 bg-zinc-900/50">
+                <th className="p-2.5 w-8 text-center">
+                  <input type="checkbox" checked={selected.length === filteredPages.length && filteredPages.length > 0} onChange={toggleAll} className="accent-red-500" />
+                </th>
+                <th className="p-2.5 text-left text-zinc-400 font-medium">Title</th>
+                <th className="p-2.5 text-left text-zinc-400 font-medium">Author</th>
+                <th className="p-2.5 text-left text-zinc-400 font-medium">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPages.map(page => (
+                <tr key={page.id} className="border-b border-zinc-800/60 hover:bg-zinc-900/50 group">
+                  <td className="p-2.5 text-center">
+                    <input type="checkbox" checked={selected.includes(page.id)} onChange={() => toggleSelect(page.id)} className="accent-red-500" />
+                  </td>
+                  <td className="p-2.5">
+                    <div>
+                      <button onClick={() => startEditingPage(page.id)} className="text-white font-medium hover:text-red-500 transition-colors text-left">
+                        {page.title}
+                      </button>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 mt-1 text-xs">
+                        <button onClick={() => startEditingPage(page.id)} className="text-red-500 hover:underline">Edit</button>
+                        <span className="text-zinc-800">|</span>
+                        <span className="text-zinc-600">Quick Edit</span>
+                        <span className="text-zinc-850">|</span>
+                        <span className="text-zinc-600">Trash</span>
+                        <span className="text-zinc-850">|</span>
+                        <a href={page.id === 'home' ? '/' : `/${page.id}`} target="_blank" className="text-zinc-500 hover:underline">View</a>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-2.5 text-zinc-500">{page.author}</td>
+                  <td className="p-2.5 text-zinc-500">
+                    <div>{page.date}</div>
+                    <div className="text-xs text-zinc-600">2026/08/21</div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto">
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center text-red-500">
-          <Layers size={20} />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center text-red-500">
+            <FileText size={20} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-normal text-white">Edit Page</h1>
+            <p className="text-gray-500 text-xs mt-0.5">Edit page content blocks sequentially.</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-normal text-white">Pages Editor</h1>
-          <p className="text-gray-500 text-xs mt-0.5">Manage inner page blocks and layout elements in order.</p>
-        </div>
-      </div>
-
-      {/* Page Tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 border-b border-zinc-800">
-        {Object.keys(PAGE_SECTIONS).map((page) => (
-          <button
-            key={page}
-            onClick={() => setActivePage(page)}
-            className={`px-4 py-1.5 rounded-lg text-xs font-semibold capitalize whitespace-nowrap transition-colors ${
-              activePage === page 
-                ? 'bg-red-600 text-white' 
-                : 'bg-zinc-900 text-gray-400 hover:bg-zinc-850'
-            }`}
-          >
-            {page} Page
-          </button>
-        ))}
+        <button 
+          onClick={() => setViewMode('list')}
+          className="text-zinc-400 hover:text-white text-xs border border-zinc-800 px-3 py-1.5 rounded-lg"
+        >
+          ← Back to Pages List
+        </button>
       </div>
 
       {loading ? (
-        <div className="text-zinc-500 text-sm">Loading content...</div>
+        <div className="text-zinc-500 text-sm">Loading page sections...</div>
       ) : (
         <div className="space-y-6">
           {currentSections.map((section) => (
