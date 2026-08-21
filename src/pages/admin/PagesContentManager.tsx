@@ -106,27 +106,60 @@ const PAGE_SECTIONS: Record<string, any[]> = {
   about: [
     {
       id: 'about_hero',
-      name: 'Hero Section',
+      name: 'Hero Header Block',
       fields: [
-        { key: 'title', label: 'Main Title', type: 'text' },
-        { key: 'description', label: 'Description', type: 'textarea' },
+        { key: 'title', label: 'Main Complexity Title', type: 'text' },
+        { key: 'subtitle', label: 'Subtitle Highlight', type: 'text' },
+        { key: 'intro_italic', label: 'Italic Intro Quote', type: 'textarea' },
       ]
     },
     {
-      id: 'about_story',
-      name: 'Our Story',
+      id: 'about_existence',
+      name: 'Our Existence Explained Section',
       fields: [
         { key: 'title', label: 'Section Title', type: 'text' },
-        { key: 'content1', label: 'Paragraph 1', type: 'textarea' },
-        { key: 'content2', label: 'Paragraph 2', type: 'textarea' },
+        { key: 'description', label: 'Existence Paragraph', type: 'textarea' },
+        { key: 'founded_label', label: 'Founded Label', type: 'text' },
+        { key: 'founded_value', label: 'Founded Value', type: 'text' },
+        { key: 'remote_label', label: 'Remote Label', type: 'text' },
+        { key: 'remote_value', label: 'Remote Value', type: 'text' },
+        { key: 'raised_label', label: 'Raised Label', type: 'text' },
+        { key: 'raised_value', label: 'Raised Value', type: 'text' },
       ]
     },
     {
-      id: 'about_mission',
-      name: 'Mission & Vision',
+      id: 'about_do_difference',
+      name: 'What We Do & Our Difference Block',
       fields: [
-        { key: 'mission', label: 'Mission Text', type: 'textarea' },
-        { key: 'vision', label: 'Vision Text', type: 'textarea' },
+        { key: 'do_title', label: 'What We Do Title', type: 'text' },
+        { key: 'do_desc', label: 'What We Do Description', type: 'textarea' },
+        { key: 'diff_title', label: 'Our Difference Title', type: 'text' },
+        { key: 'diff_desc', label: 'Our Difference Description', type: 'textarea' },
+      ]
+    },
+    {
+      id: 'about_team_quality',
+      name: 'Quality of Our Work Block',
+      fields: [
+        { key: 'title', label: 'Team Header Title', type: 'text' },
+        { key: 'description', label: 'Team Section Description', type: 'textarea' },
+        { key: 'image_url', label: 'Team Image URL', type: 'text' },
+      ]
+    },
+    {
+      id: 'about_trust_numbers',
+      name: 'Trust Backed By Numbers Block',
+      fields: [
+        { key: 'title', label: 'Numbers Section Title', type: 'text' },
+        { key: 'description', label: 'Numbers Description text', type: 'textarea' },
+      ]
+    },
+    {
+      id: 'about_easy_start',
+      name: 'Bottom Call to Action Block',
+      fields: [
+        { key: 'title', label: 'CTA Header Title', type: 'text' },
+        { key: 'buttonText', label: 'CTA Button Text', type: 'text' },
       ]
     }
   ],
