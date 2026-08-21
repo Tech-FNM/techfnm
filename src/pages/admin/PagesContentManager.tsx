@@ -388,6 +388,8 @@ export default function PagesContentManager() {
     );
   }
 
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+
   const insertWysiwygText = (sectionId: string, key: string, tag: string, textEnd: string = '') => {
     const txtArea = document.getElementById(`wysiwyg-${sectionId}-${key}`) as HTMLTextAreaElement;
     if (!txtArea) return;
@@ -449,54 +451,76 @@ export default function PagesContentManager() {
           {loading ? (
             <div className="text-zinc-500 text-sm">Loading page content blocks...</div>
           ) : (
-            <div className="space-y-6">
-              {currentSections.map((section) => (
-                <div key={section.id} className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-lg">
-                  <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/60 px-4 py-2.5">
-                    <h2 className="text-xs font-semibold text-zinc-300">{section.name}</h2>
-                    <span className="text-[10px] text-zinc-500 font-mono">#{section.id}</span>
-                  </div>
-
-                  <div className="p-4 space-y-4">
-                    {section.fields.map((field: any) => (
-                      <div key={field.key} className="space-y-2">
-                        <label className="block text-xs font-medium text-gray-400">{field.label}</label>
-                        {field.type === 'textarea' ? (
-                          <div className="border border-zinc-800 rounded-xl bg-zinc-950 overflow-hidden">
-                            <div className="border-b border-zinc-850 px-3 py-2 flex flex-wrap gap-1.5 items-center bg-zinc-900/80">
-                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '# ', '\n')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold">H1</button>
-                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '## ', '\n')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold">H2</button>
-                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '### ', '\n')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold">H3</button>
-                              <span className="text-zinc-800">|</span>
-                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '**', '**')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold">B</button>
-                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '*', '*')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] italic">I</button>
-                              <span className="text-zinc-800">|</span>
-                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '- ', '\n')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px]">List</button>
-                              <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '[', '](url)')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px]">Link</button>
-                            </div>
-                            <textarea
-                              id={`wysiwyg-${section.id}-${field.key}`}
-                              rows={4}
-                              value={content[section.id]?.[field.key] || ''}
-                              onChange={(e) => handleUpdateField(section.id, field.key, e.target.value)}
-                              className="w-full bg-transparent px-3 py-2 text-white text-sm focus:outline-none resize-none font-mono"
-                              placeholder={`Enter ${field.label.toLowerCase()}...`}
-                            />
-                          </div>
-                        ) : (
-                          <input
-                            type="text"
-                            value={content[section.id]?.[field.key] || ''}
-                            onChange={(e) => handleUpdateField(section.id, field.key, e.target.value)}
-                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-red-500 transition-colors"
-                            placeholder={`Enter ${field.label.toLowerCase()}...`}
-                          />
-                        )}
+            <div className="space-y-4">
+              {currentSections.map((section) => {
+                const isOpen = expandedSection === section.id;
+                return (
+                  <div key={section.id} className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-lg">
+                    <div 
+                      onClick={() => setExpandedSection(isOpen ? null : section.id)}
+                      className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/60 px-4 py-3 cursor-pointer hover:bg-zinc-800/40 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-zinc-500">{isOpen ? '▼' : '▶'}</span>
+                        <h2 className="text-xs font-semibold text-zinc-300">{section.name}</h2>
                       </div>
-                    ))}
+                      <span className="text-[10px] text-zinc-500 font-mono">#{section.id}</span>
+                    </div>
+
+                    {isOpen && (
+                      <div className="p-4 space-y-4 border-t border-zinc-850 bg-zinc-900/10">
+                        {section.fields.map((field: any) => (
+                          <div key={field.key} className="space-y-2">
+                            <label className="block text-xs font-medium text-gray-400">{field.label}</label>
+                            {field.type === 'textarea' ? (
+                              <div className="border border-zinc-800 rounded-xl bg-zinc-950 overflow-hidden">
+                                <div className="border-b border-zinc-850 px-3 py-2 flex flex-wrap gap-1.5 items-center bg-zinc-900/80">
+                                  <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '# ', '\n')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold">H1</button>
+                                  <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '## ', '\n')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold">H2</button>
+                                  <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '### ', '\n')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold">H3</button>
+                                  <span className="text-zinc-800">|</span>
+                                  <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '**', '**')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold">B</button>
+                                  <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '*', '*')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] italic">I</button>
+                                  <span className="text-zinc-800">|</span>
+                                  <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '- ', '\n')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px]">List</button>
+                                  <button type="button" onClick={() => insertWysiwygText(section.id, field.key, '[', '](url)')} className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px]">Link</button>
+                                </div>
+                                <textarea
+                                  id={`wysiwyg-${section.id}-${field.key}`}
+                                  rows={4}
+                                  value={content[section.id]?.[field.key] || ''}
+                                  onChange={(e) => handleUpdateField(section.id, field.key, e.target.value)}
+                                  className="w-full bg-transparent px-3 py-2 text-white text-sm focus:outline-none resize-none font-mono"
+                                  placeholder={`Enter ${field.label.toLowerCase()}...`}
+                                />
+                              </div>
+                            ) : (
+                              <input
+                                type="text"
+                                value={content[section.id]?.[field.key] || ''}
+                                onChange={(e) => handleUpdateField(section.id, field.key, e.target.value)}
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-red-500 transition-colors"
+                                placeholder={`Enter ${field.label.toLowerCase()}...`}
+                              />
+                            )}
+                          </div>
+                        ))}
+                        
+                        <div className="flex justify-end pt-2">
+                          <button
+                            type="button"
+                            onClick={() => handleSave(section.id, section.name)}
+                            disabled={savingId === section.id}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50 flex items-center gap-1"
+                          >
+                            <Save size={12} /> {savingId === section.id ? 'Saving...' : 'Save Section'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
