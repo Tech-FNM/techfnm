@@ -3,16 +3,17 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
 import { motion } from 'motion/react';
-import { Mail, Phone, MapPin, Send, MessageCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageCircle, Headphones } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [content, setContent] = useState<any>({
     contact_hero: {
-      title: 'Get in Touch',
-      description: 'Have a project in mind or just want to say hi? We\'d love to hear from you. Drop us a line and our team will get back to you within 24 hours.'
+      title: 'Lets Have a Chat 🤝',
+      description: 'Questions about our products/services, orders, or just want to say hello? We\'re here to help'
     },
     contact_info: {
       email: 'hello@techfnm.com',
@@ -35,8 +36,6 @@ export default function ContactPage() {
     fetchContent();
   }, []);
 
-  const [errorMessage, setErrorMessage] = useState('');
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -45,9 +44,9 @@ export default function ContactPage() {
     try {
       const formElement = e.target as HTMLFormElement;
       const formData = {
-        name: (formElement.elements.namedItem('name') as HTMLInputElement).value,
+        name: (formElement.elements.namedItem('first_name') as HTMLInputElement).value + ' ' + (formElement.elements.namedItem('last_name') as HTMLInputElement).value,
         email: (formElement.elements.namedItem('email') as HTMLInputElement).value,
-        subject: (formElement.elements.namedItem('subject') as HTMLInputElement).value,
+        subject: (formElement.elements.namedItem('phone_number') as HTMLInputElement).value,
         message: (formElement.elements.namedItem('message') as HTMLTextAreaElement).value,
       };
 
@@ -65,171 +64,124 @@ export default function ContactPage() {
       setTimeout(() => setIsSubmitted(false), 5000);
     } catch (err: any) {
       console.error('Error sending message:', err);
-      setErrorMessage(err.message || 'Failed to send message. Please check server connections and try again.');
+      setErrorMessage(err.message || 'Failed to send message. Please check server connections.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black font-sans text-white flex flex-col w-full">
-      <SeoHead pageId="contact" title="Contact Us - Get in Touch | TechFNM" />
+    <div className="min-h-screen bg-black font-sans text-white flex flex-col w-full selection:bg-red-500/30 relative">
+      <SeoHead pageId="contact" title="Contact Us - Let's Have a Chat | TechFNM" />
       <Header />
       
-      <main className="flex-grow pt-32 pb-0">
+      {/* Curved background shade panel (Riter style) */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] aspect-[2/1] rounded-t-[100%] bg-zinc-900/10 border-t border-zinc-800/20 pointer-events-none -z-10" />
+
+      <main className="flex-grow pt-36 pb-24 relative z-10 max-w-4xl mx-auto px-4 w-full">
         
-        {/* Hero Section */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-24">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">Let's Connect</span>
-            <h1 className="mt-4 text-5xl md:text-7xl font-extrabold text-white tracking-tight">
-              {content.contact_hero?.title?.split(' ').map((word: string, i: number, arr: string[]) => 
-                i === arr.length - 1 ? 
-                <span key={i} className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500"> {word}</span> : 
-                ` ${word}`
-              ) || 'Get in Touch'}
-            </h1>
-            <p className="mt-6 text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed">
-              {content.contact_hero?.description}
-            </p>
-          </motion.div>
+        {/* Support Online Banner Badge */}
+        <div className="flex justify-center mb-6">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full text-xs text-zinc-400 font-medium">
+            <Headphones size={13} className="text-red-500" /> 4 Support online <span className="text-zinc-600">|</span> <span className="text-white underline cursor-pointer">Join us</span>
+          </span>
+        </div>
+
+        {/* Hero Headers */}
+        <section className="text-center mb-12 space-y-4">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight">
+            {content.contact_hero?.title}
+          </h1>
+          <p className="text-zinc-400 text-sm md:text-base max-w-xl mx-auto font-light">
+            {content.contact_hero?.description}
+          </p>
         </section>
 
-        {/* Contact Info & Form */}
-        <section className="pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-8">
-            
-            {/* Contact Information (Left Side) */}
-            <motion.div 
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="lg:col-span-2 space-y-6"
-            >
-              <div className="bg-zinc-900/50 border border-zinc-800 p-8 rounded-[2rem]">
-                <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                  <MessageCircle className="text-red-500 w-6 h-6" /> Contact Info
-                </h3>
-                
-                <div className="space-y-8">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center text-red-500 shrink-0">
-                      <Mail className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <span className="text-sm text-zinc-500 font-medium uppercase tracking-wider block mb-1">Email Us</span>
-                      <a href={`mailto:${content.contact_info?.email}`} className="text-lg text-white hover:text-red-500 transition-colors">{content.contact_info?.email}</a>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center text-red-500 shrink-0">
-                      <Phone className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <span className="text-sm text-zinc-500 font-medium uppercase tracking-wider block mb-1">Call Us</span>
-                      <a href={`tel:${content.contact_info?.phone}`} className="text-lg text-white hover:text-red-500 transition-colors">{content.contact_info?.phone}</a>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center text-red-500 shrink-0">
-                      <MapPin className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <span className="text-sm text-zinc-500 font-medium uppercase tracking-wider block mb-1">Visit Us</span>
-                      <p className="text-lg text-white whitespace-pre-line">{content.contact_info?.address}</p>
-                    </div>
-                  </div>
-                </div>
+        {/* Riter Center Form Panel */}
+        <section className="max-w-2xl mx-auto">
+          {errorMessage && (
+            <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl text-center">
+              {errorMessage}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-zinc-400">First name</label>
+                <input 
+                  type="text" 
+                  name="first_name"
+                  required
+                  className="w-full bg-zinc-900/50 border border-zinc-800/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-red-500 text-sm"
+                  placeholder="Jonathan"
+                />
               </div>
-            </motion.div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-zinc-400">Last name</label>
+                <input 
+                  type="text" 
+                  name="last_name"
+                  required
+                  className="w-full bg-zinc-900/50 border border-zinc-800/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-red-500 text-sm"
+                  placeholder="James"
+                />
+              </div>
+            </div>
 
-            <motion.div 
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="lg:col-span-3 bg-zinc-900 border border-zinc-800 p-8 md:p-12 rounded-[2.5rem] relative overflow-hidden"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-zinc-400">Email</label>
+                <input 
+                  type="email" 
+                  name="email"
+                  required
+                  className="w-full bg-zinc-900/50 border border-zinc-800/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-red-500 text-sm"
+                  placeholder="Jonathan2718@gmail.com"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-zinc-400">Phone number</label>
+                <input 
+                  type="text" 
+                  name="phone_number"
+                  className="w-full bg-zinc-900/50 border border-zinc-800/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-red-500 text-sm"
+                  placeholder="Subject"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-zinc-400">Message</label>
+              <textarea 
+                name="message"
+                rows={5}
+                required
+                className="w-full bg-zinc-900/50 border border-zinc-800/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-red-500 text-sm resize-none"
+                placeholder="Hey i have some issues activating my account..."
+              />
+            </div>
+
+            <button 
+              type="submit"
+              disabled={isSubmitting || isSubmitted}
+              className="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 text-xs"
             >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-3xl" />
-              
-              <h2 className="text-3xl font-bold mb-8 relative z-10">Send a Message</h2>
-              
-              {errorMessage && (
-                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl">
-                  {errorMessage}
-                </div>
+              {isSubmitting ? (
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : isSubmitted ? (
+                'Message Sent Successfully!'
+              ) : (
+                'Send message'
               )}
+            </button>
+          </form>
 
-              <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label htmlFor="name" className="text-sm font-medium text-zinc-400">Full Name</label>
-                    <input 
-                      type="text" 
-                      id="name"
-                      name="name"
-                      required
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600"
-                      placeholder="John Doe"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="email" className="text-sm font-medium text-zinc-400">Email Address</label>
-                    <input 
-                      type="email" 
-                      id="email"
-                      name="email"
-                      required
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600"
-                      placeholder="john@example.com"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="subject" className="text-sm font-medium text-zinc-400">Subject</label>
-                  <input 
-                    type="text" 
-                    id="subject"
-                    name="subject"
-                    required
-                    className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600"
-                    placeholder="How can we help you?"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="message" className="text-sm font-medium text-zinc-400">Message</label>
-                  <textarea 
-                    id="message"
-                    name="message"
-                    rows={5}
-                    required
-                    className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600 resize-none"
-                    placeholder="Tell us about your project..."
-                  ></textarea>
-                </div>
-                
-                <button 
-                  type="submit"
-                  disabled={isSubmitting || isSubmitted}
-                  className="w-full bg-red-600 hover:bg-red-700 disabled:bg-zinc-800 text-white font-bold rounded-xl px-6 py-4 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : isSubmitted ? (
-                    'Message Sent Successfully!'
-                  ) : (
-                    <>Send Message <Send className="w-5 h-5" /></>
-                  )}
-                </button>
-              </form>
-            </motion.div>
+          {/* Social icons bottom row */}
+          <div className="flex justify-center gap-4 mt-8 text-zinc-650">
+            <span className="hover:text-white cursor-pointer transition-colors text-xs font-mono">𝕏</span>
+            <span className="hover:text-white cursor-pointer transition-colors text-xs font-mono">Instagram</span>
+            <span className="hover:text-white cursor-pointer transition-colors text-xs font-mono">Discord</span>
           </div>
         </section>
 
