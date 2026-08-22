@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { HelpCircle, Terminal, Users, Layers, TrendingUp, ArrowRight, Star } from 'lucide-react';
+import { Layers, TrendingUp, ArrowRight, Star, Users } from 'lucide-react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
@@ -21,7 +21,7 @@ export default function AboutPage() {
 
       <main className="relative z-10">
         {/* HERO SECTION */}
-        <section className="relative min-h-[85vh] flex flex-col items-center justify-center py-20 bg-black overflow-hidden border-b border-zinc-900 px-4 sm:px-6 lg:px-8">
+        <section className="relative min-h-[80vh] flex flex-col items-center justify-center py-20 bg-black overflow-hidden border-b border-zinc-900 px-4 sm:px-6 lg:px-8">
           {/* Subtle grid background */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f29370a_1px,transparent_1px),linear-gradient(to_bottom,#1f29370a_1px,transparent_1px)] bg-[size:3rem_3rem]" />
           
@@ -29,22 +29,21 @@ export default function AboutPage() {
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] md:w-[600px] h-[350px] md:h-[600px] bg-red-600/10 blur-[120px] rounded-full pointer-events-none" />
           <div className="absolute -top-40 -left-40 w-96 h-96 bg-red-950/20 blur-[150px] rounded-full pointer-events-none" />
 
-          <div className="max-w-4xl mx-auto text-center relative z-10 space-y-8">
-            <motion.div
+          <div className="max-w-4xl mx-auto text-center relative z-10 space-y-6">
+            <motion.span
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800/80 text-red-500 text-xs md:text-sm font-bold shadow-inner"
+              className="text-red-500 font-semibold tracking-wider uppercase text-sm block"
             >
-              <HelpCircle size={14} className="animate-pulse" />
-              <span>About Our Agency</span>
-            </motion.div>
+              About Us
+            </motion.span>
 
             <motion.h1
               initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.15] md:leading-[1.1] text-balance"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.15] md:leading-[1.1] text-balance"
             >
               Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700">Digital Growth</span> <br className="hidden sm:inline" />
               Partner
@@ -90,15 +89,15 @@ export default function AboutPage() {
                 {/* Stats list under sphere */}
                 <div className="grid grid-cols-3 gap-4 sm:gap-8 w-full max-w-md border-t border-zinc-800/80 pt-8">
                   <div className="text-center space-y-1">
-                    <div className="text-2xl sm:text-3xl font-black text-white tracking-tight">2023</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">2023</div>
                     <div className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase tracking-wider">Founded</div>
                   </div>
                   <div className="text-center space-y-1 border-x border-zinc-800/60 px-2">
-                    <div className="text-2xl sm:text-3xl font-black text-white tracking-tight">100%</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">100%</div>
                     <div className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase tracking-wider">Remote</div>
                   </div>
                   <div className="text-center space-y-1">
-                    <div className="text-2xl sm:text-3xl font-black text-white tracking-tight">50+</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">50+</div>
                     <div className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase tracking-wider">Projects</div>
                   </div>
                 </div>
@@ -107,10 +106,10 @@ export default function AboutPage() {
               {/* Right Column - Text Content */}
               <div className="lg:col-span-7 space-y-6">
                 <motion.div {...fadeInUp} className="space-y-6">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs font-bold uppercase tracking-wider">
+                  <span className="text-red-500 font-semibold tracking-wider uppercase text-sm block">
                     Our Story
-                  </div>
-                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
+                  </span>
+                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
                     Our Existence <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700">Explained</span>
                   </h2>
                   
@@ -125,7 +124,7 @@ export default function AboutPage() {
                       Existing software failed under intense demands, resorting to stopgap measures, unjustifiable compromises, and convoluted final solutions. Often <span className="text-white font-semibold underline decoration-red-500 decoration-2">forcing engineering teams</span> to develop custom solutions that were expensive and difficult to maintain.
                     </p>
                     <p>
-                      With a <span className="text-red-500 font-extrabold tracking-wide">clear vision</span>, we developed a suite of technologies characterized by their exceptional adaptability, pinpoint accuracy, and enhanced productivity. Our solutions are designed to <span className="text-white font-semibold">liberate businesses</span>, enabling them to manage large data sets with ease.
+                      With a <span className="text-red-500 font-bold tracking-wide">clear vision</span>, we developed a suite of technologies characterized by their exceptional adaptability, pinpoint accuracy, and enhanced productivity. Our solutions are designed to <span className="text-white font-semibold">liberate businesses</span>, enabling them to manage large data sets with ease.
                     </p>
                   </div>
                 </motion.div>
@@ -143,14 +142,13 @@ export default function AboutPage() {
               {/* Card 1: What We Do */}
               <motion.div 
                 {...fadeInUp}
-                className="bg-zinc-900/30 border border-zinc-800/80 rounded-3xl p-8 sm:p-10 backdrop-blur-md flex flex-col justify-between hover:border-red-650/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-red-950/5 transition-all duration-300"
+                className="bg-zinc-900/30 border border-zinc-800/80 rounded-3xl p-8 sm:p-10 backdrop-blur-md flex flex-col justify-between hover:border-red-655/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-red-950/5 transition-all duration-300"
               >
                 <div className="space-y-6">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-950 border border-zinc-855 text-zinc-400 text-xs font-bold">
-                    <Layers size={12} className="text-red-500" />
-                    <span>Our Craft</span>
-                  </div>
-                  <h3 className="text-3xl font-black text-white">
+                  <span className="text-red-500 font-semibold tracking-wider uppercase text-sm block">
+                    Our Craft
+                  </span>
+                  <h3 className="text-3xl font-bold text-white">
                     What We <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700">Do</span>
                   </h3>
                   <p className="text-lg font-semibold text-zinc-200 leading-relaxed">
@@ -172,14 +170,13 @@ export default function AboutPage() {
               {/* Card 2: Our Difference */}
               <motion.div 
                 {...fadeInUp}
-                className="bg-zinc-900/30 border border-zinc-800/80 rounded-3xl p-8 sm:p-10 backdrop-blur-md flex flex-col hover:border-red-650/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-red-950/5 transition-all duration-300"
+                className="bg-zinc-900/30 border border-zinc-800/80 rounded-3xl p-8 sm:p-10 backdrop-blur-md flex flex-col hover:border-red-655/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-red-950/5 transition-all duration-300"
               >
                 <div className="space-y-6">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-950 border border-zinc-855 text-zinc-400 text-xs font-bold">
-                    <TrendingUp size={12} className="text-red-500" />
-                    <span>Our Craft</span>
-                  </div>
-                  <h3 className="text-3xl font-black text-white">
+                  <span className="text-red-500 font-semibold tracking-wider uppercase text-sm block">
+                    Our Craft
+                  </span>
+                  <h3 className="text-3xl font-bold text-white">
                     Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700">Difference</span>
                   </h3>
                   <h4 className="text-lg font-bold text-white leading-snug">
@@ -211,11 +208,10 @@ export default function AboutPage() {
               {/* Team Text */}
               <div className="lg:col-span-6 space-y-8">
                 <motion.div {...fadeInUp} className="space-y-6">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs font-bold">
-                    <Users size={12} className="text-red-500" />
-                    <span>Our Team</span>
-                  </div>
-                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
+                  <span className="text-red-500 font-semibold tracking-wider uppercase text-sm block">
+                    Our Team
+                  </span>
+                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
                     We care deeply <span className="text-zinc-400">about the quality of our</span> <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700">work</span>
                   </h2>
                   
@@ -224,7 +220,7 @@ export default function AboutPage() {
                   </p>
 
                   <div className="pt-2">
-                    <a href="/request-service" className="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-850 hover:border-red-650/40 text-white border border-zinc-800 px-6 py-3 rounded-full font-bold transition-all shadow-md">
+                    <a href="/request-service" className="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-850 hover:border-red-655/40 text-white border border-zinc-800 px-6 py-3 rounded-full font-bold transition-all shadow-md">
                       <span>We're hiring</span>
                       <ArrowRight size={16} className="text-red-500" />
                     </a>
@@ -275,11 +271,11 @@ export default function AboutPage() {
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-red-950/10 blur-[130px] rounded-full pointer-events-none" />
           
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-850 text-zinc-400 text-xs font-bold">
-              <span>Numbers</span>
-            </div>
+            <span className="text-red-500 font-semibold tracking-wider uppercase text-sm block">
+              Numbers
+            </span>
             
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
               Trust backed <span className="text-zinc-400">by</span> <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700">numbers</span>
             </h2>
             
@@ -291,20 +287,20 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6">
               
               {/* Card 1 */}
-              <div className="bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-6 sm:p-8 backdrop-blur-md hover:border-red-650/30 transition-all duration-300">
-                <div className="text-3xl sm:text-4xl font-black text-white mb-1">2023</div>
+              <div className="bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-6 sm:p-8 backdrop-blur-md hover:border-red-655/30 transition-all duration-300">
+                <div className="text-3xl sm:text-4xl font-bold text-white mb-1">2023</div>
                 <div className="text-xs text-zinc-500 font-bold tracking-wider uppercase">Founded</div>
               </div>
 
               {/* Card 2 */}
-              <div className="bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-6 sm:p-8 backdrop-blur-md hover:border-red-650/30 transition-all duration-300">
-                <div className="text-3xl sm:text-4xl font-black text-white mb-1">100%</div>
+              <div className="bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-6 sm:p-8 backdrop-blur-md hover:border-red-655/30 transition-all duration-300">
+                <div className="text-3xl sm:text-4xl font-bold text-white mb-1">100%</div>
                 <div className="text-xs text-zinc-500 font-bold tracking-wider uppercase">Remote</div>
               </div>
 
               {/* Card 3 */}
-              <div className="bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-6 sm:p-8 backdrop-blur-md hover:border-red-650/30 transition-all duration-300">
-                <div className="text-3xl sm:text-4xl font-black text-white mb-1">50+</div>
+              <div className="bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-6 sm:p-8 backdrop-blur-md hover:border-red-655/30 transition-all duration-300">
+                <div className="text-3xl sm:text-4xl font-bold text-white mb-1">50+</div>
                 <div className="text-xs text-zinc-500 font-bold tracking-wider uppercase">Projects</div>
               </div>
 
