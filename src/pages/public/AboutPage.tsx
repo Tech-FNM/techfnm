@@ -45,10 +45,8 @@ export default function AboutPage() {
               transition={{ duration: 0.7, delay: 0.1 }}
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.15] md:leading-[1.1] text-balance"
             >
-              We Turn Complexity & <br className="hidden sm:inline" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700">Intricacy...</span> <br />
-              To Elegant Simplicity & <br className="hidden sm:inline" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400">Absolute Clarity</span>
+              Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700">Digital Growth</span> <br className="hidden sm:inline" />
+              Partner
             </motion.h1>
 
             <motion.div
