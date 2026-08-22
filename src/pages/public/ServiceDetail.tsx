@@ -257,7 +257,7 @@ export default function ServiceDetail() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1, duration: 0.4 }}
-                    className="bg-zinc-900/30 border border-zinc-850 p-8 rounded-3xl space-y-4 hover:border-red-650/20 transition-all backdrop-blur-sm"
+                    className="bg-zinc-900/30 border border-zinc-850 p-8 rounded-3xl space-y-4 hover:border-red-600/20 transition-all backdrop-blur-sm"
                   >
                     <div className="w-12 h-12 rounded-xl bg-zinc-900 flex items-center justify-center text-red-500 border border-zinc-800 shadow-md">
                       <FeatIcon size={20} />
@@ -316,7 +316,7 @@ export default function ServiceDetail() {
                   transition={{ delay: index * 0.1, duration: 0.4 }}
                   className={`relative rounded-3xl p-8 backdrop-blur-sm border flex flex-col justify-between transition-all ${
                     plan.popular
-                      ? 'bg-zinc-900/40 border-red-650/45 shadow-2xl shadow-red-950/5 scale-[1.03] z-10'
+                      ? 'bg-zinc-900/40 border-red-600/40 shadow-2xl shadow-red-950/5 scale-[1.03] z-10'
                       : 'bg-zinc-900/10 border-zinc-850 hover:border-zinc-800'
                   }`}
                 >
@@ -354,7 +354,7 @@ export default function ServiceDetail() {
                       to={`/request-service?service=${encodeURIComponent(service.title)}&plan=${encodeURIComponent(plan.name)}`}
                       className={`w-full flex items-center justify-center gap-1.5 py-3.5 rounded-xl text-sm font-bold transition-all ${
                         plan.popular
-                          ? 'bg-red-650 hover:bg-red-750 text-white shadow-lg shadow-red-950/15'
+                          ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-950/15'
                           : 'bg-zinc-950 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white'
                       }`}
                     >

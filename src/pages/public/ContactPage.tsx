@@ -133,7 +133,7 @@ export default function ContactPage() {
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                   placeholder="First name"
                   required
-                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-650/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
+                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-600/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
                 />
               </div>
 
@@ -149,7 +149,7 @@ export default function ContactPage() {
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                   placeholder="Last name"
-                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-650/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
+                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-600/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
                 />
               </div>
 
@@ -166,7 +166,7 @@ export default function ContactPage() {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="Email"
                   required
-                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-650/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
+                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-600/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
                 />
               </div>
 
@@ -182,7 +182,7 @@ export default function ContactPage() {
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   placeholder="Phone number"
-                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-650/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
+                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-600/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
                 />
               </div>
 
@@ -201,7 +201,7 @@ export default function ContactPage() {
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 placeholder="Message"
                 required
-                className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-650/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors resize-none"
+                className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-600/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors resize-none"
               />
             </div>
 
