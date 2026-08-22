@@ -3,6 +3,7 @@ import { HelpCircle, Terminal, Users, Layers, TrendingUp, ArrowRight, Star } fro
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
+import Leadership from '../../components/Leadership';
 
 export default function AboutPage() {
   // Animation presets for consistency
@@ -265,6 +266,9 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* LEADERSHIP SECTION */}
+        <Leadership />
 
         {/* NUMBERS SECTION */}
         <section className="py-24 bg-black relative">
