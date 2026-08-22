@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, LayoutGrid, Image, Settings, LogOut, Briefcase, FormInput, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, LayoutGrid, Image, Settings, LogOut, Briefcase, FormInput, ExternalLink, PanelTop } from 'lucide-react';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -28,6 +28,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { id: 'media', label: 'Media Management', icon: Image },
     { id: 'services', label: 'All Services', icon: Briefcase },
     { id: 'portfolio', label: 'All Portfolio', icon: Briefcase },
+    { id: 'header', label: 'Header Management', icon: PanelTop },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 

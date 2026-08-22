@@ -8,6 +8,7 @@ import PageManager from './PageManager';
 import MediaManager from './MediaManager';
 import ServicesManager from './ServicesManager';
 import PortfolioManager from './PortfolioManager';
+import HeaderManager from './HeaderManager';
 import SettingsManager from './SettingsManager';
 
 export default function AdminDashboard() {
@@ -32,6 +33,8 @@ export default function AdminDashboard() {
         return <ServicesManager />;
       case 'portfolio':
         return <PortfolioManager />;
+      case 'header':
+        return <HeaderManager />;
       case 'settings':
         return <SettingsManager />;
       default:
