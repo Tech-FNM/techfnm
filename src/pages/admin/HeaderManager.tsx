@@ -363,46 +363,10 @@ export default function HeaderManager() {
                   <span>{uploading ? 'Uploading...' : 'Upload Logo Image'}</span>
                 </button>
 
-                {/* Or paste URL */}
-                <div className="flex items-center gap-2 text-zinc-600 text-[10px]">
-                  <div className="flex-grow h-px bg-zinc-800" />
-                  <span>or paste URL</span>
-                  <div className="flex-grow h-px bg-zinc-800" />
-                </div>
-                <input
-                  type="text"
-                  value={content.logo_image || ''}
-                  onChange={(e) => setContent({ ...content, logo_image: e.target.value })}
-                  placeholder="/image/logo.png or https://..."
-                  className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/40 rounded-xl px-3 py-2.5 text-zinc-200 outline-none text-xs transition-all font-mono"
-                />
-              </div>
-
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Text (white)</label>
-                  <input
-                    type="text"
-                    value={content.logo_text}
-                    onChange={(e) => setContent({ ...content, logo_text: e.target.value })}
-                    placeholder="Tech"
-                    className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/40 rounded-xl px-3 py-2.5 text-zinc-200 outline-none text-sm transition-all"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Highlight (red)</label>
-                  <input
-                    type="text"
-                    value={content.logo_highlight}
-                    onChange={(e) => setContent({ ...content, logo_highlight: e.target.value })}
-                    placeholder="FNM"
-                    className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/40 rounded-xl px-3 py-2.5 text-zinc-200 outline-none text-sm transition-all"
-                  />
-                </div>
               </div>
             </div>
           </div>
+
 
           {/* CTA Button Settings */}
           <div className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
