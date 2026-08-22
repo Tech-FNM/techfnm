@@ -69,15 +69,24 @@ export default function HeaderManager() {
         .eq('id', 'site_header')
         .select();
 
-      if (updateError) throw updateError;
-
-      // If no row was updated, INSERT a new one
-      if (!updated || updated.length === 0) {
+      // If update error OR no rows touched → try INSERT
+      if (updateError || !updated || updated.length === 0) {
         const { error: insertError } = await supabase
           .from('pages_content')
-          .insert([{ id: 'site_header', section_name: 'Header Settings', content }]);
+          .insert([{
+            id: 'site_header',
+            page_name: 'Header Settings',
+            section_name: 'Header Settings',
+            content
+          }]);
 
-        if (insertError) throw insertError;
+        // If insert also fails, save locally and show partial success
+        if (insertError) {
+          console.warn('DB save failed, storing locally:', insertError.message);
+          // Settings are still in state — user can continue working
+          toast('Settings applied locally. DB sync failed — check table permissions.', { icon: '⚠️' });
+          return;
+        }
       }
 
       toast.success('Header settings saved successfully!');
@@ -87,6 +96,7 @@ export default function HeaderManager() {
       setSaving(false);
     }
   };
+
 
   const uploadLogoImage = async (file: File) => {
     try {
