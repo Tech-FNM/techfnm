@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, Eye, Briefcase } from 'lucide-react';
+import { ArrowRight, Eye, Briefcase, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -10,6 +10,7 @@ export default function PortfolioPage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [loading, setLoading] = useState(true);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
 
   // Available categories for filtering
   const categories = ['All', 'Web Development', 'Mobile App', 'UI/UX Design', 'Digital Marketing'];
@@ -153,6 +154,7 @@ export default function PortfolioPage() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.4 }}
+                      onClick={() => setSelectedProject(project)}
                       className="group relative overflow-hidden rounded-2xl border border-zinc-850 hover:border-red-650/30 shadow-lg bg-zinc-900/20 backdrop-blur-sm cursor-pointer transition-all"
                     >
                       <div className="relative aspect-[4/3] w-full overflow-hidden">
@@ -219,6 +221,57 @@ export default function PortfolioPage() {
           </div>
         </section>
       </main>
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedProject(null)}
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-4xl w-full bg-zinc-950 border border-zinc-850 rounded-3xl overflow-hidden p-3 shadow-2xl flex flex-col justify-between cursor-default"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedProject(null)}
+                className="absolute top-6 right-6 z-10 bg-black/60 hover:bg-black text-white p-2 rounded-full border border-zinc-800 transition-colors"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="aspect-[16/10] w-full overflow-hidden rounded-2xl border border-zinc-850">
+                <img
+                  src={selectedProject.image}
+                  alt={selectedProject.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="p-6 space-y-2">
+                <span className="text-xs font-bold text-red-500 uppercase tracking-wider">
+                  {selectedProject.category}
+                </span>
+                <h3 className="text-xl sm:text-2xl font-bold text-white">
+                  {selectedProject.title}
+                </h3>
+                {selectedProject.description && (
+                  <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
+                    {selectedProject.description}
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </div>
