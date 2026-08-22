@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Minus, Search, HelpCircle, ArrowRight, MessageSquare } from 'lucide-react';
+import { Plus, Minus, HelpCircle, ArrowRight, MessageSquare } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -8,7 +8,6 @@ import SeoHead from '../../components/SeoHead';
 
 export default function FAQPage() {
   const [faqs, setFaqs] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -33,11 +32,7 @@ export default function FAQPage() {
     }
   };
 
-  const filteredFaqs = faqs.filter(
-    (faq) =>
-      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+
 
   return (
     <div className="min-h-screen bg-black font-sans text-white scroll-smooth overflow-x-hidden w-full flex flex-col justify-between">
@@ -60,27 +55,9 @@ export default function FAQPage() {
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight">
               Frequently Asked Questions
             </h1>
-
             <p className="text-zinc-400 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
               Find answers to common questions about our web development, mobile app solutions, and digital marketing services.
             </p>
-
-            {/* Search Bar */}
-            <div className="max-w-md mx-auto pt-4 relative">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-650" size={18} />
-                <input
-                  type="text"
-                  placeholder="Search questions or answers..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setActiveIndex(null);
-                  }}
-                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-650/40 rounded-full pl-12 pr-6 py-4 text-sm text-zinc-200 placeholder-zinc-700 outline-none transition-colors shadow-lg shadow-black/40"
-                />
-              </div>
-            </div>
           </div>
         </section>
 
@@ -91,15 +68,15 @@ export default function FAQPage() {
               <div className="text-center py-16 text-zinc-500 font-mono tracking-wider">
                 Loading FAQs...
               </div>
-            ) : filteredFaqs.length === 0 ? (
+            ) : faqs.length === 0 ? (
               <div className="text-center py-16 text-zinc-500 border border-zinc-850 rounded-2xl bg-zinc-900/10">
                 <HelpCircle size={36} className="mx-auto text-zinc-700 mb-4 animate-bounce" />
                 <p className="text-base font-semibold">No questions found</p>
-                <p className="text-xs text-zinc-600 mt-1">Try refining your search terms.</p>
+                <p className="text-xs text-zinc-600 mt-1">Please check back later.</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredFaqs.map((faq, index) => (
+                {faqs.map((faq, index) => (
                   <motion.div
                     key={faq.id}
                     initial={{ opacity: 0, y: 15 }}
