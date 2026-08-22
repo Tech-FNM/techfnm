@@ -58,7 +58,7 @@ export default function AboutPage() {
         </section>
 
         {/* OUR STORY SECTION */}
-        <section className="py-24 md:py-32 bg-black relative overflow-hidden border-b border-zinc-900">
+        <section className="py-24 md:py-32 bg-zinc-950 relative overflow-hidden border-b border-zinc-900">
           <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-red-950/10 blur-[130px] rounded-full pointer-events-none" />
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -130,7 +130,7 @@ export default function AboutPage() {
         </section>
 
         {/* WHAT WE DO & DIFFERENCE SECTION */}
-        <section className="py-24 md:py-32 bg-zinc-950/30 relative border-b border-zinc-900">
+        <section className="py-24 md:py-32 bg-black relative border-b border-zinc-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
               
@@ -262,7 +262,7 @@ export default function AboutPage() {
         </section>
 
         {/* NUMBERS SECTION */}
-        <section className="py-24 bg-black relative">
+        <section className="py-24 bg-zinc-950 relative">
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-red-950/10 blur-[130px] rounded-full pointer-events-none" />
           
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
