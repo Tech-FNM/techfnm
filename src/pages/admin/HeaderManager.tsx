@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Plus, Trash2, GripVertical, Save, Link as LinkIcon, Image, Phone } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Plus, Trash2, GripVertical, Save, Link as LinkIcon, Image, Phone, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast, Toaster } from 'react-hot-toast';
 
@@ -29,6 +29,8 @@ export default function HeaderManager() {
   const [content, setContent] = useState<any>(DEFAULT_CONTENT);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // New menu item form
   const [newLabel, setNewLabel] = useState('');
@@ -61,7 +63,10 @@ export default function HeaderManager() {
       setSaving(true);
       const { error } = await supabase
         .from('pages_content')
-        .upsert({ id: 'site_header', content }, { onConflict: 'id' });
+        .upsert(
+          { id: 'site_header', page_name: 'Header Settings', content },
+          { onConflict: 'id' }
+        );
 
       if (error) throw error;
       toast.success('Header settings saved successfully!');
@@ -69,6 +74,42 @@ export default function HeaderManager() {
       toast.error(err.message || 'Error saving header settings');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const uploadLogoImage = async (file: File) => {
+    try {
+      setUploading(true);
+      const ext = file.name.split('.').pop();
+      const fileName = `logo_${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) {
+        // Fallback: use base64 data URL if storage fails
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const dataUrl = e.target?.result as string;
+          setContent((prev: any) => ({ ...prev, logo_image: dataUrl }));
+          toast.success('Logo loaded (base64 mode)');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        const { data } = supabase.storage.from('media').getPublicUrl(fileName);
+        setContent((prev: any) => ({ ...prev, logo_image: data.publicUrl }));
+        toast.success('Logo uploaded successfully!');
+      }
+    } catch (err: any) {
+      // Always fallback to base64
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setContent((prev: any) => ({ ...prev, logo_image: e.target?.result as string }));
+        toast.success('Logo loaded!');
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -271,26 +312,61 @@ export default function HeaderManager() {
               </h3>
             </div>
             <div className="p-5 space-y-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Logo Image URL</label>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Logo Image</label>
+
+                {/* Image preview / placeholder */}
+                <div className="w-full bg-zinc-800/50 border border-zinc-800 rounded-xl flex items-center justify-center h-24 overflow-hidden">
+                  {content.logo_image ? (
+                    <img
+                      src={content.logo_image}
+                      alt="Logo preview"
+                      className="h-full w-full object-contain p-2"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  ) : (
+                    <span className="text-zinc-500 text-xs">No logo selected</span>
+                  )}
+                </div>
+
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) uploadLogoImage(file);
+                  }}
+                />
+
+                {/* Upload button */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all"
+                >
+                  <Upload size={13} />
+                  <span>{uploading ? 'Uploading...' : 'Upload Logo Image'}</span>
+                </button>
+
+                {/* Or paste URL */}
+                <div className="flex items-center gap-2 text-zinc-600 text-[10px]">
+                  <div className="flex-grow h-px bg-zinc-800" />
+                  <span>or paste URL</span>
+                  <div className="flex-grow h-px bg-zinc-800" />
+                </div>
                 <input
                   type="text"
                   value={content.logo_image || ''}
                   onChange={(e) => setContent({ ...content, logo_image: e.target.value })}
                   placeholder="/image/logo.png or https://..."
-                  className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/40 rounded-xl px-4 py-2.5 text-zinc-200 outline-none text-xs transition-all font-mono"
+                  className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/40 rounded-xl px-3 py-2.5 text-zinc-200 outline-none text-xs transition-all font-mono"
                 />
-                {content.logo_image && (
-                  <div className="mt-2 bg-zinc-950 border border-zinc-850 rounded-xl p-3 flex items-center justify-center h-16">
-                    <img
-                      src={content.logo_image}
-                      alt="Logo preview"
-                      className="h-full w-auto object-contain"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                    />
-                  </div>
-                )}
               </div>
+
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
