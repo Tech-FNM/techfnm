@@ -220,7 +220,7 @@ export default function PortfolioManager() {
                     {p.category}
                   </span>
                   <h3 className="text-base font-bold text-white leading-tight line-clamp-1">{p.title}</h3>
-                  <p className="text-zinc-450 text-xs leading-relaxed line-clamp-2">{p.description}</p>
+                  <p className="text-zinc-300 text-xs leading-relaxed line-clamp-2">{p.description}</p>
                 </div>
               </div>
 
