@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Headphones, ArrowUpRight, Send, Loader2, Twitter, Instagram, Disc } from 'lucide-react';
+import { Send, Loader2, Facebook, Youtube, Instagram, Linkedin, Github } from 'lucide-react';
 import { toast, Toaster } from 'react-hot-toast';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -85,17 +85,9 @@ export default function ContactPage() {
             initial={{ opacity: 0, y: -15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-zinc-950/90 border border-zinc-800/80 text-xs font-semibold shadow-xl shadow-black/40 mb-6"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-zinc-950/90 border border-zinc-800/80 text-xs font-semibold shadow-xl shadow-black/40 mb-6 text-red-500 uppercase tracking-wider"
           >
-            <div className="flex items-center gap-1.5 text-zinc-400">
-              <Headphones size={13} className="text-red-500" />
-              <span>4 Support online</span>
-            </div>
-            <div className="w-[1px] h-3 bg-zinc-800 mx-1" />
-            <a href="/request-service" className="flex items-center gap-0.5 text-red-400 hover:text-red-300 font-bold transition-colors">
-              <span>Join us</span>
-              <ArrowUpRight size={11} />
-            </a>
+            <span>Contact Us</span>
           </motion.div>
 
           {/* Heading and subtext */}
@@ -106,7 +98,7 @@ export default function ContactPage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white"
             >
-              Lets Have a Chat 👋
+              Lets Have a Chat
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 15 }}
@@ -218,7 +210,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-red-750 hover:from-red-650 hover:to-red-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-950/20 transition-all hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed border border-red-500/20"
+                className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-950/20 transition-all hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed border border-red-500/20"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -234,14 +226,20 @@ export default function ContactPage() {
 
           {/* Social Links */}
           <div className="flex gap-6 mt-10 text-zinc-500 border-t border-zinc-850/60 pt-6 w-full justify-center">
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
-              <Twitter size={18} />
+            <a href="https://facebook.com/techfnm" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
+              <Facebook size={18} />
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
+            <a href="https://youtube.com/@techhfnm" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
+              <Youtube size={18} />
+            </a>
+            <a href="https://instagram.com/techfnm" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
               <Instagram size={18} />
             </a>
-            <a href="https://discord.com" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
-              <Disc size={18} />
+            <a href="https://linkedin.com/company/techfnm" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
+              <Linkedin size={18} />
+            </a>
+            <a href="https://github.com/Tech-FNM" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
+              <Github size={18} />
             </a>
           </div>
 
