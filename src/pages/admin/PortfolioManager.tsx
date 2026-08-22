@@ -146,7 +146,7 @@ export default function PortfolioManager() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="E-Commerce Solution"
-              className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-655/40 rounded-xl px-4 py-3 text-zinc-200 outline-none text-sm transition-all"
+              className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/40 rounded-xl px-4 py-3 text-zinc-200 outline-none text-sm transition-all"
             />
           </div>
 
@@ -158,23 +158,21 @@ export default function PortfolioManager() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Write a brief overview..."
-              className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-655/40 rounded-xl px-4 py-3 text-zinc-200 outline-none text-sm transition-all resize-none"
+              className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/40 rounded-xl px-4 py-3 text-zinc-200 outline-none text-sm transition-all resize-none"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-1">
               <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block">Category</label>
-              <select
+              <input
+                type="text"
+                required
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-655/40 rounded-xl px-4 py-3 text-zinc-200 outline-none text-sm transition-all"
-              >
-                <option value="Web Development">Web Development</option>
-                <option value="Mobile App">Mobile App</option>
-                <option value="UI/UX Design">UI/UX Design</option>
-                <option value="Digital Marketing">Digital Marketing</option>
-              </select>
+                placeholder="E.g., Web Development"
+                className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/40 rounded-xl px-4 py-3 text-zinc-200 outline-none text-sm transition-all"
+              />
             </div>
 
             <div className="space-y-1">
@@ -184,7 +182,7 @@ export default function PortfolioManager() {
                 value={image}
                 onChange={(e) => setImage(e.target.value)}
                 placeholder="https://images.unsplash.com/..."
-                className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-655/40 rounded-xl px-4 py-3 text-zinc-200 outline-none text-sm transition-all"
+                className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/40 rounded-xl px-4 py-3 text-zinc-200 outline-none text-sm transition-all"
               />
             </div>
           </div>
