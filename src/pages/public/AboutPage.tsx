@@ -21,43 +21,38 @@ export default function AboutPage() {
 
       <main className="relative z-10">
         {/* HERO SECTION */}
-        <section className="relative min-h-[80vh] flex flex-col items-center justify-center py-20 bg-black overflow-hidden border-b border-zinc-900 px-4 sm:px-6 lg:px-8">
-          {/* Subtle grid background */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f29370a_1px,transparent_1px),linear-gradient(to_bottom,#1f29370a_1px,transparent_1px)] bg-[size:3rem_3rem]" />
-          
-          {/* Background Glows */}
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] md:w-[600px] h-[350px] md:h-[600px] bg-red-600/10 blur-[120px] rounded-full pointer-events-none" />
-          <div className="absolute -top-40 -left-40 w-96 h-96 bg-red-950/20 blur-[150px] rounded-full pointer-events-none" />
+        <section className="relative h-screen bg-black flex items-center justify-center overflow-hidden border-b border-zinc-900">
+          {/* Background Shapes */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+            <div className="absolute -top-20 -left-20 w-96 h-96 bg-red-900/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob"></div>
+            <div className="absolute top-0 -right-20 w-96 h-96 bg-orange-900/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
+            <div className="absolute -bottom-32 left-20 w-96 h-96 bg-red-800/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
+          </div>
 
-          <div className="max-w-4xl mx-auto text-center relative z-10 space-y-6">
-            <motion.span
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-red-500 font-semibold tracking-wider uppercase text-sm block"
-            >
-              About Us
-            </motion.span>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 25 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.1 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.15] md:leading-[1.1] text-balance"
-            >
-              Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700">Digital Growth</span> <br className="hidden sm:inline" />
-              Partner
-            </motion.h1>
-
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-              className="max-w-2xl mx-auto border border-zinc-800/60 py-8 px-6 md:px-10 mt-8 bg-zinc-950/30 backdrop-blur-md rounded-2xl shadow-xl"
+              transition={{ duration: 0.8 }}
             >
-              <p className="text-base md:text-lg text-zinc-300 italic font-medium leading-relaxed">
-                “<span className="text-white font-bold tracking-wide">TechFNM®</span> crafts state-of-the-art software solutions that empower developers and organizations to integrate, visualize, and analyze data across the technological vertical.”
+              <span className="inline-block py-1 px-3 rounded-full bg-red-900/50 text-red-200 text-sm font-semibold mb-6 border border-red-500/30">
+                About Us
+              </span>
+              <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6">
+                Your Digital Growth Partner
+              </h1>
+              <p className="mt-4 text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Expert web development, mobile app solutions, and result-driven SEO services to grow your business online.
               </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/request-service" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-full text-white bg-red-600 hover:bg-red-700 md:text-lg shadow-lg shadow-red-600/30 transition-all hover:scale-105">
+                  <span>Getting Started</span>
+                  <ArrowRight className="ml-2 -mr-1 w-5 h-5" />
+                </a>
+                <a href="/#services" className="inline-flex items-center justify-center px-8 py-4 border border-white/20 text-base font-medium rounded-full text-white bg-transparent hover:bg-white/10 md:text-lg shadow-sm transition-all hover:scale-105">
+                  <span>Our Services</span>
+                </a>
+              </div>
             </motion.div>
           </div>
         </section>
