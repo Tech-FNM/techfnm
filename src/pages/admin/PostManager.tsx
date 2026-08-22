@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Plus, Trash2, Edit2, ChevronLeft, MessageSquare } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast, Toaster } from 'react-hot-toast';
+import InsertMediaModal from '../../components/admin/InsertMediaModal';
 
 export default function PostManager() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -13,6 +14,7 @@ export default function PostManager() {
   const [image, setImage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTab, setFilterTab] = useState('all');
+  const [mediaModalOpen, setMediaModalOpen] = useState(false);
 
   const quillRef = useRef<any>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
@@ -298,19 +300,23 @@ export default function PostManager() {
                       <span className="text-sm text-zinc-400 font-medium">Set featured image</span>
                     </div>
                   )}
-                  {/* URL input hidden behind Select Image button style */}
-                  <label className="cursor-pointer inline-block">
-                    <span className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all">
-                      Select Image
-                    </span>
+                  {/* Select Image → opens Media Modal */}
+                  <button
+                    type="button"
+                    onClick={() => setMediaModalOpen(true)}
+                    className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all"
+                  >
+                    Select Image
+                  </button>
+                  {image && (
                     <input
                       type="text"
                       value={image}
                       onChange={(e) => setImage(e.target.value)}
-                      placeholder="Paste image URL here..."
+                      placeholder="or paste image URL..."
                       className="mt-2 w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/40 rounded-xl px-3 py-2.5 text-zinc-300 placeholder-zinc-600 outline-none text-xs transition-all block"
                     />
-                  </label>
+                  )}
                 </div>
               </div>
 
@@ -460,6 +466,13 @@ export default function PostManager() {
 
         </div>
       )}
+
+      {/* Insert Media Modal - renders on top of everything */}
+      <InsertMediaModal
+        isOpen={mediaModalOpen}
+        onClose={() => setMediaModalOpen(false)}
+        onInsert={(url) => { setImage(url); setMediaModalOpen(false); }}
+      />
     </div>
   );
 }
