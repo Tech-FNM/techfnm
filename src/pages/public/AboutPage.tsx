@@ -4,6 +4,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
 import Leadership from '../../components/Leadership';
+import Testimonials from '../../components/Testimonials';
 
 export default function AboutPage() {
   // Animation presets for consistency
@@ -302,6 +303,8 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+        <Testimonials />
       </main>
 
       <Footer />

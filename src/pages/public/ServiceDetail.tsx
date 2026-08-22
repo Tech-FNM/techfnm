@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
+import Testimonials from '../../components/Testimonials';
 
 const iconMap: any = {
   Code,
@@ -365,6 +366,8 @@ export default function ServiceDetail() {
             </div>
           </div>
         </section>
+
+        <Testimonials />
 
         {/* BOTTOM CALL TO ACTION */}
         <section className="py-24 bg-zinc-950 text-center px-4 sm:px-6 lg:px-8">
