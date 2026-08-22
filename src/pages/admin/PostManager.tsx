@@ -272,8 +272,9 @@ export default function PostManager() {
 
               {/* ── Featured Image Panel ── */}
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
-                <div className="px-5 py-3 bg-zinc-950 border-b border-zinc-800">
+                <div className="px-5 py-3 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between">
                   <span className="font-bold text-white text-sm">Featured Image</span>
+                  <span className="text-zinc-600 text-lg">∧</span>
                 </div>
                 <div className="p-4 space-y-3">
                   {image ? (
@@ -281,7 +282,7 @@ export default function PostManager() {
                       <img
                         src={image}
                         alt="Featured"
-                        className="w-full h-40 object-cover rounded-xl border border-zinc-800"
+                        className="w-full h-44 object-cover rounded-xl border border-zinc-800"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                       />
                       <button
@@ -293,18 +294,23 @@ export default function PostManager() {
                       </button>
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-zinc-800 rounded-xl p-6 text-center space-y-2">
-                      <div className="text-4xl">🖼</div>
-                      <p className="text-xs text-zinc-500">Paste image URL below to set featured image</p>
+                    <div className="w-full bg-zinc-800/50 rounded-xl flex items-center justify-center h-36">
+                      <span className="text-sm text-zinc-400 font-medium">Set featured image</span>
                     </div>
                   )}
-                  <input
-                    type="text"
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/40 rounded-xl px-3 py-2.5 text-zinc-300 placeholder-zinc-700 outline-none text-xs transition-all"
-                  />
+                  {/* URL input hidden behind Select Image button style */}
+                  <label className="cursor-pointer inline-block">
+                    <span className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all">
+                      Select Image
+                    </span>
+                    <input
+                      type="text"
+                      value={image}
+                      onChange={(e) => setImage(e.target.value)}
+                      placeholder="Paste image URL here..."
+                      className="mt-2 w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/40 rounded-xl px-3 py-2.5 text-zinc-300 placeholder-zinc-600 outline-none text-xs transition-all block"
+                    />
+                  </label>
                 </div>
               </div>
 

@@ -49,7 +49,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <div className="w-3.5 h-3.5 rounded-full bg-red-600 animate-pulse" />
               <span className="font-bold text-white tracking-wide text-sm uppercase">TechFNM Console</span>
             </div>
-            <a href="/" target="_blank" rel="noopener noreferrer" className="text-zinc-550 hover:text-red-500 transition-colors">
+            <a href="/" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-red-500 transition-colors">
               <ExternalLink size={14} />
             </a>
           </div>
@@ -66,7 +66,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
                     isActive
                       ? 'bg-red-600 text-white shadow-md shadow-red-950/20'
-                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-850/50'
+                      : 'text-zinc-300 hover:text-white hover:bg-zinc-800'
                   }`}
                 >
                   <Icon size={16} />
