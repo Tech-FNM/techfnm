@@ -176,9 +176,9 @@ export default function PortfolioPage() {
                         <span className="text-xs font-bold text-red-500 uppercase tracking-wider">
                           {project.category}
                         </span>
-                        <h3 className="text-lg sm:text-xl font-bold text-white leading-tight">
+                        <h2 className="text-lg sm:text-xl font-bold text-white leading-tight">
                           {project.title}
-                        </h3>
+                        </h2>
                         {project.description && (
                           <p className="text-zinc-400 text-sm leading-relaxed line-clamp-2">
                             {project.description}
@@ -259,9 +259,9 @@ export default function PortfolioPage() {
                 <span className="text-xs font-bold text-red-500 uppercase tracking-wider">
                   {selectedProject.category}
                 </span>
-                <h3 className="text-xl sm:text-2xl font-bold text-white">
+                <h2 className="text-xl sm:text-2xl font-bold text-white">
                   {selectedProject.title}
-                </h3>
+                </h2>
                 {selectedProject.description && (
                   <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                     {selectedProject.description}
