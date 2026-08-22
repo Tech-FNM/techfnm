@@ -195,6 +195,9 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* LEADERSHIP SECTION */}
+        <Leadership />
+
         {/* TEAM SECTION */}
         <section className="py-24 md:py-32 bg-black relative border-b border-zinc-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -257,9 +260,6 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
-
-        {/* LEADERSHIP SECTION */}
-        <Leadership />
 
         {/* NUMBERS SECTION */}
         <section className="py-24 bg-black relative">
