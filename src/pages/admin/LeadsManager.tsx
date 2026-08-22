@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Mail, Phone, Trash2, Calendar, ClipboardList } from 'lucide-react';
+import { Mail, Phone, Trash2, Calendar, ClipboardList, Eye, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../../lib/supabase';
 import { toast, Toaster } from 'react-hot-toast';
 
 export default function LeadsManager() {
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedLead, setSelectedLead] = useState<any>(null);
 
   useEffect(() => {
     fetchLeads();
@@ -103,10 +105,18 @@ export default function LeadsManager() {
                 )}
               </div>
 
-              <div className="flex justify-end md:justify-start">
+              <div className="flex justify-end md:justify-start gap-2">
+                <button
+                  onClick={() => setSelectedLead(lead)}
+                  className="bg-zinc-950 border border-zinc-850 hover:bg-zinc-850 hover:text-white text-zinc-500 p-3 rounded-2xl transition-colors"
+                  title="View Details"
+                >
+                  <Eye size={16} />
+                </button>
                 <button
                   onClick={() => handleDelete(lead.id)}
                   className="bg-zinc-950 border border-zinc-850 hover:bg-zinc-850 hover:text-red-500 text-zinc-500 p-3 rounded-2xl transition-colors"
+                  title="Delete Lead"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -116,6 +126,86 @@ export default function LeadsManager() {
           ))}
         </div>
       )}
+      {/* Details Modal */}
+      <AnimatePresence>
+        {selectedLead && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedLead(null)}
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-lg w-full bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl space-y-6 cursor-default text-left"
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setSelectedLead(null)}
+                className="absolute top-6 right-6 bg-zinc-950 hover:bg-zinc-800 text-zinc-400 hover:text-white p-2 rounded-full border border-zinc-800 transition-colors"
+              >
+                <X size={16} />
+              </button>
+
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest block">Submission Details</span>
+                  <h3 className="text-xl font-bold text-white leading-tight">{selectedLead.name}</h3>
+                </div>
+
+                <div className="w-full h-[1px] bg-zinc-800" />
+
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div className="space-y-1">
+                    <span className="text-zinc-500 block">Service Requested</span>
+                    <span className="font-bold text-white bg-red-950/20 border border-red-900/30 px-2 py-0.5 rounded text-[11px] inline-block text-red-500">
+                      {selectedLead.service_type || 'Consultation'}
+                    </span>
+                  </div>
+                  {selectedLead.plan && (
+                    <div className="space-y-1">
+                      <span className="text-zinc-500 block font-medium">Selected Plan</span>
+                      <span className="font-bold text-white bg-blue-950/20 border border-blue-900/30 px-2 py-0.5 rounded text-[11px] inline-block text-blue-550">
+                        {selectedLead.plan}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3 text-xs sm:text-sm pt-2">
+                  <div className="flex items-center gap-2">
+                    <Mail size={14} className="text-red-500" />
+                    <a href={`mailto:${selectedLead.email}`} className="text-zinc-300 hover:text-white transition-colors">{selectedLead.email}</a>
+                  </div>
+                  {selectedLead.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone size={14} className="text-red-500" />
+                      <a href={`tel:${selectedLead.phone}`} className="text-zinc-300 hover:text-white transition-colors">{selectedLead.phone}</a>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-zinc-400">
+                    <Calendar size={14} />
+                    <span>{new Date(selectedLead.created_at).toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {selectedLead.message && (
+                  <div className="space-y-1.5 pt-2">
+                    <span className="text-xs text-zinc-550 font-bold uppercase tracking-wider block">Message Body</span>
+                    <div className="bg-zinc-950 border border-zinc-850 p-4 rounded-2xl text-zinc-300 text-sm leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap">
+                      {selectedLead.message}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
