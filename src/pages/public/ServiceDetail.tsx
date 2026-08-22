@@ -7,6 +7,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
 import Testimonials from '../../components/Testimonials';
+import FAQ from '../../components/FAQ';
 
 const iconMap: any = {
   Code,
@@ -368,6 +369,7 @@ export default function ServiceDetail() {
         </section>
 
         <Testimonials />
+        <FAQ />
 
         {/* BOTTOM CALL TO ACTION */}
         <section className="py-24 bg-zinc-950 text-center px-4 sm:px-6 lg:px-8">
