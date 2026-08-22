@@ -13,7 +13,7 @@ export default function Header() {
     nav_links: [
       { label: 'Home', href: '/' },
       { label: 'About Us', href: '/about' },
-      { label: 'Services', href: '/#services' },
+      { label: 'Services', href: '/services' },
       { label: 'Portfolio', href: '/portfolio' },
       { label: 'FAQ', href: '/faq' },
       { label: 'Contact Us', href: '/contact' },
