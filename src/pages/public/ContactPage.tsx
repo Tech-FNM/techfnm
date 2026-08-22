@@ -131,7 +131,7 @@ export default function ContactPage() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  placeholder="Jonathan"
+                  placeholder="First name"
                   required
                   className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-650/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
                 />
@@ -148,7 +148,7 @@ export default function ContactPage() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  placeholder="James"
+                  placeholder="Last name"
                   className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-650/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
                 />
               </div>
@@ -164,7 +164,7 @@ export default function ContactPage() {
                   name="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="Jonathan2718@gmail.com"
+                  placeholder="Email"
                   required
                   className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-650/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
                 />
@@ -181,7 +181,7 @@ export default function ContactPage() {
                   name="subject"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  placeholder="Subject"
+                  placeholder="Phone number"
                   className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-650/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
                 />
               </div>
@@ -199,7 +199,7 @@ export default function ContactPage() {
                 rows={5}
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                placeholder="Hey i have some issues activating my account..."
+                placeholder="Message"
                 required
                 className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-650/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors resize-none"
               />
