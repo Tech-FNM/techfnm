@@ -61,14 +61,25 @@ export default function HeaderManager() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const { error } = await supabase
-        .from('pages_content')
-        .upsert(
-          { id: 'site_header', page_name: 'Header Settings', content },
-          { onConflict: 'id' }
-        );
 
-      if (error) throw error;
+      // First try UPDATE (row may already exist)
+      const { data: updated, error: updateError } = await supabase
+        .from('pages_content')
+        .update({ content })
+        .eq('id', 'site_header')
+        .select();
+
+      if (updateError) throw updateError;
+
+      // If no row was updated, INSERT a new one
+      if (!updated || updated.length === 0) {
+        const { error: insertError } = await supabase
+          .from('pages_content')
+          .insert([{ id: 'site_header', section_name: 'Header Settings', content }]);
+
+        if (insertError) throw insertError;
+      }
+
       toast.success('Header settings saved successfully!');
     } catch (err: any) {
       toast.error(err.message || 'Error saving header settings');
