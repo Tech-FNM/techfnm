@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Code, Smartphone, Globe, PenTool, ShoppingCart, Share2, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { supabase } from '../../lib/supabase';
@@ -137,9 +138,16 @@ export default function ServicesPage() {
                       <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors">
                         {service.title}
                       </h2>
-                      <p className="text-zinc-450 text-sm sm:text-base leading-relaxed">
+                      <p className="text-zinc-450 text-sm sm:text-base leading-relaxed mb-6">
                         {service.description}
                       </p>
+                      <Link
+                        to={`/services/${service.id}`}
+                        className="inline-flex items-center gap-1.5 text-red-500 hover:text-red-400 text-sm font-bold transition-colors group/link"
+                      >
+                        <span>Learn More</span>
+                        <ArrowRight size={14} className="transform group-hover/link:translate-x-1 transition-transform" />
+                      </Link>
                     </motion.div>
                   );
                 })}

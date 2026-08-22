@@ -5,6 +5,7 @@ import ContactPage from './pages/public/ContactPage';
 import FAQPage from './pages/public/FAQPage';
 import PortfolioPage from './pages/public/PortfolioPage';
 import ServicesPage from './pages/public/ServicesPage';
+import ServiceDetail from './pages/public/ServiceDetail';
 import RequestServicePage from './pages/public/RequestServicePage';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/services" element={<ServicesPage />} />
+        <Route path="/services/:id" element={<ServiceDetail />} />
         <Route path="/request-service" element={<RequestServicePage />} />
         
         {/* Catch all */}
