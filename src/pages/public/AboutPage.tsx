@@ -73,10 +73,10 @@ export default function AboutPage() {
               <div className="lg:col-span-5 flex flex-col items-center justify-center space-y-10">
                 <div className="relative w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center">
                   {/* Glowing core */}
-                  <div className="absolute w-28 h-28 bg-red-950/20 blur-3xl rounded-full animate-pulse" />
+                  <div className="absolute w-28 h-28 bg-red-900/10 blur-3xl rounded-full animate-pulse" />
                   
                   {/* Wireframe Rotating Sphere SVG */}
-                  <svg className="w-full h-full animate-[spin_50s_linear_infinite] text-red-950/40" viewBox="0 0 100 100">
+                  <svg className="w-full h-full animate-[spin_50s_linear_infinite] text-red-700/50" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="0.3" strokeDasharray="3 3" />
                     <ellipse cx="50" cy="50" rx="45" ry="15" fill="none" stroke="currentColor" strokeWidth="0.3" />
                     <ellipse cx="50" cy="50" rx="15" ry="45" fill="none" stroke="currentColor" strokeWidth="0.3" />
