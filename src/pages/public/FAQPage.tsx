@@ -40,8 +40,8 @@ export default function FAQPage() {
       <Header />
 
       <main className="flex-grow pt-28 pb-20">
-        {/* HERO SECTION */}
-        <section className="relative min-h-[55vh] bg-black flex items-center justify-center overflow-hidden border-b border-zinc-900 px-4 sm:px-6 lg:px-8">
+        {/* HERO & FAQ SECTION */}
+        <section className="relative min-h-[90vh] bg-black flex flex-col items-center justify-center overflow-hidden border-b border-zinc-900 px-4 sm:px-6 lg:px-8 py-24">
           {/* Background Shapes */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
             <div className="absolute -top-20 -left-20 w-96 h-96 bg-red-900/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob"></div>
@@ -49,70 +49,71 @@ export default function FAQPage() {
             <div className="absolute -bottom-32 left-20 w-96 h-96 bg-red-800/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
           </div>
 
-          <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
-            <span className="text-red-500 font-semibold tracking-wider uppercase text-sm block">
-              Support Center
-            </span>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight">
-              Frequently Asked Questions
-            </h1>
-            <p className="text-zinc-400 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
-              Find answers to common questions about our web development, mobile app solutions, and digital marketing services.
-            </p>
-          </div>
-        </section>
+          <div className="relative z-10 max-w-3xl w-full mx-auto space-y-12">
+            {/* Header Content */}
+            <div className="text-center space-y-6">
+              <span className="text-red-500 font-semibold tracking-wider uppercase text-sm block">
+                Support Center
+              </span>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight">
+                Frequently Asked Questions
+              </h1>
+              <p className="text-zinc-400 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+                Find answers to common questions about our web development, mobile app solutions, and digital marketing services.
+              </p>
+            </div>
 
-        {/* ACCORDION FAQ SECTION */}
-        <section className="py-20 bg-zinc-950 relative border-b border-zinc-900 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto">
-            {loading ? (
-              <div className="text-center py-16 text-zinc-500 font-mono tracking-wider">
-                Loading FAQs...
-              </div>
-            ) : faqs.length === 0 ? (
-              <div className="text-center py-16 text-zinc-500 border border-zinc-850 rounded-2xl bg-zinc-900/10">
-                <HelpCircle size={36} className="mx-auto text-zinc-700 mb-4 animate-bounce" />
-                <p className="text-base font-semibold">No questions found</p>
-                <p className="text-xs text-zinc-600 mt-1">Please check back later.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {faqs.map((faq, index) => (
-                  <motion.div
-                    key={faq.id}
-                    initial={{ opacity: 0, y: 15 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4 }}
-                    className="bg-zinc-900/30 border border-zinc-850 hover:border-zinc-800 rounded-2xl overflow-hidden backdrop-blur-md transition-colors"
-                  >
-                    <button
-                      onClick={() => setActiveIndex(activeIndex === index ? null : index)}
-                      className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-zinc-850/20 transition-colors"
+            {/* Accordion FAQ Content */}
+            <div className="w-full">
+              {loading ? (
+                <div className="text-center py-16 text-zinc-500 font-mono tracking-wider">
+                  Loading FAQs...
+                </div>
+              ) : faqs.length === 0 ? (
+                <div className="text-center py-16 text-zinc-500 border border-zinc-850 rounded-2xl bg-zinc-900/10">
+                  <HelpCircle size={36} className="mx-auto text-zinc-700 mb-4 animate-bounce" />
+                  <p className="text-base font-semibold">No questions found</p>
+                  <p className="text-xs text-zinc-600 mt-1">Please check back later.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {faqs.map((faq, index) => (
+                    <motion.div
+                      key={faq.id}
+                      initial={{ opacity: 0, y: 15 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4 }}
+                      className="bg-zinc-900/30 border border-zinc-850 hover:border-zinc-800 rounded-2xl overflow-hidden backdrop-blur-md transition-colors"
                     >
-                      <span className="text-base sm:text-lg font-bold text-white pr-4">{faq.question}</span>
-                      <div className={`p-2 rounded-lg transition-all ${activeIndex === index ? 'bg-red-600 text-white shadow-md shadow-red-950/20' : 'bg-zinc-950 border border-zinc-800 text-zinc-500'}`}>
-                        {activeIndex === index ? <Minus size={16} /> : <Plus size={16} />}
-                      </div>
-                    </button>
-                    <AnimatePresence>
-                      {activeIndex === index && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.25, ease: 'easeInOut' }}
-                        >
-                          <div className="px-6 pb-6 text-zinc-400 text-sm sm:text-base leading-relaxed border-t border-zinc-850/40 pt-4 bg-zinc-900/10">
-                            {faq.answer}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                ))}
-              </div>
-            )}
+                      <button
+                        onClick={() => setActiveIndex(activeIndex === index ? null : index)}
+                        className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-zinc-850/20 transition-colors"
+                      >
+                        <span className="text-base sm:text-lg font-bold text-white pr-4">{faq.question}</span>
+                        <div className={`p-2 rounded-lg transition-all ${activeIndex === index ? 'bg-red-600 text-white shadow-md shadow-red-950/20' : 'bg-zinc-950 border border-zinc-800 text-zinc-500'}`}>
+                          {activeIndex === index ? <Minus size={16} /> : <Plus size={16} />}
+                        </div>
+                      </button>
+                      <AnimatePresence>
+                        {activeIndex === index && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25, ease: 'easeInOut' }}
+                          >
+                            <div className="px-6 pb-6 text-zinc-400 text-sm sm:text-base leading-relaxed border-t border-zinc-850/40 pt-4 bg-zinc-900/10">
+                              {faq.answer}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
