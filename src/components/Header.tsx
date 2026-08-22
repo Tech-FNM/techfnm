@@ -12,7 +12,7 @@ export default function Header() {
     logo_highlight: 'FNM',
     nav_links: [
       { label: 'Home', href: '/' },
-      { label: 'About Us', href: '/#about' },
+      { label: 'About Us', href: '/about' },
       { label: 'Services', href: '/#services' },
       { label: 'Portfolio', href: '/#portfolio' },
       { label: 'FAQ', href: '/#faqs' },

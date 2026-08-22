@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
+import AboutPage from './pages/public/AboutPage';
 import RequestServicePage from './pages/public/RequestServicePage';
 
 function App() {
@@ -7,6 +8,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/request-service" element={<RequestServicePage />} />
         
         {/* Catch all */}
