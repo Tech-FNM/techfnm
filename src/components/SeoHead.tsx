@@ -10,6 +10,7 @@ interface SeoHeadProps {
 
 export default function SeoHead({ pageId, title, description }: SeoHeadProps) {
   const [dbSeo, setDbSeo] = useState<{title?: string, description?: string}>({});
+  const [indexingEnabled, setIndexingEnabled] = useState(true);
 
   useEffect(() => {
     if (pageId) {
@@ -20,6 +21,20 @@ export default function SeoHead({ pageId, title, description }: SeoHeadProps) {
       fetchSeo();
     }
   }, [pageId]);
+
+  useEffect(() => {
+    const fetchIndexing = async () => {
+      try {
+        const { data } = await supabase.from('site_settings').select('*').eq('key', 'seo_indexing_enabled').maybeSingle();
+        if (data) {
+          setIndexingEnabled(data.value === 'true');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchIndexing();
+  }, []);
 
   const defaultTitle = "TechFNM | Digital Agency";
   const defaultDescription = "We specialize in custom web development, mobile apps, and SEO solutions. We develop digital future.";
@@ -34,6 +49,7 @@ export default function SeoHead({ pageId, title, description }: SeoHeadProps) {
     <Helmet>
       <title>{currentTitle}</title>
       <meta name="description" content={finalDescription} />
+      <meta name="robots" content={indexingEnabled ? "index, follow" : "noindex, nofollow"} />
       <meta property="og:title" content={currentTitle} />
       <meta property="og:description" content={finalDescription} />
       <meta name="twitter:title" content={currentTitle} />

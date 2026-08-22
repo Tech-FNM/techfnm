@@ -7,6 +7,8 @@ import PortfolioPage from './pages/public/PortfolioPage';
 import ServicesPage from './pages/public/ServicesPage';
 import ServiceDetail from './pages/public/ServiceDetail';
 import RequestServicePage from './pages/public/RequestServicePage';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/services/:id" element={<ServiceDetail />} />
         <Route path="/request-service" element={<RequestServicePage />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
         
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
