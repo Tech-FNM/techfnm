@@ -16,7 +16,7 @@ export default function Header() {
       { label: 'Services', href: '/#services' },
       { label: 'Portfolio', href: '/#portfolio' },
       { label: 'FAQ', href: '/#faqs' },
-      { label: 'Contact Us', href: '/#contact' },
+      { label: 'Contact Us', href: '/contact' },
       { label: 'Request Service', href: '/request-service' },
     ],
     cta_text: '0313-9023118',

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import AboutPage from './pages/public/AboutPage';
+import ContactPage from './pages/public/ContactPage';
 import RequestServicePage from './pages/public/RequestServicePage';
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/request-service" element={<RequestServicePage />} />
         
         {/* Catch all */}
