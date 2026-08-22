@@ -41,17 +41,18 @@ export default function FAQPage() {
 
       <main className="flex-grow pt-28 pb-20">
         {/* HERO SECTION */}
-        <section className="relative py-20 bg-black overflow-hidden flex flex-col items-center justify-center border-b border-zinc-900 px-4 sm:px-6 lg:px-8">
-          {/* Subtle grid background */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f29370a_1px,transparent_1px),linear-gradient(to_bottom,#1f29370a_1px,transparent_1px)] bg-[size:3rem_3rem]" />
-          {/* Glow effect */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-650/5 blur-[120px] rounded-full pointer-events-none" />
+        <section className="relative min-h-[55vh] bg-black flex items-center justify-center overflow-hidden border-b border-zinc-900 px-4 sm:px-6 lg:px-8">
+          {/* Background Shapes */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+            <div className="absolute -top-20 -left-20 w-96 h-96 bg-red-900/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob"></div>
+            <div className="absolute top-0 -right-20 w-96 h-96 bg-orange-900/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
+            <div className="absolute -bottom-32 left-20 w-96 h-96 bg-red-800/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
+          </div>
 
-          <div className="max-w-3xl mx-auto text-center relative z-10 space-y-6">
+          <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
             <span className="text-red-500 font-semibold tracking-wider uppercase text-sm block">
               Support Center
             </span>
-
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight">
               Frequently Asked Questions
             </h1>
