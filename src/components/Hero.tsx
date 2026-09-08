@@ -1,26 +1,25 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { usePageContent } from '../lib/cmsContent';
 
 export default function Hero() {
-  const [content, setContent] = useState<any>({
-    title: 'We Build What You Imagine',
-    subtitle: 'Creative Solutions',
-    description: 'Expert web development, mobile app solutions, and result-driven SEO services to grow your business online.',
-    cta1: 'Getting Started',
-    cta2: 'Our Services'
+  const content = usePageContent('page-home', {
+    hero_title: 'We Build What You Imagine',
+    hero_subtitle: 'Creative Solutions',
+    hero_desc: 'Expert web development, mobile app solutions, and result-driven SEO services to grow your business online.',
+    hero_cta1_text: 'Getting Started',
+    hero_cta1_link: '#contact',
+    hero_cta2_text: 'Our Services',
+    hero_cta2_link: '#services'
   });
 
-  useEffect(() => {
-    const fetchContent = async () => {
-      const { data } = await supabase.from('pages_content').select('content').eq('id', 'home_hero').single();
-      if (data && data.content && Object.keys(data.content).length > 0) {
-        setContent((prev: any) => ({ ...prev, ...data.content }));
-      }
-    };
-    fetchContent();
-  }, []);
+  const title = content.hero_title || content.title || 'We Build What You Imagine';
+  const subtitle = content.hero_subtitle || content.hero_badge || content.subtitle || 'Creative Solutions';
+  const description = content.hero_desc || content.description || 'Expert web development, mobile app solutions, and result-driven SEO services to grow your business online.';
+  const cta1Text = content.hero_cta1_text || content.cta1 || 'Getting Started';
+  const cta1Link = content.hero_cta1_link || '#contact';
+  const cta2Text = content.hero_cta2_text || content.cta2 || 'Our Services';
+  const cta2Link = content.hero_cta2_link || '#services';
 
   return (
     <section id="home" className="relative h-screen bg-black flex items-center justify-center overflow-hidden">
@@ -38,21 +37,27 @@ export default function Hero() {
           transition={{ duration: 0.8 }}
         >
           <span className="inline-block py-1 px-3 rounded-full bg-red-900/50 text-red-200 text-sm font-semibold mb-6 border border-red-500/30">
-            {content.subtitle}
+            {subtitle}
           </span>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6">
-            {content.title}
+            {title}
           </h1>
           <p className="mt-4 text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-            {content.description}
+            {description}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#contact" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-full text-white bg-red-600 hover:bg-red-700 md:text-lg shadow-lg shadow-red-600/30 transition-all hover:scale-105">
-              {content.cta1}
+            <a
+              href={cta1Link}
+              className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-full text-white bg-red-600 hover:bg-red-700 md:text-lg shadow-lg shadow-red-600/30 transition-all hover:scale-105"
+            >
+              <span>{cta1Text}</span>
               <ArrowRight className="ml-2 -mr-1 w-5 h-5" />
             </a>
-            <a href="#services" className="inline-flex items-center justify-center px-8 py-4 border border-white/20 text-base font-medium rounded-full text-white bg-transparent hover:bg-white/10 md:text-lg shadow-sm transition-all hover:scale-105">
-              {content.cta2}
+            <a
+              href={cta2Link}
+              className="inline-flex items-center justify-center px-8 py-4 border border-white/20 text-base font-medium rounded-full text-white bg-transparent hover:bg-white/10 md:text-lg shadow-sm transition-all hover:scale-105"
+            >
+              <span>{cta2Text}</span>
             </a>
           </div>
         </motion.div>

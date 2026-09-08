@@ -24,13 +24,28 @@ export default function Header() {
   });
 
   useEffect(() => {
+    const loadHeader = () => {
+      try {
+        const local = localStorage.getItem('techfnm_header_content');
+        if (local) {
+          setContent((prev: any) => ({ ...prev, ...JSON.parse(local) }));
+        }
+      } catch {}
+    };
+    loadHeader();
+
     const fetchHeader = async () => {
-      const { data } = await supabase.from('pages_content').select('content').eq('id', 'site_header').maybeSingle();
-      if (data && data.content && Object.keys(data.content).length > 0) {
-        setContent((prev: any) => ({ ...prev, ...data.content }));
-      }
+      try {
+        const { data } = await supabase.from('pages_content').select('content').eq('id', 'site_header').maybeSingle();
+        if (data && data.content && Object.keys(data.content).length > 0) {
+          setContent((prev: any) => ({ ...prev, ...data.content }));
+        }
+      } catch {}
     };
     fetchHeader();
+
+    window.addEventListener('techfnm_content_updated', loadHeader);
+    return () => window.removeEventListener('techfnm_content_updated', loadHeader);
   }, []);
 
   const isActive = (path: string) => {

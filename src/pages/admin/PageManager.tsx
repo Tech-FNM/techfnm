@@ -35,9 +35,11 @@ import {
   Clock,
   Briefcase,
   FolderGit2,
-  ListOrdered
+  ListOrdered,
+  Upload
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { triggerContentUpdate } from '../../lib/cmsContent';
 import { toast, Toaster } from 'react-hot-toast';
 
 interface SectionField {
@@ -442,7 +444,6 @@ const PAGE_SECTIONS_REGISTRY: Record<string, PageSectionConfig[]> = {
   ]
 };
 
-// Generic fallback sections for custom newly-added pages
 const GENERIC_CUSTOM_SECTIONS: PageSectionConfig[] = [
   {
     id: 'custom_hero',
@@ -484,6 +485,7 @@ const DEFAULT_PAGES: PageItem[] = [
     isFrontPage: true,
     content: 'Crafting premium web applications, branding, and conversion flows.',
     template: 'Front Page',
+    featuredImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800',
     sectionsData: {
       hero_badge: 'Creative Solutions',
       hero_title: 'We Build What You Imagine',
@@ -493,31 +495,34 @@ const DEFAULT_PAGES: PageItem[] = [
       hero_cta1_link: '/request-service',
       hero_cta2_text: 'Our Services',
       hero_cta2_link: '/#services',
-      about_badge: 'About TechFNM',
+      about_badge: 'About Us',
       about_heading: 'We Are Creative Digital Agency',
       about_desc1: 'TechFNM is a leading software company in Pakistan, dedicated to providing top-notch web development, mobile app solutions, and digital marketing services.',
       about_desc2: 'Our team of experts is passionate about technology and innovation. We stay up-to-date with the latest trends to ensure clients get high-conversion solutions.',
       about_exp_years: '5+',
       about_exp_text: 'Years Experience In Digital Solutions',
-      about_btn_text: 'Learn More About Us',
-      about_btn_link: '/about',
+      about_image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+      about_btn_text: 'Discover More',
+      about_btn_link: '#contact',
       services_badge: 'What We Do',
-      services_heading: 'Engineered For Peak Performance',
-      services_desc: 'From custom web apps to comprehensive cloud solutions, we deliver cutting-edge digital experiences.',
+      services_heading: 'Our Services',
+      services_desc: 'We provide comprehensive digital solutions to help your business thrive in the modern world.',
       services_btn_text: 'Explore All Services',
       services_btn_link: '/services',
-      portfolio_badge: 'Recent Works',
-      portfolio_heading: 'Featured Case Studies',
-      portfolio_desc: 'Take a look at our recent digital engineering triumphs.',
+      portfolio_badge: 'Portfolio & Project',
+      portfolio_heading: 'Our Works',
+      portfolio_desc: 'Explore our latest projects and see how we\'ve helped businesses achieve their goals.',
       portfolio_btn_text: 'Explore All Projects',
       portfolio_btn_link: '/portfolio',
-      leadership_badge: 'Our Leaders',
+      leadership_badge: 'Our Leadership',
       leadership_heading: 'Visionary Minds Driving TechFNM',
+      leadership_desc: 'Meet the executive talent building tomorrow\'s web.',
       testimonials_badge: 'Client Voices',
       testimonials_heading: 'What Founders Say About Us',
+      testimonials_desc: 'Trusted by forward-thinking companies worldwide.',
       faq_badge: 'Support Center',
       faq_heading: 'Frequently Asked Questions',
-      faq_desc: 'Got questions? We\'ve got clear, direct answers.',
+      faq_desc: 'Find answers to common questions about our services and process.',
       faq_btn_text: 'Ask a Question',
       faq_btn_link: '/contact',
       cta_badge: 'Get In Touch',
@@ -538,6 +543,7 @@ const DEFAULT_PAGES: PageItem[] = [
     isFrontPage: false,
     content: 'Full-service digital transformation consultancy delivering custom web & mobile software.',
     template: 'Default Template',
+    featuredImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
     sectionsData: {
       hero_badge: 'About Us',
       hero_title: 'Your Digital Growth Partner',
@@ -697,27 +703,6 @@ const DEFAULT_PAGES: PageItem[] = [
       submit_btn_text: 'Submit Consultation Request',
       guarantee_text: '100% Confidential. Protected under NDA.'
     }
-  },
-  {
-    id: 'page-sample',
-    title: 'Sample Page',
-    slug: '/sample-page',
-    author: 'admin',
-    status: 'draft',
-    date: new Date(Date.now() - 120 * 3600 * 1000).toISOString(),
-    commentsCount: 1,
-    isFrontPage: false,
-    content: 'Sample draft template page for internal draft reviews.',
-    template: 'Default Template',
-    sectionsData: {
-      hero_badge: 'Draft Template',
-      hero_title: 'Sample Page Headline',
-      hero_desc: 'This is a sample page demonstration for review.',
-      cta_heading: 'Call to Action',
-      cta_desc: 'Sample description...',
-      cta_btn_text: 'Learn More',
-      cta_btn_link: '/'
-    }
   }
 ];
 
@@ -748,13 +733,13 @@ export default function PageManager() {
     template: 'Default Template'
   });
 
-  // Full Editor State (Add New or Edit)
+  // Full Editor State
   const [isFullEditing, setIsFullEditing] = useState(false);
   const [editingPage, setEditingPage] = useState<PageItem | null>(null);
-  const [editorTab, setEditorTab] = useState<'sections' | 'attributes' | 'raw'>('sections');
+  const [editorSubTab, setEditorSubTab] = useState<'sections' | 'raw'>('sections');
   const [openSectionAccordions, setOpenSectionAccordions] = useState<Record<string, boolean>>({});
 
-  // Screen Options & Help toggles
+  // Screen Options & Help
   const [showScreenOptions, setShowScreenOptions] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
@@ -769,13 +754,15 @@ export default function PageManager() {
       if (cached) {
         setPages(JSON.parse(cached));
       } else {
-        // Also check Supabase pages_content for any previously edited sections
         const { data: contentData } = await supabase.from('pages_content').select('*');
         const initial = [...DEFAULT_PAGES];
 
         if (contentData && contentData.length > 0) {
           contentData.forEach(c => {
             if (c.id === 'home_hero') {
+              initial[0].sectionsData = { ...initial[0].sectionsData, ...c.content };
+            }
+            if (c.id === 'home_about') {
               initial[0].sectionsData = { ...initial[0].sectionsData, ...c.content };
             }
             if (c.id === 'home_faq') {
@@ -799,9 +786,9 @@ export default function PageManager() {
   const savePagesList = (updated: PageItem[]) => {
     setPages(updated);
     localStorage.setItem('techfnm_site_pages_v2', JSON.stringify(updated));
+    triggerContentUpdate();
   };
 
-  // Counts for status subnav
   const counts = {
     all: pages.filter(p => p.status !== 'trash').length,
     published: pages.filter(p => p.status === 'published').length,
@@ -809,7 +796,6 @@ export default function PageManager() {
     trash: pages.filter(p => p.status === 'trash').length,
   };
 
-  // Filtered pages list
   const filteredPages = pages.filter((page) => {
     if (activeTab === 'all' && page.status === 'trash') return false;
     if (activeTab === 'published' && page.status !== 'published') return false;
@@ -914,18 +900,16 @@ export default function PageManager() {
     toast.success('Page updated successfully.');
   };
 
-  // Open Full Editor for a Page
   const openFullEditor = (page?: PageItem) => {
     if (page) {
       setEditingPage({
         ...page,
         sectionsData: { ...page.sectionsData }
       });
-      // By default open all section accordions
       const pageSections = PAGE_SECTIONS_REGISTRY[page.id] || GENERIC_CUSTOM_SECTIONS;
       const initialAccordions: Record<string, boolean> = {};
       pageSections.forEach((s, idx) => {
-        initialAccordions[s.id] = idx === 0; // open first section by default
+        initialAccordions[s.id] = idx === 0;
       });
       setOpenSectionAccordions(initialAccordions);
     } else {
@@ -941,11 +925,12 @@ export default function PageManager() {
         isFrontPage: false,
         content: '',
         template: 'Default Template',
+        featuredImage: '',
         sectionsData: {}
       });
       setOpenSectionAccordions({ custom_hero: true, custom_cta: true });
     }
-    setEditorTab('sections');
+    setEditorSubTab('sections');
     setIsFullEditing(true);
   };
 
@@ -965,6 +950,24 @@ export default function PageManager() {
         [key]: value
       }
     });
+  };
+
+  const handleFeaturedFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image file must be under 5MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const dataUrl = uploadEvent.target?.result as string;
+      if (dataUrl && editingPage) {
+        setEditingPage({ ...editingPage, featuredImage: dataUrl });
+        toast.success('Featured image loaded from device!');
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   // Save Full Editor
@@ -992,10 +995,11 @@ export default function PageManager() {
 
     savePagesList(updatedList);
 
-    // Sync specific shared sections to Supabase if applicable
-    if (updatedPage.id === 'page-home') {
-      try {
-        await supabase.from('pages_content').upsert([
+    // Sync to Supabase pages_content
+    try {
+      const upserts: any[] = [];
+      if (updatedPage.id === 'page-home') {
+        upserts.push(
           {
             id: 'home_hero',
             section_name: 'Homepage Hero',
@@ -1008,6 +1012,21 @@ export default function PageManager() {
             }
           },
           {
+            id: 'home_about',
+            section_name: 'Homepage About',
+            content: {
+              badge: updatedPage.sectionsData.about_badge,
+              heading: updatedPage.sectionsData.about_heading,
+              desc1: updatedPage.sectionsData.about_desc1,
+              desc2: updatedPage.sectionsData.about_desc2,
+              exp_years: updatedPage.sectionsData.about_exp_years,
+              exp_text: updatedPage.sectionsData.about_exp_text,
+              image: updatedPage.sectionsData.about_image,
+              btn_text: updatedPage.sectionsData.about_btn_text,
+              btn_link: updatedPage.sectionsData.about_btn_link
+            }
+          },
+          {
             id: 'home_faq',
             section_name: 'Homepage FAQ',
             content: {
@@ -1015,10 +1034,20 @@ export default function PageManager() {
               badge_text: updatedPage.sectionsData.faq_badge || 'Support Center'
             }
           }
-        ]);
-      } catch (err) {
-        // silent fallback
+        );
+      } else {
+        upserts.push({
+          id: `page_sections_${updatedPage.id.replace('page-', '')}`,
+          section_name: `${updatedPage.title} Sections`,
+          content: updatedPage.sectionsData
+        });
       }
+
+      if (upserts.length > 0) {
+        await supabase.from('pages_content').upsert(upserts);
+      }
+    } catch (err) {
+      // silent fallback
     }
 
     setIsFullEditing(false);
@@ -1035,16 +1064,16 @@ export default function PageManager() {
     }
   };
 
-  // ── FULL PAGE & SECTION EDITOR VIEW ──
+  // ── FULL PAGE & SECTION EDITOR VIEW (CLASSIC WORDPRESS FIXED SIDEBAR LAYOUT) ──
   if (isFullEditing && editingPage) {
     const currentSections = PAGE_SECTIONS_REGISTRY[editingPage.id] || GENERIC_CUSTOM_SECTIONS;
 
     return (
-      <div className="space-y-6 font-sans text-zinc-100 animate-in fade-in duration-150">
+      <div className="space-y-5 font-sans text-zinc-100 animate-in fade-in duration-150">
         <Toaster position="top-right" toastOptions={{ style: { background: '#18181b', color: '#fff' } }} />
 
         {/* TOP BAR: Back button, Title & Action controls */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-800/80 pb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-800/80 pb-3.5">
           <div className="flex items-center gap-3">
             <button
               onClick={() => { setIsFullEditing(false); setEditingPage(null); }}
@@ -1072,7 +1101,7 @@ export default function PageManager() {
                 </span>
               </div>
               <p className="text-xs text-zinc-400 mt-0.5">
-                Manage all headings, paragraphs, images, button links, and attributes A to Z.
+                Edit title & slug at top, configure sections A to Z, and publish from the fixed right sidebar.
               </p>
             </div>
           </div>
@@ -1103,290 +1132,270 @@ export default function PageManager() {
               className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold shadow-lg shadow-red-950/40 transition-all cursor-pointer"
             >
               <Save size={14} />
-              <span>Save & Publish All Sections</span>
+              <span>Save & Publish</span>
             </button>
           </div>
         </div>
 
-        {/* EDITOR TABS (Section Manager A to Z vs Page Attributes) */}
-        <div className="flex items-center gap-2 border-b border-zinc-800">
-          <button
-            onClick={() => setEditorTab('sections')}
-            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold transition-all border-b-2 cursor-pointer ${
-              editorTab === 'sections'
-                ? 'border-red-500 text-white bg-zinc-900/50'
-                : 'border-transparent text-zinc-400 hover:text-zinc-200'
-            }`}
-          >
-            <Layers size={14} className={editorTab === 'sections' ? 'text-red-400' : 'text-zinc-500'} />
-            <span>⚡ Section Manager ({currentSections.length} Sections)</span>
-          </button>
+        {/* TWO-COLUMN WORDPRESS LAYOUT: LEFT CONTENT + FIXED RIGHT SIDEBAR */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-          <button
-            onClick={() => setEditorTab('attributes')}
-            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold transition-all border-b-2 cursor-pointer ${
-              editorTab === 'attributes'
-                ? 'border-red-500 text-white bg-zinc-900/50'
-                : 'border-transparent text-zinc-400 hover:text-zinc-200'
-            }`}
-          >
-            <Settings size={14} className={editorTab === 'attributes' ? 'text-red-400' : 'text-zinc-500'} />
-            <span>📄 Page Attributes & Permalink</span>
-          </button>
+          {/* ── LEFT COLUMN (MAIN WORKSPACE: 8 COLS) ── */}
+          <div className="lg:col-span-8 space-y-5 min-w-0">
 
-          <button
-            onClick={() => setEditorTab('raw')}
-            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold transition-all border-b-2 cursor-pointer ${
-              editorTab === 'raw'
-                ? 'border-red-500 text-white bg-zinc-900/50'
-                : 'border-transparent text-zinc-400 hover:text-zinc-200'
-            }`}
-          >
-            <FileText size={14} className={editorTab === 'raw' ? 'text-red-400' : 'text-zinc-500'} />
-            <span>📝 Raw Body Content</span>
-          </button>
-        </div>
-
-        {/* ── TAB 1: SECTION MANAGER (A TO Z) ── */}
-        {editorTab === 'sections' && (
-          <div className="space-y-4">
-            <div className="bg-[#111116] border border-zinc-800/80 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
-              <div className="space-y-0.5">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-2">
-                  <Sparkles size={14} className="text-red-400" />
-                  Live Section Customizer for: <span className="text-white font-mono">{editingPage.title}</span>
-                </h3>
-                <p className="text-[11px] text-zinc-400">
-                  Edit every heading, copy paragraph, button text/link, and image across each section of this page.
-                </p>
+            {/* 1. TOP PAGE TITLE & PERMALINK (FIXED ON TOP AS REQUESTED) */}
+            <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-3 shadow-lg">
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                  Page Title
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editingPage.title}
+                  onChange={(e) => setEditingPage({ ...editingPage, title: e.target.value })}
+                  placeholder="Enter title here (e.g. About Us, Services, Contact)"
+                  className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-3 text-lg font-bold text-white placeholder-zinc-600 outline-none transition-all"
+                />
               </div>
 
-              <div className="flex items-center gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const allOpen: Record<string, boolean> = {};
-                    currentSections.forEach(s => allOpen[s.id] = true);
-                    setOpenSectionAccordions(allOpen);
-                  }}
-                  className="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-850 text-zinc-300 border border-zinc-800 text-[11px] font-medium transition-colors cursor-pointer"
-                >
-                  Expand All
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOpenSectionAccordions({})}
-                  className="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-850 text-zinc-300 border border-zinc-800 text-[11px] font-medium transition-colors cursor-pointer"
-                >
-                  Collapse All
-                </button>
+              {/* Permalink row directly below title */}
+              <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400 bg-[#141419] border border-zinc-800 rounded-xl px-4 py-2">
+                <span className="font-semibold text-zinc-500">Permalink:</span>
+                <span className="text-zinc-600">https://techfnm.com</span>
+                <input
+                  type="text"
+                  value={editingPage.slug}
+                  onChange={(e) => setEditingPage({ ...editingPage, slug: e.target.value })}
+                  placeholder="/page-slug"
+                  className="bg-transparent border-b border-dashed border-red-500/50 focus:border-red-500 text-red-400 font-mono text-xs outline-none px-1 py-0.5 min-w-[120px]"
+                />
+                {editingPage.slug && (
+                  <a
+                    href={editingPage.slug}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 ml-auto"
+                  >
+                    <span>View Page</span>
+                    <ExternalLink size={11} />
+                  </a>
+                )}
               </div>
             </div>
 
-            {/* SECTIONS ACCORDION LIST */}
-            <div className="space-y-3">
-              {currentSections.map((section, idx) => {
-                const Icon = section.icon;
-                const isOpen = !!openSectionAccordions[section.id];
+            {/* 2. SECTION MANAGER (A TO Z) & RAW CONTENT TOGGLES */}
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditorSubTab('sections')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    editorSubTab === 'sections'
+                      ? 'bg-red-950/40 text-red-400 border border-red-900/40'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Layers size={13} />
+                  <span>⚡ Section Manager ({currentSections.length} Sections)</span>
+                </button>
 
-                return (
-                  <div
-                    key={section.id}
-                    className="rounded-2xl border border-zinc-800/90 bg-[#0e0e12] overflow-hidden shadow-lg transition-all"
+                <button
+                  type="button"
+                  onClick={() => setEditorSubTab('raw')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    editorSubTab === 'raw'
+                      ? 'bg-red-950/40 text-red-400 border border-red-900/40'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <FileText size={13} />
+                  <span>📝 Page Body Copy</span>
+                </button>
+              </div>
+
+              {editorSubTab === 'sections' && (
+                <div className="flex items-center gap-1.5 text-[11px]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const allOpen: Record<string, boolean> = {};
+                      currentSections.forEach(s => allOpen[s.id] = true);
+                      setOpenSectionAccordions(allOpen);
+                    }}
+                    className="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-200 border border-zinc-800 transition-colors cursor-pointer"
                   >
-                    {/* ACCORDION HEADER */}
-                    <button
-                      type="button"
-                      onClick={() => toggleAccordion(section.id)}
-                      className="w-full flex items-center justify-between px-5 py-4 bg-[#131319] hover:bg-[#171720] border-b border-zinc-800/80 transition-colors text-left cursor-pointer"
+                    Expand All
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOpenSectionAccordions({})}
+                    className="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-200 border border-zinc-800 transition-colors cursor-pointer"
+                  >
+                    Collapse All
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* SECTIONS ACCORDION LIST */}
+            {editorSubTab === 'sections' && (
+              <div className="space-y-3">
+                {currentSections.map((section, idx) => {
+                  const Icon = section.icon;
+                  const isOpen = !!openSectionAccordions[section.id];
+
+                  return (
+                    <div
+                      key={section.id}
+                      className="rounded-2xl border border-zinc-800/90 bg-[#0e0e12] overflow-hidden shadow-md transition-all"
                     >
-                      <div className="flex items-center gap-3.5 min-w-0">
-                        <div className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-red-400 shrink-0">
-                          <Icon size={16} />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-mono text-zinc-500 uppercase">Section {idx + 1}</span>
-                            <span className="text-zinc-600">•</span>
-                            <h4 className="text-sm font-bold text-white tracking-tight truncate">
-                              {section.title}
-                            </h4>
+                      {/* Accordion header */}
+                      <button
+                        type="button"
+                        onClick={() => toggleAccordion(section.id)}
+                        className="w-full flex items-center justify-between px-4 sm:px-5 py-3.5 bg-[#131319] hover:bg-[#171720] border-b border-zinc-800/80 transition-colors text-left cursor-pointer"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-red-400 shrink-0">
+                            <Icon size={15} />
                           </div>
-                          <p className="text-xs text-zinc-400 line-clamp-1 mt-0.5">
-                            {section.description}
-                          </p>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-mono text-zinc-500 uppercase">Section {idx + 1}</span>
+                              <span className="text-zinc-600">•</span>
+                              <h4 className="text-sm font-bold text-white tracking-tight truncate">
+                                {section.title}
+                              </h4>
+                            </div>
+                            <p className="text-[11px] text-zinc-400 line-clamp-1 mt-0.5">
+                              {section.description}
+                            </p>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-center gap-3 shrink-0 ml-3">
-                        <span className="text-[10px] font-bold text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800 hidden sm:inline">
-                          {section.fields.length} Fields
-                        </span>
-                        {isOpen ? <ChevronUp size={16} className="text-zinc-400" /> : <ChevronDown size={16} className="text-zinc-400" />}
-                      </div>
-                    </button>
+                        <div className="flex items-center gap-2.5 shrink-0 ml-2">
+                          <span className="text-[10px] font-bold text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800 hidden sm:inline">
+                            {section.fields.length} Fields
+                          </span>
+                          {isOpen ? <ChevronUp size={15} className="text-zinc-400" /> : <ChevronDown size={15} className="text-zinc-400" />}
+                        </div>
+                      </button>
 
-                    {/* ACCORDION CONTENT / INPUT FIELDS */}
-                    {isOpen && (
-                      <div className="p-5 sm:p-6 space-y-5 bg-[#0e0e12]">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {section.fields.map((field) => {
-                            const value = editingPage.sectionsData[field.key] ?? '';
-                            const isFullWidth = field.type === 'textarea' || field.type === 'image';
+                      {/* Accordion content */}
+                      {isOpen && (
+                        <div className="p-4 sm:p-5 space-y-4 bg-[#0e0e12]">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                            {section.fields.map((field) => {
+                              const value = editingPage.sectionsData[field.key] ?? '';
+                              const isFullWidth = field.type === 'textarea' || field.type === 'image';
 
-                            return (
-                              <div
-                                key={field.key}
-                                className={`space-y-1.5 ${isFullWidth ? 'md:col-span-2' : ''}`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <label className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-                                    {field.type === 'image' && <ImageIcon size={13} className="text-amber-400" />}
-                                    {field.type === 'url' && <LinkIcon size={13} className="text-blue-400" />}
-                                    {field.type === 'text' && <Type size={13} className="text-red-400" />}
-                                    {field.type === 'textarea' && <AlignLeft size={13} className="text-purple-400" />}
-                                    <span>{field.label}</span>
-                                  </label>
-                                  <span className="text-[10px] font-mono text-zinc-600">{field.key}</span>
-                                </div>
+                              return (
+                                <div
+                                  key={field.key}
+                                  className={`space-y-1.5 ${isFullWidth ? 'md:col-span-2' : ''}`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <label className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
+                                      {field.type === 'image' && <ImageIcon size={12} className="text-amber-400" />}
+                                      {field.type === 'url' && <LinkIcon size={12} className="text-blue-400" />}
+                                      {field.type === 'text' && <Type size={12} className="text-red-400" />}
+                                      {field.type === 'textarea' && <AlignLeft size={12} className="text-purple-400" />}
+                                      <span>{field.label}</span>
+                                    </label>
+                                    <span className="text-[10px] font-mono text-zinc-600">{field.key}</span>
+                                  </div>
 
-                                {field.type === 'textarea' ? (
-                                  <textarea
-                                    rows={3}
-                                    value={value}
-                                    onChange={(e) => updateSectionFieldValue(field.key, e.target.value)}
-                                    placeholder={field.placeholder}
-                                    className="w-full bg-[#131318] border border-zinc-800 focus:border-red-600/50 rounded-xl p-3 text-xs text-zinc-200 placeholder-zinc-600 outline-none transition-all resize-y"
-                                  />
-                                ) : field.type === 'image' ? (
-                                  <div className="space-y-2">
-                                    <div className="flex items-center gap-2">
+                                  {field.type === 'textarea' ? (
+                                    <textarea
+                                      rows={3}
+                                      value={value}
+                                      onChange={(e) => updateSectionFieldValue(field.key, e.target.value)}
+                                      placeholder={field.placeholder}
+                                      className="w-full bg-[#131318] border border-zinc-800 focus:border-red-600/50 rounded-xl p-3 text-xs text-zinc-200 placeholder-zinc-600 outline-none transition-all resize-y"
+                                    />
+                                  ) : field.type === 'image' ? (
+                                    <div className="space-y-2">
                                       <input
                                         type="text"
                                         value={value}
                                         onChange={(e) => updateSectionFieldValue(field.key, e.target.value)}
                                         placeholder={field.placeholder || 'https://images.unsplash.com/...'}
-                                        className="w-full bg-[#131318] border border-zinc-800 focus:border-red-600/50 rounded-xl px-3.5 py-2.5 text-xs text-zinc-200 placeholder-zinc-600 outline-none transition-all"
+                                        className="w-full bg-[#131318] border border-zinc-800 focus:border-red-600/50 rounded-xl px-3 py-2 text-xs text-zinc-200 placeholder-zinc-600 outline-none transition-all"
                                       />
+                                      {value && (
+                                        <div className="relative w-36 h-20 rounded-xl border border-zinc-800 overflow-hidden bg-zinc-950">
+                                          <img
+                                            src={value}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover"
+                                            onError={(e: any) => { e.target.style.display = 'none'; }}
+                                          />
+                                          <span className="absolute bottom-1 right-1 bg-black/80 px-1.5 py-0.5 rounded text-[9px] text-zinc-400 font-mono">
+                                            Preview
+                                          </span>
+                                        </div>
+                                      )}
                                     </div>
-                                    {value && (
-                                      <div className="relative w-36 h-20 rounded-xl border border-zinc-800 overflow-hidden bg-zinc-950">
-                                        <img
-                                          src={value}
-                                          alt="Preview"
-                                          className="w-full h-full object-cover"
-                                          onError={(e: any) => { e.target.style.display = 'none'; }}
-                                        />
-                                        <span className="absolute bottom-1 right-1 bg-black/80 px-1.5 py-0.5 rounded text-[9px] text-zinc-400 font-mono">
-                                          Preview
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <input
-                                    type="text"
-                                    value={value}
-                                    onChange={(e) => updateSectionFieldValue(field.key, e.target.value)}
-                                    placeholder={field.placeholder}
-                                    className="w-full bg-[#131318] border border-zinc-800 focus:border-red-600/50 rounded-xl px-3.5 py-2.5 text-xs text-zinc-200 placeholder-zinc-600 outline-none transition-all"
-                                  />
-                                )}
-                              </div>
-                            );
-                          })}
+                                  ) : (
+                                    <input
+                                      type="text"
+                                      value={value}
+                                      onChange={(e) => updateSectionFieldValue(field.key, e.target.value)}
+                                      placeholder={field.placeholder}
+                                      className="w-full bg-[#131318] border border-zinc-800 focus:border-red-600/50 rounded-xl px-3 py-2 text-xs text-zinc-200 placeholder-zinc-600 outline-none transition-all"
+                                    />
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Bottom Save bar */}
-            <div className="flex justify-end pt-3">
-              <button
-                type="button"
-                onClick={() => saveFullEditor()}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold shadow-lg shadow-red-950/40 transition-all cursor-pointer"
-              >
-                <Save size={14} />
-                <span>Save All Sections</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ── TAB 2: PAGE ATTRIBUTES & SEO ── */}
-        {editorTab === 'attributes' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-5">
-              {/* Title & Slug */}
-              <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-4 shadow-lg">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
-                    Page Title
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editingPage.title}
-                    onChange={(e) => setEditingPage({ ...editingPage, title: e.target.value })}
-                    placeholder="Enter page title (e.g. Services Catalog)"
-                    className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-3 text-base font-bold text-white outline-none transition-all"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
-                    Permalink / Slug
-                  </label>
-                  <div className="flex items-center gap-2 bg-[#141419] border border-zinc-800 rounded-xl px-4 py-2 text-xs">
-                    <span className="text-zinc-500 font-medium">https://techfnm.com</span>
-                    <input
-                      type="text"
-                      value={editingPage.slug}
-                      onChange={(e) => setEditingPage({ ...editingPage, slug: e.target.value })}
-                      placeholder="/services"
-                      className="bg-transparent text-red-400 font-mono flex-1 outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Featured Image URL */}
-                <div className="space-y-1.5 pt-2">
-                  <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
-                    Featured Image URL
-                  </label>
-                  <input
-                    type="text"
-                    value={editingPage.featuredImage || ''}
-                    onChange={(e) => setEditingPage({ ...editingPage, featuredImage: e.target.value })}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-3.5 py-2.5 text-xs text-zinc-200 outline-none"
-                  />
-                  {editingPage.featuredImage && (
-                    <div className="w-48 h-28 rounded-xl border border-zinc-800 overflow-hidden mt-2 bg-zinc-950">
-                      <img src={editingPage.featuredImage} alt="Featured" className="w-full h-full object-cover" />
+                      )}
                     </div>
-                  )}
-                </div>
+                  );
+                })}
               </div>
-            </div>
+            )}
 
-            {/* Sidebar box */}
-            <div className="space-y-5">
-              <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-4 shadow-lg text-xs">
-                <span className="font-bold text-xs uppercase tracking-wider text-zinc-300 block border-b border-zinc-800 pb-2">
-                  Page Configuration
-                </span>
+            {/* RAW BODY CONTENT */}
+            {editorSubTab === 'raw' && (
+              <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-3 shadow-md">
+                <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2">
+                  <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
+                    Page Body Content / Description
+                  </label>
+                  <span className="text-[11px] text-zinc-500">General copy markup</span>
+                </div>
+                <textarea
+                  rows={10}
+                  value={editingPage.content || ''}
+                  onChange={(e) => setEditingPage({ ...editingPage, content: e.target.value })}
+                  placeholder="Enter main narrative paragraphs or HTML copy..."
+                  className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl p-4 text-xs text-zinc-200 placeholder-zinc-600 outline-none transition-all resize-y"
+                />
+              </div>
+            )}
 
+          </div>
+
+          {/* ── RIGHT COLUMN (FIXED SIDEBAR: 4 COLS - ALWAYS VISIBLE AS REQUESTED) ── */}
+          <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-4">
+
+            {/* 1. PUBLISH & STATUS CARD */}
+            <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl">
+              <div className="px-4 py-3 bg-[#131319] border-b border-zinc-800/80 flex items-center justify-between">
+                <span className="font-bold text-xs uppercase tracking-wider text-zinc-300">Publish</span>
+                <span className={`w-2 h-2 rounded-full ${editingPage.status === 'published' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+              </div>
+
+              <div className="p-4 space-y-3.5 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400">Status:</span>
+                  <span className="text-zinc-400 font-medium">Status:</span>
                   <select
                     value={editingPage.status}
                     onChange={(e) => setEditingPage({ ...editingPage, status: e.target.value as any })}
-                    className="bg-[#141419] border border-zinc-800 rounded-lg px-2.5 py-1 text-zinc-200 outline-none"
+                    className="bg-[#141419] border border-zinc-800 rounded-lg px-2.5 py-1 text-zinc-200 outline-none font-medium"
                   >
                     <option value="published">Published</option>
                     <option value="draft">Draft</option>
@@ -1394,81 +1403,145 @@ export default function PageManager() {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400">Author:</span>
-                  <span className="text-zinc-200 font-semibold">{editingPage.author}</span>
+                  <span className="text-zinc-400 font-medium">Visibility:</span>
+                  <span className="text-zinc-200 font-semibold">Public</span>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400">Front Page:</span>
+                  <span className="text-zinc-400 font-medium">Author:</span>
+                  <select
+                    value={editingPage.author}
+                    onChange={(e) => setEditingPage({ ...editingPage, author: e.target.value })}
+                    className="bg-[#141419] border border-zinc-800 rounded-lg px-2.5 py-1 text-zinc-200 outline-none font-medium"
+                  >
+                    <option value="admin">admin</option>
+                    <option value="editor">editor</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-400 font-medium">Front Page:</span>
                   <button
                     type="button"
                     onClick={() => setEditingPage({ ...editingPage, isFrontPage: !editingPage.isFrontPage })}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-bold border transition-colors ${
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-bold border transition-colors cursor-pointer ${
                       editingPage.isFrontPage
                         ? 'bg-red-950/40 text-red-400 border-red-900/40'
                         : 'bg-zinc-900 text-zinc-500 border-zinc-800'
                     }`}
                   >
-                    {editingPage.isFrontPage ? 'Yes' : 'No'}
+                    {editingPage.isFrontPage ? 'Yes (Front Page)' : 'No'}
                   </button>
                 </div>
 
-                <div className="space-y-1.5 pt-2 border-t border-zinc-800">
-                  <span className="text-zinc-400 font-medium block">Template</span>
-                  <select
-                    value={editingPage.template || 'Default Template'}
-                    onChange={(e) => setEditingPage({ ...editingPage, template: e.target.value })}
-                    className="w-full bg-[#141419] border border-zinc-800 rounded-lg px-3 py-2 text-zinc-200 outline-none"
-                  >
-                    <option value="Default Template">Default Template</option>
-                    <option value="Front Page">Front Page Template</option>
-                    <option value="Full Width">Full Width Page</option>
-                    <option value="Contact Form Page">Contact Form Page</option>
-                  </select>
+                <div className="flex items-center justify-between pt-1 border-t border-zinc-800/80 text-[11px]">
+                  <span className="text-zinc-500">Date:</span>
+                  <span className="text-zinc-400 font-mono">{formatDate(editingPage.date)}</span>
                 </div>
 
-                <div className="pt-3 border-t border-zinc-800">
+                <div className="pt-3 border-t border-zinc-800 flex justify-between items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { handleTrashPage(editingPage); setIsFullEditing(false); }}
+                    className="text-red-400 hover:text-red-300 text-xs font-semibold hover:underline cursor-pointer"
+                  >
+                    Move to Trash
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => saveFullEditor()}
-                    className="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-all cursor-pointer shadow-md"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-md shadow-red-950/40 transition-all cursor-pointer text-center"
                   >
-                    Save Attributes
+                    {editingPage.status === 'published' ? 'Update & Publish' : 'Save Draft'}
                   </button>
                 </div>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* ── TAB 3: RAW CONTENT COPY ── */}
-        {editorTab === 'raw' && (
-          <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-3 shadow-lg">
-            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2.5">
-              <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
-                Standard Body Content / Copy
-              </label>
-              <span className="text-[11px] text-zinc-500">General narrative markup</span>
+            {/* 2. PAGE ATTRIBUTES CARD (FIXED IN SIDEBAR) */}
+            <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl">
+              <div className="px-4 py-3 bg-[#131319] border-b border-zinc-800/80">
+                <span className="font-bold text-xs uppercase tracking-wider text-zinc-300">Page Attributes</span>
+              </div>
+              <div className="p-4 space-y-3 text-xs">
+                <label className="text-zinc-400 font-medium block">Template</label>
+                <select
+                  value={editingPage.template || 'Default Template'}
+                  onChange={(e) => setEditingPage({ ...editingPage, template: e.target.value })}
+                  className="w-full bg-[#141419] border border-zinc-800 rounded-lg px-3 py-2 text-zinc-200 outline-none font-medium"
+                >
+                  <option value="Default Template">Default Template</option>
+                  <option value="Front Page">Front Page Template</option>
+                  <option value="Full Width">Full Width Page</option>
+                  <option value="Contact Form Page">Contact Form Page</option>
+                </select>
+              </div>
             </div>
-            <textarea
-              rows={10}
-              value={editingPage.content || ''}
-              onChange={(e) => setEditingPage({ ...editingPage, content: e.target.value })}
-              placeholder="Enter main page paragraphs or HTML markup..."
-              className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl p-4 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition-all resize-y"
-            />
-            <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                onClick={() => saveFullEditor()}
-                className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-all cursor-pointer shadow-md"
-              >
-                Save Content
-              </button>
-            </div>
-          </div>
-        )}
 
+            {/* 3. FEATURED IMAGE CARD (FIXED IN SIDEBAR AS REQUESTED) */}
+            <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl">
+              <div className="px-4 py-3 bg-[#131319] border-b border-zinc-800/80 flex items-center justify-between">
+                <span className="font-bold text-xs uppercase tracking-wider text-zinc-300">Featured Image</span>
+                <ImageIcon size={14} className="text-amber-400" />
+              </div>
+              <div className="p-4 space-y-3 text-xs">
+                {/* Upload Button from Device */}
+                <div className="space-y-2">
+                  <label className="text-zinc-400 block font-medium">Upload Image from Device</label>
+                  <label className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-red-650/20 to-red-900/20 hover:from-red-600/30 hover:to-red-900/30 border border-red-600/30 text-red-400 hover:text-red-300 font-bold text-xs cursor-pointer transition-all shadow-sm">
+                    <Upload size={14} />
+                    <span>Choose Image from PC</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFeaturedFileUpload}
+                    />
+                  </label>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-zinc-400 block font-medium">Or Paste Image URL</label>
+                  <input
+                    type="text"
+                    value={editingPage.featuredImage || ''}
+                    onChange={(e) => setEditingPage({ ...editingPage, featuredImage: e.target.value })}
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-lg px-3 py-2 text-xs text-zinc-200 placeholder-zinc-600 outline-none transition-all"
+                  />
+                </div>
+
+                {editingPage.featuredImage ? (
+                  <div className="space-y-2 pt-1 border-t border-zinc-850">
+                    <div className="relative w-full h-36 rounded-xl border border-zinc-800 overflow-hidden bg-zinc-950">
+                      <img
+                        src={editingPage.featuredImage}
+                        alt="Featured Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e: any) => { e.target.style.display = 'none'; }}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setEditingPage({ ...editingPage, featuredImage: '' })}
+                      className="text-[11px] text-red-400 hover:underline block cursor-pointer font-medium"
+                    >
+                      ✕ Remove featured image
+                    </button>
+                  </div>
+                ) : (
+                  <div className="p-4 border border-dashed border-zinc-800 rounded-xl text-center text-zinc-500 space-y-1 bg-[#121217]">
+                    <ImageIcon size={18} className="mx-auto text-zinc-600" />
+                    <p className="text-[11px]">No featured image set yet.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </div>
+
+        </div>
       </div>
     );
   }
@@ -1539,10 +1612,10 @@ export default function PageManager() {
             {showHelp && (
               <div className="absolute right-0 mt-1.5 w-72 bg-[#141419] border border-zinc-800 rounded-xl p-3.5 shadow-2xl z-30 text-xs space-y-2">
                 <span className="font-bold text-zinc-300 block border-b border-zinc-800 pb-1.5 text-[11px] uppercase tracking-wider">
-                  Section Customizer
+                  Pages Management
                 </span>
                 <p className="text-zinc-400 text-xs leading-relaxed">
-                  Click <strong>Edit</strong> on any page to customize all its live sections (Hero, Headings, Subtitles, Paragraphs, Images, and CTA Buttons) from A to Z!
+                  Click <strong>Edit (Sections A-Z)</strong> on any page to customize all its live headings, paragraphs, images, and buttons with direct live website integration!
                 </p>
               </div>
             )}
@@ -1598,7 +1671,6 @@ export default function PageManager() {
 
       {/* TOP CONTROLS & SEARCH BAR */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-        {/* Bulk actions & dates */}
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <select
             value={bulkAction}
@@ -1641,7 +1713,6 @@ export default function PageManager() {
           </button>
         </div>
 
-        {/* Search input & items counter */}
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           <div className="flex items-center gap-1.5">
             <input
@@ -1668,7 +1739,6 @@ export default function PageManager() {
       <div className="rounded-2xl border border-zinc-800/90 overflow-hidden bg-[#0e0e12] shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-zinc-300 border-collapse">
-            {/* Table Header */}
             <thead className="bg-[#14141a] text-zinc-400 font-bold border-b border-zinc-800 select-none">
               <tr>
                 <th className="w-10 px-4 py-3 text-center">
@@ -1689,7 +1759,6 @@ export default function PageManager() {
               </tr>
             </thead>
 
-            {/* Table Body */}
             <tbody className="divide-y divide-zinc-800/60">
               {loading ? (
                 <tr>
@@ -1715,7 +1784,6 @@ export default function PageManager() {
                       <tr className={`group transition-colors ${
                         isSelected ? 'bg-red-950/20' : 'hover:bg-[#16161d]/70'
                       }`}>
-                        {/* Checkbox */}
                         <td className="px-4 py-3.5 text-center align-top">
                           <input
                             type="checkbox"
@@ -1725,7 +1793,6 @@ export default function PageManager() {
                           />
                         </td>
 
-                        {/* Title & Action links */}
                         <td className="px-4 py-3.5 align-top">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
@@ -1747,7 +1814,6 @@ export default function PageManager() {
                               )}
                             </div>
 
-                            {/* WordPress Hover Action Links */}
                             <div className="flex items-center gap-2 text-[11px] text-zinc-500 opacity-80 group-hover:opacity-100 transition-opacity">
                               {page.status === 'trash' ? (
                                 <>
@@ -1803,14 +1869,12 @@ export default function PageManager() {
                           </div>
                         </td>
 
-                        {/* Author */}
                         <td className="px-4 py-3.5 align-top text-zinc-400 font-medium">
                           <span className="text-[#58a6ff] hover:underline cursor-pointer">
                             {page.author}
                           </span>
                         </td>
 
-                        {/* Managed Sections Count Pill */}
                         <td className="px-4 py-3.5 align-top">
                           <button
                             onClick={() => openFullEditor(page)}
@@ -1821,7 +1885,6 @@ export default function PageManager() {
                           </button>
                         </td>
 
-                        {/* Comments */}
                         <td className="px-4 py-3.5 align-top text-center text-zinc-500">
                           {page.commentsCount > 0 ? (
                             <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-800 text-zinc-300">
@@ -1832,7 +1895,6 @@ export default function PageManager() {
                           )}
                         </td>
 
-                        {/* Date */}
                         <td className="px-4 py-3.5 align-top">
                           <div className="space-y-0.5">
                             <span className="text-zinc-300 block font-medium">
@@ -1943,7 +2005,6 @@ export default function PageManager() {
               )}
             </tbody>
 
-            {/* Table Footer */}
             <tfoot className="bg-[#14141a] text-zinc-400 font-bold border-t border-zinc-800 select-none">
               <tr>
                 <th className="w-10 px-4 py-3 text-center">
@@ -1967,7 +2028,7 @@ export default function PageManager() {
         </div>
       </div>
 
-      {/* BOTTOM CONTROLS (Bulk Actions repeat) */}
+      {/* BOTTOM CONTROLS */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs pt-1">
         <div className="flex items-center gap-2">
           <select

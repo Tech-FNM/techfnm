@@ -5,8 +5,27 @@ import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
 import Leadership from '../../components/Leadership';
 import Testimonials from '../../components/Testimonials';
+import { usePageContent } from '../../lib/cmsContent';
 
 export default function AboutPage() {
+  const content = usePageContent('page-about', {
+    hero_badge: 'About Us',
+    hero_title: 'Your Digital Growth Partner',
+    hero_desc: 'Expert web development, mobile app solutions, and result-driven SEO services to grow your business online.',
+    hero_cta1_text: 'Getting Started',
+    hero_cta1_link: '/request-service',
+    hero_cta2_text: 'Our Services',
+    hero_cta2_link: '/#services',
+    story_badge: 'Our Story',
+    story_heading: 'Our Existence Explained',
+    stat1_val: '2023',
+    stat1_lbl: 'Founded',
+    stat2_val: '100%',
+    stat2_lbl: 'Remote',
+    stat3_val: '50+',
+    stat3_lbl: 'Projects'
+  });
+
   // Animation presets for consistency
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
@@ -37,21 +56,21 @@ export default function AboutPage() {
               transition={{ duration: 0.8 }}
             >
               <span className="inline-block py-1 px-3 rounded-full bg-red-900/50 text-red-200 text-sm font-semibold mb-6 border border-red-500/30">
-                About Us
+                {content.hero_badge || 'About Us'}
               </span>
               <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6">
-                Your Digital Growth Partner
+                {content.hero_title || 'Your Digital Growth Partner'}
               </h1>
               <p className="mt-4 text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-                Expert web development, mobile app solutions, and result-driven SEO services to grow your business online.
+                {content.hero_desc || 'Expert web development, mobile app solutions, and result-driven SEO services to grow your business online.'}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/request-service" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-full text-white bg-red-600 hover:bg-red-700 md:text-lg shadow-lg shadow-red-600/30 transition-all hover:scale-105">
-                  <span>Getting Started</span>
+                <a href={content.hero_cta1_link || '/request-service'} className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-full text-white bg-red-600 hover:bg-red-700 md:text-lg shadow-lg shadow-red-600/30 transition-all hover:scale-105">
+                  <span>{content.hero_cta1_text || 'Getting Started'}</span>
                   <ArrowRight className="ml-2 -mr-1 w-5 h-5" />
                 </a>
-                <a href="/#services" className="inline-flex items-center justify-center px-8 py-4 border border-white/20 text-base font-medium rounded-full text-white bg-transparent hover:bg-white/10 md:text-lg shadow-sm transition-all hover:scale-105">
-                  <span>Our Services</span>
+                <a href={content.hero_cta2_link || '/#services'} className="inline-flex items-center justify-center px-8 py-4 border border-white/20 text-base font-medium rounded-full text-white bg-transparent hover:bg-white/10 md:text-lg shadow-sm transition-all hover:scale-105">
+                  <span>{content.hero_cta2_text || 'Our Services'}</span>
                 </a>
               </div>
             </motion.div>
@@ -85,16 +104,16 @@ export default function AboutPage() {
                 {/* Stats list under sphere */}
                 <div className="grid grid-cols-3 gap-4 sm:gap-8 w-full max-w-md border-t border-zinc-800/80 pt-8">
                   <div className="text-center space-y-1">
-                    <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">2023</div>
-                    <div className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase tracking-wider">Founded</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{content.stat1_val || '2023'}</div>
+                    <div className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase tracking-wider">{content.stat1_lbl || 'Founded'}</div>
                   </div>
                   <div className="text-center space-y-1 border-x border-zinc-800/60 px-2">
-                    <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">100%</div>
-                    <div className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase tracking-wider">Remote</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{content.stat2_val || '100%'}</div>
+                    <div className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase tracking-wider">{content.stat2_lbl || 'Remote'}</div>
                   </div>
                   <div className="text-center space-y-1">
-                    <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">50+</div>
-                    <div className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase tracking-wider">Projects</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{content.stat3_val || '50+'}</div>
+                    <div className="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase tracking-wider">{content.stat3_lbl || 'Projects'}</div>
                   </div>
                 </div>
               </div>
@@ -103,10 +122,10 @@ export default function AboutPage() {
               <div className="lg:col-span-7 space-y-6">
                 <motion.div {...fadeInUp} className="space-y-6">
                   <span className="text-red-500 font-semibold tracking-wider uppercase text-sm block">
-                    Our Story
+                    {content.story_badge || 'Our Story'}
                   </span>
                   <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
-                    Our Existence <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700">Explained</span>
+                    {content.story_heading || 'Our Existence Explained'}
                   </h2>
                   
                   <div className="text-zinc-300 space-y-6 leading-relaxed text-base sm:text-lg">

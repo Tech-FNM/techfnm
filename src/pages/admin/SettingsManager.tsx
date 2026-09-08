@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Save, Shield, HelpCircle, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { triggerContentUpdate } from '../../lib/cmsContent';
 import { toast, Toaster } from 'react-hot-toast';
 
 export default function SettingsManager() {
@@ -23,6 +24,12 @@ export default function SettingsManager() {
   const fetchSettings = async () => {
     try {
       setLoading(true);
+      const local = localStorage.getItem('techfnm_site_settings');
+      if (local) {
+        try {
+          setSettings((prev: any) => ({ ...prev, ...JSON.parse(local) }));
+        } catch {}
+      }
       const { data } = await supabase.from('site_settings').select('*');
       if (data && data.length > 0) {
         const resolved: any = {};
@@ -48,6 +55,9 @@ export default function SettingsManager() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      localStorage.setItem('techfnm_site_settings', JSON.stringify(settings));
+      triggerContentUpdate();
+
       const updates = [
         { key: 'logo_text', value: settings.logoText },
         { key: 'contact_number', value: settings.contactNumber },
@@ -60,7 +70,7 @@ export default function SettingsManager() {
       ];
 
       for (const item of updates) {
-        const { error } = await supabase
+        await supabase
           .from('site_settings')
           .update({ value: item.value })
           .eq('key', item.key);

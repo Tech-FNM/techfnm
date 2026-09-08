@@ -2,9 +2,15 @@ import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { usePageContent } from '../lib/cmsContent';
 
 export default function Portfolio() {
   const [projects, setProjects] = useState<any[]>([]);
+  const pageContent = usePageContent('page-home', {
+    portfolio_badge: 'Portfolio & Project',
+    portfolio_heading: 'Our Works',
+    portfolio_desc: "Explore our latest projects and see how we've helped businesses achieve their goals."
+  });
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -69,10 +75,14 @@ export default function Portfolio() {
     <section id="portfolio" className="py-24 bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">Portfolio & Project</span>
-          <h2 className="mt-2 text-4xl font-bold text-white sm:text-5xl">Our Works</h2>
+          <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">
+            {pageContent.portfolio_badge || 'Portfolio & Project'}
+          </span>
+          <h2 className="mt-2 text-4xl font-bold text-white sm:text-5xl">
+            {pageContent.portfolio_heading || 'Our Works'}
+          </h2>
           <p className="mt-4 max-w-2xl text-xl text-gray-400 mx-auto">
-            Explore our latest projects and see how we've helped businesses achieve their goals.
+            {pageContent.portfolio_desc || "Explore our latest projects and see how we've helped businesses achieve their goals."}
           </p>
         </div>
 

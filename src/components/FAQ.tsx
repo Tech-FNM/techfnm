@@ -2,38 +2,59 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Minus, HelpCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { usePageContent } from '../lib/cmsContent';
+
+const DEFAULT_FAQS = [
+  {
+    id: 1,
+    question: 'What technologies does TechFNM specialize in?',
+    answer: 'We specialize in modern web and mobile application development using React, Next.js, TypeScript, TailwindCSS, Node.js, Python, Supabase, PostgreSQL, and AWS cloud infrastructure.'
+  },
+  {
+    id: 2,
+    question: 'How long does a custom web application take to develop?',
+    answer: 'Typical MVP web applications take between 2 to 6 weeks, while large-scale enterprise platforms may take 8 to 12 weeks depending on feature complexity and third-party integrations.'
+  },
+  {
+    id: 3,
+    question: 'Do you offer ongoing post-launch support and maintenance?',
+    answer: 'Yes, we provide 24/7 technical monitoring, database backups, performance optimization, and regular security patching with flexible monthly SLA agreements.'
+  },
+  {
+    id: 4,
+    question: 'How do you handle project management and communication?',
+    answer: 'We follow agile sprint methodologies. You will have direct access to senior engineers via Slack, weekly live video demos, and real-time dashboard progress tracking.'
+  }
+];
 
 export default function FAQ() {
-  const [faqs, setFaqs] = useState<any[]>([]);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [content, setContent] = useState<any>({
-    subtitle: 'HAVE QUESTIONS?',
-    title: 'Frequently Asked Questions',
-    description: 'Everything you need to know about our services and process.'
+  const [faqs, setFaqs] = useState<any[]>(DEFAULT_FAQS);
+  const [activeIndex, setActiveIndex] = useState<number | null>(0);
+
+  const pageContent = usePageContent('page-home', {
+    faq_badge: 'Support Center',
+    faq_heading: 'Frequently Asked Questions',
+    faq_desc: 'Clear answers to common questions about working with our engineering team.'
   });
 
   useEffect(() => {
     fetchFaqs();
-    fetchHeaders();
   }, []);
-
-  const fetchHeaders = async () => {
-    const { data } = await supabase.from('pages_content').select('content').eq('id', 'home_faq').maybeSingle();
-    if (data && data.content && Object.keys(data.content).length > 0) {
-      setContent((prev: any) => ({ ...prev, ...data.content }));
-    }
-  };
 
   const fetchFaqs = async () => {
     try {
       const { data, error } = await supabase.from('faqs').select('*').order('created_at', { ascending: true });
-      if (data) {
+      if (data && data.length > 0) {
         setFaqs(data);
       }
     } catch (error) {
       console.error('Error fetching FAQs:', error);
     }
   };
+
+  const badge = pageContent.faq_badge || 'Support Center';
+  const heading = pageContent.faq_heading || 'Frequently Asked Questions';
+  const description = pageContent.faq_desc || 'Clear answers to common questions about working with our engineering team.';
 
   return (
     <section id="faqs" className="py-24 bg-black relative overflow-hidden">
@@ -49,7 +70,7 @@ export default function FAQ() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-bold mb-4"
           >
             <HelpCircle size={16} />
-            {content.subtitle}
+            <span>{badge}</span>
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -58,7 +79,7 @@ export default function FAQ() {
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-5xl font-bold text-white mb-6"
           >
-            {content.title}
+            {heading}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -67,51 +88,45 @@ export default function FAQ() {
             transition={{ delay: 0.2 }}
             className="text-gray-400 text-lg"
           >
-            {content.description}
+            {description}
           </motion.p>
         </div>
 
         <div className="space-y-4">
-          {faqs.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              No FAQs available at the moment.
-            </div>
-          ) : (
-            faqs.map((faq, index) => (
-              <motion.div
-                key={faq.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-zinc-900/50 border border-zinc-800 rounded-2xl overflow-hidden backdrop-blur-sm"
+          {faqs.map((faq, index) => (
+            <motion.div
+              key={faq.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-zinc-900/50 border border-zinc-800 rounded-2xl overflow-hidden backdrop-blur-sm"
+            >
+              <button
+                onClick={() => setActiveIndex(activeIndex === index ? null : index)}
+                className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-zinc-800/50 transition-colors"
               >
-                <button
-                  onClick={() => setActiveIndex(activeIndex === index ? null : index)}
-                  className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-zinc-800/50 transition-colors"
-                >
-                  <span className="text-lg font-bold text-white">{faq.question}</span>
-                  <div className={`p-2 rounded-lg transition-all ${activeIndex === index ? 'bg-red-600 text-white' : 'bg-zinc-800 text-gray-400'}`}>
-                    {activeIndex === index ? <Minus size={20} /> : <Plus size={20} />}
-                  </div>
-                </button>
-                <AnimatePresence>
-                  {activeIndex === index && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    >
-                      <div className="px-6 pb-6 text-gray-400 leading-relaxed border-t border-zinc-800/50 pt-4">
-                        {faq.answer}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            ))
-          )}
+                <span className="text-lg font-bold text-white">{faq.question}</span>
+                <div className={`p-2 rounded-lg transition-all ${activeIndex === index ? 'bg-red-600 text-white' : 'bg-zinc-800 text-gray-400'}`}>
+                  {activeIndex === index ? <Minus size={20} /> : <Plus size={20} />}
+                </div>
+              </button>
+              <AnimatePresence>
+                {activeIndex === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  >
+                    <div className="px-6 pb-6 text-gray-400 leading-relaxed border-t border-zinc-800/50 pt-4">
+                      {faq.answer}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

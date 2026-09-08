@@ -2,8 +2,18 @@ import { motion } from 'motion/react';
 import { Mail, MapPin, Phone, Send, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { usePageContent } from '../lib/cmsContent';
 
 export default function Contact() {
+  const pageContent = usePageContent('page-home', {
+    cta_badge: 'Get In Touch',
+    cta_heading: 'Contact Us',
+    cta_desc: "Have a project in mind or want to learn more about our services? We'd love to hear from you.",
+    phone_number: '0313-9023118',
+    email_address: 'techhfnm@gmail.com',
+    location_address: 'Pakistan'
+  });
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -59,10 +69,14 @@ export default function Contact() {
     <section id="contact" className="py-24 bg-zinc-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">Get In Touch</span>
-          <h2 className="mt-2 text-4xl font-bold text-white sm:text-5xl">Contact Us</h2>
+          <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">
+            {pageContent.cta_badge || pageContent.contact_badge || 'Get In Touch'}
+          </span>
+          <h2 className="mt-2 text-4xl font-bold text-white sm:text-5xl">
+            {pageContent.cta_heading || pageContent.contact_heading || 'Contact Us'}
+          </h2>
           <p className="mt-4 max-w-2xl text-xl text-gray-400 mx-auto">
-            Have a project in mind or want to learn more about our services? We'd love to hear from you.
+            {pageContent.cta_desc || pageContent.contact_desc || "Have a project in mind or want to learn more about our services? We'd love to hear from you."}
           </p>
         </div>
 
@@ -189,8 +203,8 @@ export default function Contact() {
                 <p className="text-gray-400 leading-relaxed mb-2">
                   Call us directly for immediate assistance.
                 </p>
-                <a href="tel:0313-9023118" className="text-lg font-bold text-white hover:text-red-500 transition-colors">
-                  0313-9023118
+                <a href={`tel:${pageContent.phone_number || '0313-9023118'}`} className="text-lg font-bold text-white hover:text-red-500 transition-colors">
+                  {pageContent.phone_number || '0313-9023118'}
                 </a>
               </div>
             </div>
@@ -204,8 +218,8 @@ export default function Contact() {
                 <p className="text-gray-400 leading-relaxed mb-2">
                   Send us an email and we'll get back to you shortly.
                 </p>
-                <a href="mailto:techhfnm@gmail.com" className="text-lg font-bold text-white hover:text-red-500 transition-colors">
-                  techhfnm@gmail.com
+                <a href={`mailto:${pageContent.email_address || 'techhfnm@gmail.com'}`} className="text-lg font-bold text-white hover:text-red-500 transition-colors">
+                  {pageContent.email_address || 'techhfnm@gmail.com'}
                 </a>
               </div>
             </div>

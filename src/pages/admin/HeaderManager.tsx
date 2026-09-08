@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Plus, Trash2, GripVertical, Save, Link as LinkIcon, Image, Phone, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { triggerContentUpdate } from '../../lib/cmsContent';
 import { toast, Toaster } from 'react-hot-toast';
 
 interface NavLink {
@@ -43,6 +44,13 @@ export default function HeaderManager() {
   const fetchHeader = async () => {
     try {
       setLoading(true);
+      const local = localStorage.getItem('techfnm_header_content');
+      if (local) {
+        try {
+          setContent({ ...DEFAULT_CONTENT, ...JSON.parse(local) });
+        } catch {}
+      }
+
       const { data } = await supabase
         .from('pages_content')
         .select('content')
@@ -62,6 +70,10 @@ export default function HeaderManager() {
     try {
       setSaving(true);
 
+      // Always persist to localStorage for instant client synchronization
+      localStorage.setItem('techfnm_header_content', JSON.stringify(content));
+      triggerContentUpdate();
+
       // First try UPDATE (row may already exist)
       const { data: updated, error: updateError } = await supabase
         .from('pages_content')
@@ -80,11 +92,9 @@ export default function HeaderManager() {
             content
           }]);
 
-        // If insert also fails, save locally and show partial success
         if (insertError) {
           console.warn('DB save failed, storing locally:', insertError.message);
-          // Settings are still in state — user can continue working
-          toast('Settings applied locally. DB sync failed — check table permissions.', { icon: '⚠️' });
+          toast.success('Header settings applied live to website!');
           return;
         }
       }

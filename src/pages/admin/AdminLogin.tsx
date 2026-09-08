@@ -17,24 +17,59 @@ export default function AdminLogin() {
     setErrorMsg('');
 
     try {
-      // 1. Try Supabase Auth
+      // 1. Check local dashboard users directory first (managed via UserManager)
+      const rawUsers = localStorage.getItem('techfnm_admin_users');
+      if (rawUsers) {
+        try {
+          const userList = JSON.parse(rawUsers);
+          const matched = userList.find((u: any) =>
+            u.email?.trim().toLowerCase() === email.trim().toLowerCase() &&
+            (u.password ? u.password === password : password === 'TechFNM@2026')
+          );
+          if (matched) {
+            localStorage.setItem('techfnm_admin_token', `local_auth_${matched.id}`);
+            localStorage.setItem('techfnm_current_user', JSON.stringify({
+              name: matched.name,
+              email: matched.email,
+              role: matched.role
+            }));
+            navigate('/admin/dashboard');
+            return;
+          }
+        } catch {
+          // continue
+        }
+      }
+
+      // 2. Hardcoded master admin fallback
+      if (email.trim().toLowerCase() === 'admin@techfnm.com' && password === 'TechFNM@2026') {
+        localStorage.setItem('techfnm_admin_token', 'local_authorized_root');
+        localStorage.setItem('techfnm_current_user', JSON.stringify({
+          name: 'Naeem Ur Rehman',
+          email: 'admin@techfnm.com',
+          role: 'Super Admin'
+        }));
+        navigate('/admin/dashboard');
+        return;
+      }
+
+      // 3. Try Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password,
       });
 
       if (error) {
-        // 2. Fallback check for local quick login if user is admin
-        if (email === 'admin@techfnm.com' && password === 'TechFNM@2026') {
-          localStorage.setItem('techfnm_admin_token', 'local_authorized');
-          navigate('/admin/dashboard');
-          return;
-        }
         throw error;
       }
 
       if (data.session) {
         localStorage.setItem('techfnm_admin_token', data.session.access_token);
+        localStorage.setItem('techfnm_current_user', JSON.stringify({
+          name: data.user.email?.split('@')[0] || 'Admin',
+          email: data.user.email,
+          role: 'Administrator'
+        }));
         navigate('/admin/dashboard');
       }
     } catch (err: any) {

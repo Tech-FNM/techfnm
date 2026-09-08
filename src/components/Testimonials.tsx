@@ -2,9 +2,15 @@ import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Quote } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { usePageContent } from '../lib/cmsContent';
 
 export default function Testimonials() {
   const [testimonials, setTestimonials] = useState<any[]>([]);
+  const pageContent = usePageContent('page-home', {
+    testimonials_badge: 'What Clients Say?',
+    testimonials_heading: 'Testimonials',
+    testimonials_desc: "Don't just take our word for it. Hear what our satisfied clients have to say about our services."
+  });
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -54,10 +60,14 @@ export default function Testimonials() {
     <section id="testimonials" className="py-24 bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">What Clients Say?</span>
-          <h2 className="mt-2 text-4xl font-bold text-white sm:text-5xl">Testimonials</h2>
+          <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">
+            {pageContent.testimonials_badge || 'What Clients Say?'}
+          </span>
+          <h2 className="mt-2 text-4xl font-bold text-white sm:text-5xl">
+            {pageContent.testimonials_heading || 'Testimonials'}
+          </h2>
           <p className="mt-4 max-w-2xl text-xl text-gray-400 mx-auto">
-            Don't just take our word for it. Hear what our satisfied clients have to say about our services.
+            {pageContent.testimonials_desc || "Don't just take our word for it. Hear what our satisfied clients have to say about our services."}
           </p>
         </div>
 

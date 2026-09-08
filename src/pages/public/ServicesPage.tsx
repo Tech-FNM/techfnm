@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
+import { usePageContent } from '../../lib/cmsContent';
 
 const iconMap: any = {
   Code,
@@ -19,6 +20,16 @@ const iconMap: any = {
 export default function ServicesPage() {
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const pageContent = usePageContent('page-services', {
+    hero_badge: 'Innovative Solutions',
+    hero_title: 'Our Digital Offerings',
+    hero_desc: 'We offer a wide spectrum of modern design, development, and strategic marketing capabilities to take your business to the next level.',
+    cta_heading: 'Ready to launch your vision?',
+    cta_desc: "Drop us a line and let's craft custom solutions that accelerate your business results.",
+    cta_btn_text: 'Get Started Now',
+    cta_btn_link: '/request-service'
+  });
 
   useEffect(() => {
     fetchServices();
@@ -101,13 +112,13 @@ export default function ServicesPage() {
 
           <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
             <span className="inline-block py-1 px-3 rounded-full bg-red-900/50 text-red-200 text-sm font-semibold mb-2 border border-red-500/30">
-              Innovative Solutions
+              {pageContent.hero_badge || 'Innovative Solutions'}
             </span>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight">
-              Our Digital Offerings
+              {pageContent.hero_title || 'Our Digital Offerings'}
             </h1>
             <p className="text-zinc-400 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
-              We offer a wide spectrum of modern design, development, and strategic marketing capabilities to take your business to the next level.
+              {pageContent.hero_desc || 'We offer a wide spectrum of modern design, development, and strategic marketing capabilities to take your business to the next level.'}
             </p>
           </div>
         </section>
@@ -164,19 +175,19 @@ export default function ServicesPage() {
             </span>
             
             <h2 className="text-3xl sm:text-4xl font-bold text-white">
-              Ready to launch your vision?
+              {pageContent.cta_heading || 'Ready to launch your vision?'}
             </h2>
             
             <p className="text-zinc-400 text-sm sm:text-base leading-relaxed max-w-md mx-auto">
-              Drop us a line and let's craft custom solutions that accelerate your business results.
+              {pageContent.cta_desc || "Drop us a line and let's craft custom solutions that accelerate your business results."}
             </p>
 
             <div className="pt-2">
               <a
-                href="/request-service"
+                href={pageContent.cta_btn_link || '/request-service'}
                 className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-full font-bold transition-all hover:scale-105 shadow-lg shadow-red-950/20"
               >
-                <span>Get Started Now</span>
+                <span>{pageContent.cta_btn_text || 'Get Started Now'}</span>
                 <ArrowRight size={16} />
               </a>
             </div>

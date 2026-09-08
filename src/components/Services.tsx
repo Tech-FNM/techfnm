@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Code, Smartphone, Globe, PenTool, ShoppingCart, Share2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { supabase } from '../lib/supabase';
+import { usePageContent } from '../lib/cmsContent';
 
 const iconMap: any = {
   Code,
@@ -14,6 +15,11 @@ const iconMap: any = {
 
 export default function Services() {
   const [services, setServices] = useState<any[]>([]);
+  const pageContent = usePageContent('page-home', {
+    services_badge: 'What We Do',
+    services_heading: 'Our Services',
+    services_desc: 'We provide comprehensive digital solutions to help your business thrive in the modern world.'
+  });
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -85,10 +91,14 @@ export default function Services() {
     <section id="services" className="py-24 bg-zinc-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">What We Do</span>
-          <h2 className="mt-2 text-4xl font-bold text-white sm:text-5xl">Our Services</h2>
+          <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">
+            {pageContent.services_badge || 'What We Do'}
+          </span>
+          <h2 className="mt-2 text-4xl font-bold text-white sm:text-5xl">
+            {pageContent.services_heading || 'Our Services'}
+          </h2>
           <p className="mt-4 max-w-2xl text-xl text-gray-400 mx-auto">
-            We provide comprehensive digital solutions to help your business thrive in the modern world.
+            {pageContent.services_desc || 'We provide comprehensive digital solutions to help your business thrive in the modern world.'}
           </p>
         </div>
 

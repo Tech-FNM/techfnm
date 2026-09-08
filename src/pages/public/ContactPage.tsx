@@ -5,8 +5,15 @@ import { toast, Toaster } from 'react-hot-toast';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
+import { usePageContent } from '../../lib/cmsContent';
 
 export default function ContactPage() {
+  const pageContent = usePageContent('page-contact', {
+    hero_badge: 'Contact Us',
+    hero_title: 'Lets Have a Chat',
+    hero_desc: "Questions about our products/services, orders, or just want to say hello? We're here to help"
+  });
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -87,7 +94,7 @@ export default function ContactPage() {
             transition={{ duration: 0.5 }}
             className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-zinc-950/90 border border-zinc-800/80 text-xs font-semibold shadow-xl shadow-black/40 mb-6 text-red-500 uppercase tracking-wider"
           >
-            <span>Contact Us</span>
+            <span>{pageContent.hero_badge || 'Contact Us'}</span>
           </motion.div>
 
           {/* Heading and subtext */}
@@ -98,7 +105,7 @@ export default function ContactPage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white"
             >
-              Lets Have a Chat
+              {pageContent.hero_title || 'Lets Have a Chat'}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 15 }}
@@ -106,7 +113,7 @@ export default function ContactPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-zinc-400 text-sm sm:text-base leading-relaxed"
             >
-              Questions about our products/services, orders, or just want to say hello? We're here to help
+              {pageContent.hero_desc || "Questions about our products/services, orders, or just want to say hello? We're here to help"}
             </motion.p>
           </div>
 

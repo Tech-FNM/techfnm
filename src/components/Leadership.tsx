@@ -2,13 +2,20 @@ import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Linkedin, Twitter, Facebook, Quote } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { usePageContent } from '../lib/cmsContent';
 
 export default function Leadership() {
   const [leader, setLeader] = useState<any>(null);
+  const pageContent = usePageContent('page-home', {
+    leadership_badge: 'Our Leadership',
+    leadership_heading: 'Visionary Minds Driving TechFNM',
+    leadership_desc: 'Engineering excellence meets digital growth. TechFNM brings reliability, scale, and high performance to modern businesses worldwide.'
+  });
+
   const [headers, setHeaders] = useState({
     subtitle: 'Our Leadership',
-    title: 'Veteran-Owned & Mission-Driven',
-    description: 'Battlefield discipline meets boardroom precision. Eagle Revolution brings honor, integrity, and craftsmanship back to the remodeling industry.'
+    title: 'Visionary Minds Driving TechFNM',
+    description: 'Engineering excellence meets digital growth. TechFNM brings reliability, scale, and high performance to modern businesses worldwide.'
   });
 
   useEffect(() => {
@@ -21,25 +28,25 @@ export default function Leadership() {
           .eq('id', 'leadership_section')
           .maybeSingle();
         
-        if (settingsData) {
+        if (settingsData && settingsData.content) {
           setHeaders(settingsData.content);
         }
 
         // Fetch Leader
-        const { data, error } = await supabase.from('leadership').select('*').limit(1).maybeSingle();
+        const { data } = await supabase.from('leadership').select('*').limit(1).maybeSingle();
         
         if (data) {
           setLeader(data);
         } else {
-          // Fallback if no data in DB
+          // TechFNM Founder Profile
           setLeader({
-            name: 'Brandon Anderson',
-            role: 'Founder',
-            sub_titles: 'U.S. ARMY VETERAN | GLOBALLY LICENSED COMBAT SPORTS OFFICIAL',
-            quote: 'Eagle Revolution was built to be more than just a remodeling company. It was built to lead a movement.',
-            bio: "Based in O'Fallon, Missouri, Eagle Revolution was founded by Brandon Anderson, an Army veteran and globally licensed combat sports official who brings discipline, precision, and accountability to every project. With years of leadership experience at some of the largest home improvement companies in North America, Brandon saw firsthand how the industry had shifted away from homeowners and toward profits, leaving people with high prices, poor communication, and broken trust.",
-            badge_text: 'ProVia | IKO | CertainTeed',
-            image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800'
+            name: 'Naeem Ur Rehman',
+            role: 'Founder & CEO',
+            sub_titles: 'FULL-STACK CLOUD ARCHITECT | DIGITAL STRATEGIST',
+            quote: 'TechFNM was built to engineer digital assets that convert visitors into lifelong partners.',
+            bio: "Based in Pakistan and serving global clientele, TechFNM was founded by Naeem Ur Rehman to deliver production-grade software engineering, modern web applications, and data-driven marketing without the bloat of traditional agencies.",
+            badge_text: 'React | Next.js | Cloud Architecture',
+            image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800'
           });
         }
       } catch (err) {
@@ -58,6 +65,10 @@ export default function Leadership() {
     return `https://${url}`;
   };
 
+  const currentBadge = pageContent.leadership_badge || headers.subtitle || 'Our Leadership';
+  const currentHeading = pageContent.leadership_heading || headers.title || 'Visionary Minds Driving TechFNM';
+  const currentDesc = pageContent.leadership_desc || headers.description || 'Engineering excellence meets digital growth.';
+
   return (
     <section id="leadership" className="py-24 bg-zinc-950 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -65,14 +76,14 @@ export default function Leadership() {
         <div className="text-center mb-20">
           <div className="flex items-center justify-center gap-4 mb-4">
             <div className="h-[1px] w-12 bg-red-500"></div>
-            <span className="text-red-500 font-bold tracking-[0.2em] uppercase text-xs">{headers.subtitle}</span>
+            <span className="text-red-500 font-bold tracking-[0.2em] uppercase text-xs">{currentBadge}</span>
             <div className="h-[1px] w-12 bg-red-500"></div>
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold text-white leading-tight">
-            {headers.title}
+          <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
+            {currentHeading}
           </h2>
-          <p className="mt-8 max-w-3xl text-lg text-gray-400 mx-auto leading-relaxed font-light">
-            {headers.description}
+          <p className="mt-6 max-w-3xl text-lg text-gray-400 mx-auto leading-relaxed font-light">
+            {currentDesc}
           </p>
         </div>
 

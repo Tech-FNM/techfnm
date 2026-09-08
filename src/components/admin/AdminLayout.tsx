@@ -53,6 +53,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
   const [leadsCount, setLeadsCount] = useState<number>(0);
+  const [currentUser, setCurrentUser] = useState<any>(() => {
+    try {
+      const raw = localStorage.getItem('techfnm_current_user');
+      return raw ? JSON.parse(raw) : { name: 'Naeem Ur Rehman', role: 'Super Admin', email: 'naeem@techfnm.com' };
+    } catch {
+      return { name: 'Naeem Ur Rehman', role: 'Super Admin', email: 'naeem@techfnm.com' };
+    }
+  });
   const quickCreateRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -251,18 +259,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             {!collapsed ? (
               <div className="p-2.5 rounded-xl bg-zinc-900/90 border border-zinc-800/80 flex items-center justify-between">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700 flex items-center justify-center font-bold text-xs text-white shrink-0">
-                    AD
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-900/40 to-zinc-900 border border-red-900/40 flex items-center justify-center font-bold text-xs text-red-400 shrink-0">
+                    {currentUser.name ? currentUser.name.substring(0, 2).toUpperCase() : 'AD'}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-white truncate">Administrator</p>
-                    <p className="text-[10px] text-zinc-400 truncate">techfnm.com</p>
+                    <p className="text-xs font-semibold text-white truncate">{currentUser.name || 'Administrator'}</p>
+                    <p className="text-[10px] text-zinc-400 truncate">{currentUser.role || 'Super Admin'}</p>
                   </div>
                 </div>
                 <button
                   onClick={handleLogout}
                   title="Logout"
-                  className="p-1.5 text-zinc-400 hover:text-red-400 rounded-lg hover:bg-zinc-800 transition-colors"
+                  className="p-1.5 text-zinc-400 hover:text-red-400 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
                 >
                   <LogOut size={16} />
                 </button>
@@ -376,7 +384,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             {/* User Profile Pill */}
             <div className="flex items-center gap-2.5 pl-2 border-l border-zinc-800">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-red-600/30 to-zinc-800 border border-red-500/30 flex items-center justify-center text-xs font-bold text-white shadow-inner">
-                AD
+                {currentUser.name ? currentUser.name.substring(0, 2).toUpperCase() : 'AD'}
+              </div>
+              <div className="hidden sm:block text-left">
+                <p className="text-xs font-semibold text-white leading-tight">{currentUser.name || 'Admin'}</p>
+                <p className="text-[10px] text-zinc-400 leading-tight">{currentUser.role || 'Super Admin'}</p>
               </div>
             </div>
 
