@@ -9,6 +9,7 @@ import {
   Check,
   X,
   ChevronDown,
+  ChevronUp,
   RotateCcw,
   Eye,
   FileText,
@@ -20,10 +21,40 @@ import {
   User,
   Layers,
   Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  Image as ImageIcon,
+  Link as LinkIcon,
+  Type,
+  AlignLeft,
+  Settings,
+  Globe,
+  Share2,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Briefcase,
+  FolderGit2,
+  ListOrdered
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast, Toaster } from 'react-hot-toast';
+
+interface SectionField {
+  key: string;
+  label: string;
+  type: 'text' | 'textarea' | 'image' | 'url';
+  placeholder?: string;
+  help?: string;
+}
+
+interface PageSectionConfig {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  fields: SectionField[];
+}
 
 interface PageItem {
   id: string;
@@ -36,8 +67,410 @@ interface PageItem {
   isFrontPage?: boolean;
   content?: string;
   template?: string;
-  sections?: Record<string, any>;
+  featuredImage?: string;
+  sectionsData: Record<string, any>;
 }
+
+// ── DEFINITION OF SECTIONS FOR EVERY PAGE (A TO Z) ──
+const PAGE_SECTIONS_REGISTRY: Record<string, PageSectionConfig[]> = {
+  'page-home': [
+    {
+      id: 'hero',
+      title: 'Hero Section',
+      description: 'The main hero fold with dynamic headline, subtitle, buttons and background.',
+      icon: Sparkles,
+      fields: [
+        { key: 'hero_badge', label: 'Badge / Tagline', type: 'text', placeholder: 'e.g. Creative Solutions' },
+        { key: 'hero_title', label: 'Main Headline (H1)', type: 'text', placeholder: 'e.g. We Build What You Imagine' },
+        { key: 'hero_subtitle', label: 'Secondary Subtitle', type: 'text', placeholder: 'e.g. Your Digital Growth Partner' },
+        { key: 'hero_desc', label: 'Paragraph Description', type: 'textarea', placeholder: 'Describe your core value proposition...' },
+        { key: 'hero_cta1_text', label: 'Primary Button Text', type: 'text', placeholder: 'e.g. Getting Started' },
+        { key: 'hero_cta1_link', label: 'Primary Button Link', type: 'url', placeholder: 'e.g. /request-service' },
+        { key: 'hero_cta2_text', label: 'Secondary Button Text', type: 'text', placeholder: 'e.g. Our Services' },
+        { key: 'hero_cta2_link', label: 'Secondary Button Link', type: 'url', placeholder: 'e.g. /#services' },
+        { key: 'hero_bg_image', label: 'Hero Background / Media URL', type: 'image', placeholder: 'https://images.unsplash.com/...' },
+      ]
+    },
+    {
+      id: 'about',
+      title: 'About Us Section',
+      description: 'Agency story, experience badge, and core value statements on the homepage.',
+      icon: User,
+      fields: [
+        { key: 'about_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. About TechFNM' },
+        { key: 'about_heading', label: 'Section Heading', type: 'text', placeholder: 'e.g. We Are Creative Digital Agency' },
+        { key: 'about_desc1', label: 'Main Description Paragraph', type: 'textarea', placeholder: 'Introduce your company mission...' },
+        { key: 'about_desc2', label: 'Secondary Paragraph', type: 'textarea', placeholder: 'Team philosophy and standards...' },
+        { key: 'about_exp_years', label: 'Experience Years', type: 'text', placeholder: 'e.g. 5+' },
+        { key: 'about_exp_text', label: 'Experience Label', type: 'text', placeholder: 'e.g. Years Experience In Digital Solutions' },
+        { key: 'about_image', label: 'Feature Image URL', type: 'image', placeholder: 'https://images.unsplash.com/...' },
+        { key: 'about_btn_text', label: 'CTA Button Text', type: 'text', placeholder: 'e.g. Learn More About Us' },
+        { key: 'about_btn_link', label: 'CTA Button Link', type: 'url', placeholder: 'e.g. /about' },
+      ]
+    },
+    {
+      id: 'services',
+      title: 'Services Showcase Section',
+      description: 'Services grid headline, badge, and navigation button.',
+      icon: Briefcase,
+      fields: [
+        { key: 'services_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. What We Do' },
+        { key: 'services_heading', label: 'Main Heading', type: 'text', placeholder: 'e.g. Engineered For Peak Performance' },
+        { key: 'services_desc', label: 'Section Description', type: 'textarea', placeholder: 'Describe your range of capabilities...' },
+        { key: 'services_btn_text', label: 'Button Text', type: 'text', placeholder: 'e.g. View All Services' },
+        { key: 'services_btn_link', label: 'Button Link', type: 'url', placeholder: 'e.g. /services' },
+      ]
+    },
+    {
+      id: 'portfolio',
+      title: 'Portfolio Showcase Section',
+      description: 'Featured works and case studies overview on the homepage.',
+      icon: FolderGit2,
+      fields: [
+        { key: 'portfolio_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. Recent Works' },
+        { key: 'portfolio_heading', label: 'Main Heading', type: 'text', placeholder: 'e.g. Featured Case Studies' },
+        { key: 'portfolio_desc', label: 'Section Description', type: 'textarea', placeholder: 'Highlight recent project achievements...' },
+        { key: 'portfolio_btn_text', label: 'Button Text', type: 'text', placeholder: 'e.g. Explore All Projects' },
+        { key: 'portfolio_btn_link', label: 'Button Link', type: 'url', placeholder: 'e.g. /portfolio' },
+      ]
+    },
+    {
+      id: 'leadership',
+      title: 'Leadership & Team Section',
+      description: 'Team and executive leadership header texts.',
+      icon: User,
+      fields: [
+        { key: 'leadership_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. Our Leadership' },
+        { key: 'leadership_heading', label: 'Main Heading', type: 'text', placeholder: 'e.g. Visionary Minds Driving TechFNM' },
+        { key: 'leadership_desc', label: 'Section Description', type: 'textarea', placeholder: 'Brief summary of the leadership team...' },
+      ]
+    },
+    {
+      id: 'testimonials',
+      title: 'Client Testimonials Section',
+      description: 'Customer feedback and proof section headers.',
+      icon: MessageSquare,
+      fields: [
+        { key: 'testimonials_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. Client Voices' },
+        { key: 'testimonials_heading', label: 'Main Heading', type: 'text', placeholder: 'e.g. What Founders Say About Us' },
+        { key: 'testimonials_desc', label: 'Section Description', type: 'textarea', placeholder: 'Social proof and customer reviews...' },
+      ]
+    },
+    {
+      id: 'faq',
+      title: 'FAQ Section',
+      description: 'Homepage FAQ accordion title, badge, and support CTA.',
+      icon: HelpCircle,
+      fields: [
+        { key: 'faq_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. Support Center' },
+        { key: 'faq_heading', label: 'Main Heading', type: 'text', placeholder: 'e.g. Frequently Asked Questions' },
+        { key: 'faq_desc', label: 'Section Description', type: 'textarea', placeholder: 'Clear answers to common questions...' },
+        { key: 'faq_btn_text', label: 'Support Button Text', type: 'text', placeholder: 'e.g. Ask a Question' },
+        { key: 'faq_btn_link', label: 'Support Button Link', type: 'url', placeholder: 'e.g. /contact' },
+      ]
+    },
+    {
+      id: 'contact_cta',
+      title: 'Bottom Consultation CTA',
+      description: 'Closing call to action encouraging clients to get in touch.',
+      icon: Phone,
+      fields: [
+        { key: 'cta_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. Get In Touch' },
+        { key: 'cta_heading', label: 'Main Heading', type: 'text', placeholder: 'e.g. Ready To Transform Your Digital Presence?' },
+        { key: 'cta_desc', label: 'Description Text', type: 'textarea', placeholder: 'Invite clients for a discovery call...' },
+        { key: 'cta_btn_text', label: 'Button Text', type: 'text', placeholder: 'e.g. Start Your Project' },
+        { key: 'cta_btn_link', label: 'Button Link', type: 'url', placeholder: 'e.g. /request-service' },
+      ]
+    }
+  ],
+
+  'page-about': [
+    {
+      id: 'about_hero',
+      title: 'Hero Section',
+      description: 'About page banner heading, description and call-to-action buttons.',
+      icon: Sparkles,
+      fields: [
+        { key: 'hero_badge', label: 'Badge', type: 'text', placeholder: 'e.g. About Us' },
+        { key: 'hero_title', label: 'Main Heading (H1)', type: 'text', placeholder: 'e.g. Your Digital Growth Partner' },
+        { key: 'hero_desc', label: 'Paragraph Description', type: 'textarea', placeholder: 'Brief overview of company vision...' },
+        { key: 'hero_cta1_text', label: 'Primary Button Text', type: 'text', placeholder: 'e.g. Getting Started' },
+        { key: 'hero_cta1_link', label: 'Primary Button Link', type: 'url', placeholder: 'e.g. /request-service' },
+        { key: 'hero_cta2_text', label: 'Secondary Button Text', type: 'text', placeholder: 'e.g. Our Services' },
+        { key: 'hero_cta2_link', label: 'Secondary Button Link', type: 'url', placeholder: 'e.g. /services' },
+      ]
+    },
+    {
+      id: 'about_story',
+      title: 'Our Story & Statistics',
+      description: 'Founding story, animated sphere stats, and milestone figures.',
+      icon: AlignLeft,
+      fields: [
+        { key: 'story_badge', label: 'Badge', type: 'text', placeholder: 'e.g. Our Story' },
+        { key: 'story_heading', label: 'Heading', type: 'text', placeholder: 'e.g. Architecting Next-Gen Software Since 2023' },
+        { key: 'story_text', label: 'Narrative Story Text', type: 'textarea', placeholder: 'The history and foundation story...' },
+        { key: 'stat1_val', label: 'Stat 1 Number', type: 'text', placeholder: 'e.g. 2023' },
+        { key: 'stat1_lbl', label: 'Stat 1 Label', type: 'text', placeholder: 'e.g. Founded' },
+        { key: 'stat2_val', label: 'Stat 2 Number', type: 'text', placeholder: 'e.g. 100%' },
+        { key: 'stat2_lbl', label: 'Stat 2 Label', type: 'text', placeholder: 'e.g. Remote' },
+        { key: 'stat3_val', label: 'Stat 3 Number', type: 'text', placeholder: 'e.g. 50+' },
+        { key: 'stat3_lbl', label: 'Stat 3 Label', type: 'text', placeholder: 'e.g. Projects' },
+      ]
+    },
+    {
+      id: 'about_mission',
+      title: 'Mission & Vision',
+      description: 'Dual cards highlighting core purpose and future aspirations.',
+      icon: Layers,
+      fields: [
+        { key: 'mission_title', label: 'Mission Title', type: 'text', placeholder: 'e.g. Our Mission' },
+        { key: 'mission_text', label: 'Mission Statement', type: 'textarea', placeholder: 'To empower global businesses with robust, high-conversion tools...' },
+        { key: 'vision_title', label: 'Vision Title', type: 'text', placeholder: 'e.g. Our Vision' },
+        { key: 'vision_text', label: 'Vision Statement', type: 'textarea', placeholder: 'To become the premier engineering partner for modern enterprises...' },
+      ]
+    },
+    {
+      id: 'about_values',
+      title: 'Why Choose Us / Values',
+      description: 'Key principles and pillars that distinguish TechFNM.',
+      icon: CheckCircle2,
+      fields: [
+        { key: 'values_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. Core Pillars' },
+        { key: 'values_heading', label: 'Main Heading', type: 'text', placeholder: 'e.g. Why Industry Leaders Choose TechFNM' },
+        { key: 'val1_title', label: 'Pillar 1 Title', type: 'text', placeholder: 'e.g. Speed & Execution' },
+        { key: 'val1_desc', label: 'Pillar 1 Description', type: 'textarea', placeholder: 'Agile sprints with zero bloat...' },
+        { key: 'val2_title', label: 'Pillar 2 Title', type: 'text', placeholder: 'e.g. Modern Architecture' },
+        { key: 'val2_desc', label: 'Pillar 2 Description', type: 'textarea', placeholder: 'Built with React, Next.js, and cloud backends...' },
+        { key: 'val3_title', label: 'Pillar 3 Title', type: 'text', placeholder: 'e.g. Direct Founder Access' },
+        { key: 'val3_desc', label: 'Pillar 3 Description', type: 'textarea', placeholder: 'Zero middlemen, senior engineers on call...' },
+      ]
+    }
+  ],
+
+  'page-services': [
+    {
+      id: 'services_hero',
+      title: 'Hero Section',
+      description: 'Services page banner heading and primary call-to-action.',
+      icon: Sparkles,
+      fields: [
+        { key: 'hero_badge', label: 'Badge', type: 'text', placeholder: 'e.g. What We Offer' },
+        { key: 'hero_title', label: 'Main Headline (H1)', type: 'text', placeholder: 'e.g. Comprehensive Digital Solutions' },
+        { key: 'hero_desc', label: 'Paragraph Description', type: 'textarea', placeholder: 'From concept to deployment, we build high-impact web and mobile solutions...' },
+        { key: 'hero_btn_text', label: 'Button Text', type: 'text', placeholder: 'e.g. Request a Consultation' },
+        { key: 'hero_btn_link', label: 'Button Link', type: 'url', placeholder: 'e.g. /request-service' },
+      ]
+    },
+    {
+      id: 'services_process',
+      title: '4-Stage Delivery Process',
+      description: 'Step-by-step engineering roadmap shown on the services page.',
+      icon: ListOrdered,
+      fields: [
+        { key: 'process_heading', label: 'Process Heading', type: 'text', placeholder: 'e.g. Our 4-Stage Delivery Framework' },
+        { key: 'step1_title', label: 'Step 1 Title', type: 'text', placeholder: 'e.g. 1. Discovery & Technical Scope' },
+        { key: 'step1_desc', label: 'Step 1 Details', type: 'textarea', placeholder: 'Deep dive into business metrics...' },
+        { key: 'step2_title', label: 'Step 2 Title', type: 'text', placeholder: 'e.g. 2. UI/UX Architecture' },
+        { key: 'step2_desc', label: 'Step 2 Details', type: 'textarea', placeholder: 'High-converting interactive wireframes...' },
+        { key: 'step3_title', label: 'Step 3 Title', type: 'text', placeholder: 'e.g. 3. Full-Stack Engineering' },
+        { key: 'step3_desc', label: 'Step 3 Details', type: 'textarea', placeholder: 'Production-ready code with CI/CD pipelines...' },
+        { key: 'step4_title', label: 'Step 4 Title', type: 'text', placeholder: 'e.g. 4. Launch & Continuous Growth' },
+        { key: 'step4_desc', label: 'Step 4 Details', type: 'textarea', placeholder: 'Deployment, sitemap indexing, and analytics...' },
+      ]
+    },
+    {
+      id: 'services_cta',
+      title: 'Bottom CTA Banner',
+      description: 'Action card prompting visitors to request a free project estimate.',
+      icon: Phone,
+      fields: [
+        { key: 'cta_heading', label: 'Banner Heading', type: 'text', placeholder: 'e.g. Ready to Build Something Amazing?' },
+        { key: 'cta_desc', label: 'Banner Description', type: 'textarea', placeholder: 'Let\'s turn your vision into a production-grade software asset.' },
+        { key: 'cta_btn_text', label: 'Button Text', type: 'text', placeholder: 'e.g. Start Free Estimate' },
+        { key: 'cta_btn_link', label: 'Button Link', type: 'url', placeholder: 'e.g. /request-service' },
+      ]
+    }
+  ],
+
+  'page-portfolio': [
+    {
+      id: 'portfolio_hero',
+      title: 'Hero Section',
+      description: 'Portfolio page banner with subtitle and direct quote CTA.',
+      icon: Sparkles,
+      fields: [
+        { key: 'hero_badge', label: 'Badge', type: 'text', placeholder: 'e.g. Featured Works' },
+        { key: 'hero_title', label: 'Main Headline (H1)', type: 'text', placeholder: 'e.g. Showcasing Digital Excellence' },
+        { key: 'hero_desc', label: 'Description', type: 'textarea', placeholder: 'Explore our collection of successful client projects and case studies.' },
+        { key: 'hero_btn_text', label: 'CTA Button Text', type: 'text', placeholder: 'e.g. Request Similar Project' },
+        { key: 'hero_btn_link', label: 'CTA Button Link', type: 'url', placeholder: 'e.g. /request-service' },
+      ]
+    },
+    {
+      id: 'portfolio_categories',
+      title: 'Category Filter Bar',
+      description: 'Available category filter tags for project filtering.',
+      icon: Layers,
+      fields: [
+        { key: 'categories_heading', label: 'Filter Label', type: 'text', placeholder: 'e.g. Browse by Discipline' },
+        { key: 'categories_list', label: 'Categories (comma separated)', type: 'text', placeholder: 'All, Web Development, Mobile App, UI/UX Design, Digital Marketing' },
+      ]
+    },
+    {
+      id: 'portfolio_cta',
+      title: 'Bottom Consultation Banner',
+      description: 'Closing call to action on the portfolio page.',
+      icon: Phone,
+      fields: [
+        { key: 'cta_heading', label: 'Banner Heading', type: 'text', placeholder: 'e.g. Have a Unique Vision in Mind?' },
+        { key: 'cta_desc', label: 'Banner Description', type: 'textarea', placeholder: 'We can design, engineer, and deploy your custom project in record time.' },
+        { key: 'cta_btn_text', label: 'Button Text', type: 'text', placeholder: 'e.g. Start Your Project' },
+        { key: 'cta_btn_link', label: 'Button Link', type: 'url', placeholder: 'e.g. /contact' },
+      ]
+    }
+  ],
+
+  'page-contact': [
+    {
+      id: 'contact_hero',
+      title: 'Hero Section',
+      description: 'Contact header, tagline, and introductory copy.',
+      icon: Sparkles,
+      fields: [
+        { key: 'hero_badge', label: 'Badge', type: 'text', placeholder: 'e.g. Get In Touch' },
+        { key: 'hero_title', label: 'Main Headline (H1)', type: 'text', placeholder: 'e.g. Let\'s Build Something Great Together' },
+        { key: 'hero_desc', label: 'Description', type: 'textarea', placeholder: 'Have a project idea, question, or need a technical consultation? We are here to help.' },
+      ]
+    },
+    {
+      id: 'contact_cards',
+      title: 'Direct Contact Details',
+      description: 'Office address, direct email, phone number, and response guarantee.',
+      icon: MapPin,
+      fields: [
+        { key: 'office_address', label: 'Office Address', type: 'text', placeholder: 'e.g. Lahore, Pakistan / Remote Global Delivery' },
+        { key: 'official_email', label: 'Official Contact Email', type: 'text', placeholder: 'e.g. naeemhaiderf73@gmail.com' },
+        { key: 'official_phone', label: 'Phone / WhatsApp Number', type: 'text', placeholder: 'e.g. +92 313 9023118' },
+        { key: 'response_sla', label: 'Response Guarantee SLA', type: 'text', placeholder: 'e.g. Guaranteed reply within 24 business hours' },
+      ]
+    },
+    {
+      id: 'contact_form',
+      title: 'Message Form Copy',
+      description: 'Headings and button text for the direct contact form.',
+      icon: Mail,
+      fields: [
+        { key: 'form_heading', label: 'Form Heading', type: 'text', placeholder: 'e.g. Send Us a Direct Message' },
+        { key: 'form_desc', label: 'Form Description', type: 'textarea', placeholder: 'Fill in your project details and our team will get back to you promptly.' },
+        { key: 'form_submit_text', label: 'Submit Button Text', type: 'text', placeholder: 'e.g. Send Message' },
+      ]
+    },
+    {
+      id: 'contact_socials',
+      title: 'Social Channels',
+      description: 'URLs for company social profiles displayed on the contact page.',
+      icon: Share2,
+      fields: [
+        { key: 'facebook_url', label: 'Facebook URL', type: 'url', placeholder: 'https://facebook.com/...' },
+        { key: 'linkedin_url', label: 'LinkedIn URL', type: 'url', placeholder: 'https://linkedin.com/company/...' },
+        { key: 'instagram_url', label: 'Instagram URL', type: 'url', placeholder: 'https://instagram.com/...' },
+        { key: 'youtube_url', label: 'YouTube URL', type: 'url', placeholder: 'https://youtube.com/@...' },
+        { key: 'github_url', label: 'GitHub URL', type: 'url', placeholder: 'https://github.com/...' },
+      ]
+    }
+  ],
+
+  'page-faq': [
+    {
+      id: 'faq_hero',
+      title: 'Hero Section',
+      description: 'FAQ banner title, badge, and intro text.',
+      icon: Sparkles,
+      fields: [
+        { key: 'hero_badge', label: 'Badge', type: 'text', placeholder: 'e.g. Support Center' },
+        { key: 'hero_title', label: 'Main Headline (H1)', type: 'text', placeholder: 'e.g. Frequently Asked Questions' },
+        { key: 'hero_desc', label: 'Description', type: 'textarea', placeholder: 'Everything you need to know about working with TechFNM, our pricing, and delivery timelines.' },
+      ]
+    },
+    {
+      id: 'faq_search',
+      title: 'Search Box Settings',
+      description: 'Placeholder and filter settings for the questions search box.',
+      icon: Search,
+      fields: [
+        { key: 'search_placeholder', label: 'Search Input Placeholder', type: 'text', placeholder: 'e.g. Search frequently asked questions...' },
+      ]
+    },
+    {
+      id: 'faq_cta',
+      title: 'Still Have Questions Banner',
+      description: 'Direct contact fallback prompt shown below the FAQ list.',
+      icon: Phone,
+      fields: [
+        { key: 'cta_heading', label: 'Banner Heading', type: 'text', placeholder: 'e.g. Still Have Questions?' },
+        { key: 'cta_desc', label: 'Banner Description', type: 'textarea', placeholder: 'Can\'t find the answer you\'re looking for? Speak directly to our technical team.' },
+        { key: 'cta_btn_text', label: 'Button Text', type: 'text', placeholder: 'e.g. Talk to Our Engineers' },
+        { key: 'cta_btn_link', label: 'Button Link', type: 'url', placeholder: 'e.g. /contact' },
+      ]
+    }
+  ],
+
+  'page-request-service': [
+    {
+      id: 'request_hero',
+      title: 'Hero Section',
+      description: 'Project request page headline and estimate expectations.',
+      icon: Sparkles,
+      fields: [
+        { key: 'hero_badge', label: 'Badge', type: 'text', placeholder: 'e.g. Start A Project' },
+        { key: 'hero_title', label: 'Main Headline (H1)', type: 'text', placeholder: 'e.g. Request a Custom Quote' },
+        { key: 'hero_desc', label: 'Description', type: 'textarea', placeholder: 'Tell us about your requirements, target timeline, and budget. We\'ll formulate a strategic plan.' },
+      ]
+    },
+    {
+      id: 'request_form',
+      title: 'Form Step Labels & Guarantees',
+      description: 'Labels for the multi-step project request form.',
+      icon: FileText,
+      fields: [
+        { key: 'step1_title', label: 'Step 1 Title', type: 'text', placeholder: 'e.g. 1. Personal & Business Information' },
+        { key: 'step2_title', label: 'Step 2 Title', type: 'text', placeholder: 'e.g. 2. Select Service & Project Scope' },
+        { key: 'submit_btn_text', label: 'Submit Button Text', type: 'text', placeholder: 'e.g. Submit Consultation Request' },
+        { key: 'guarantee_text', label: 'Privacy & NDA Note', type: 'text', placeholder: 'e.g. 100% Confidential. Protected under NDA.' },
+      ]
+    }
+  ]
+};
+
+// Generic fallback sections for custom newly-added pages
+const GENERIC_CUSTOM_SECTIONS: PageSectionConfig[] = [
+  {
+    id: 'custom_hero',
+    title: 'Hero Section',
+    description: 'Top banner fold with title, subtitle, CTA button and image.',
+    icon: Sparkles,
+    fields: [
+      { key: 'hero_badge', label: 'Badge / Tagline', type: 'text', placeholder: 'e.g. Overview' },
+      { key: 'hero_title', label: 'Main Headline (H1)', type: 'text', placeholder: 'e.g. Page Title' },
+      { key: 'hero_desc', label: 'Paragraph Description', type: 'textarea', placeholder: 'Introduction to this page...' },
+      { key: 'hero_cta_text', label: 'Button Text', type: 'text', placeholder: 'e.g. Get Started' },
+      { key: 'hero_cta_link', label: 'Button Link', type: 'url', placeholder: 'e.g. /contact' },
+      { key: 'hero_image', label: 'Banner Image URL', type: 'image', placeholder: 'https://images.unsplash.com/...' },
+    ]
+  },
+  {
+    id: 'custom_cta',
+    title: 'Call to Action Section',
+    description: 'Closing call to action banner for this page.',
+    icon: Phone,
+    fields: [
+      { key: 'cta_heading', label: 'CTA Heading', type: 'text', placeholder: 'e.g. Ready to Work with Us?' },
+      { key: 'cta_desc', label: 'CTA Description', type: 'textarea', placeholder: 'Prompt the visitor to take action...' },
+      { key: 'cta_btn_text', label: 'Button Text', type: 'text', placeholder: 'e.g. Contact Our Team' },
+      { key: 'cta_btn_link', label: 'Button Link', type: 'url', placeholder: 'e.g. /contact' },
+    ]
+  }
+];
 
 const DEFAULT_PAGES: PageItem[] = [
   {
@@ -46,15 +479,52 @@ const DEFAULT_PAGES: PageItem[] = [
     slug: '/',
     author: 'admin',
     status: 'published',
-    date: new Date(Date.now() - 2 * 60 * 1000).toISOString(), // 2 mins ago
+    date: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
     commentsCount: 0,
     isFrontPage: true,
     content: 'Crafting premium web applications, branding, and conversion flows.',
     template: 'Front Page',
-    sections: {
-      hero_title: 'Your Digital Growth Partner',
-      hero_subtitle: 'We Build What You Imagine',
-      cta_text: 'Getting Started'
+    sectionsData: {
+      hero_badge: 'Creative Solutions',
+      hero_title: 'We Build What You Imagine',
+      hero_subtitle: 'Your Digital Growth Partner',
+      hero_desc: 'Expert web development, mobile app solutions, and result-driven SEO services to grow your business online.',
+      hero_cta1_text: 'Getting Started',
+      hero_cta1_link: '/request-service',
+      hero_cta2_text: 'Our Services',
+      hero_cta2_link: '/#services',
+      about_badge: 'About TechFNM',
+      about_heading: 'We Are Creative Digital Agency',
+      about_desc1: 'TechFNM is a leading software company in Pakistan, dedicated to providing top-notch web development, mobile app solutions, and digital marketing services.',
+      about_desc2: 'Our team of experts is passionate about technology and innovation. We stay up-to-date with the latest trends to ensure clients get high-conversion solutions.',
+      about_exp_years: '5+',
+      about_exp_text: 'Years Experience In Digital Solutions',
+      about_btn_text: 'Learn More About Us',
+      about_btn_link: '/about',
+      services_badge: 'What We Do',
+      services_heading: 'Engineered For Peak Performance',
+      services_desc: 'From custom web apps to comprehensive cloud solutions, we deliver cutting-edge digital experiences.',
+      services_btn_text: 'Explore All Services',
+      services_btn_link: '/services',
+      portfolio_badge: 'Recent Works',
+      portfolio_heading: 'Featured Case Studies',
+      portfolio_desc: 'Take a look at our recent digital engineering triumphs.',
+      portfolio_btn_text: 'Explore All Projects',
+      portfolio_btn_link: '/portfolio',
+      leadership_badge: 'Our Leaders',
+      leadership_heading: 'Visionary Minds Driving TechFNM',
+      testimonials_badge: 'Client Voices',
+      testimonials_heading: 'What Founders Say About Us',
+      faq_badge: 'Support Center',
+      faq_heading: 'Frequently Asked Questions',
+      faq_desc: 'Got questions? We\'ve got clear, direct answers.',
+      faq_btn_text: 'Ask a Question',
+      faq_btn_link: '/contact',
+      cta_badge: 'Get In Touch',
+      cta_heading: 'Ready To Transform Your Digital Presence?',
+      cta_desc: 'Schedule a discovery call with our solutions architects today.',
+      cta_btn_text: 'Start Your Project',
+      cta_btn_link: '/request-service',
     }
   },
   {
@@ -67,7 +537,37 @@ const DEFAULT_PAGES: PageItem[] = [
     commentsCount: 0,
     isFrontPage: false,
     content: 'Full-service digital transformation consultancy delivering custom web & mobile software.',
-    template: 'Default Template'
+    template: 'Default Template',
+    sectionsData: {
+      hero_badge: 'About Us',
+      hero_title: 'Your Digital Growth Partner',
+      hero_desc: 'Expert web development, mobile app solutions, and result-driven SEO services to grow your business online.',
+      hero_cta1_text: 'Getting Started',
+      hero_cta1_link: '/request-service',
+      hero_cta2_text: 'Our Services',
+      hero_cta2_link: '/services',
+      story_badge: 'Our Story',
+      story_heading: 'Architecting Next-Gen Software Since 2023',
+      story_text: 'Founded with a clear mission to bridge innovative design with bulletproof engineering, TechFNM has evolved into a powerhouse digital partner for visionary brands worldwide.',
+      stat1_val: '2023',
+      stat1_lbl: 'Founded',
+      stat2_val: '100%',
+      stat2_lbl: 'Remote',
+      stat3_val: '50+',
+      stat3_lbl: 'Projects',
+      mission_title: 'Our Mission',
+      mission_text: 'To empower global businesses with robust, high-conversion digital tools and modern cloud software.',
+      vision_title: 'Our Vision',
+      vision_text: 'To become the premier engineering partner for modern digital enterprises across the globe.',
+      values_badge: 'Core Pillars',
+      values_heading: 'Why Industry Leaders Choose TechFNM',
+      val1_title: 'Speed & Execution',
+      val1_desc: 'Agile sprints with zero corporate red tape.',
+      val2_title: 'Modern Architecture',
+      val2_desc: 'Built with React, Next.js, and cloud backends.',
+      val3_title: 'Direct Founder Access',
+      val3_desc: 'Zero middlemen, senior engineers always on call.'
+    }
   },
   {
     id: 'page-services',
@@ -79,7 +579,27 @@ const DEFAULT_PAGES: PageItem[] = [
     commentsCount: 0,
     isFrontPage: false,
     content: 'Enterprise software, modern web apps, full-stack architecture, and cloud solutions.',
-    template: 'Default Template'
+    template: 'Default Template',
+    sectionsData: {
+      hero_badge: 'What We Offer',
+      hero_title: 'Comprehensive Digital Solutions',
+      hero_desc: 'From concept to deployment, we build high-impact web and mobile solutions designed to accelerate growth.',
+      hero_btn_text: 'Request a Consultation',
+      hero_btn_link: '/request-service',
+      process_heading: 'Our 4-Stage Delivery Framework',
+      step1_title: '1. Discovery & Technical Scope',
+      step1_desc: 'Deep dive into business metrics and architecture requirements.',
+      step2_title: '2. UI/UX Architecture',
+      step2_desc: 'High-converting interactive wireframes and conversion flow modeling.',
+      step3_title: '3. Full-Stack Engineering',
+      step3_desc: 'Production-ready code with automated CI/CD and rigorous QA testing.',
+      step4_title: '4. Launch & Continuous Growth',
+      step4_desc: 'Zero-downtime deployment, SEO sitemap indexing, and analytics telemetry.',
+      cta_heading: 'Ready to Build Something Amazing?',
+      cta_desc: 'Let\'s turn your vision into a production-grade software asset.',
+      cta_btn_text: 'Start Free Estimate',
+      cta_btn_link: '/request-service'
+    }
   },
   {
     id: 'page-portfolio',
@@ -91,7 +611,20 @@ const DEFAULT_PAGES: PageItem[] = [
     commentsCount: 0,
     isFrontPage: false,
     content: 'Case studies, verified deliveries, and production accomplishments.',
-    template: 'Default Template'
+    template: 'Default Template',
+    sectionsData: {
+      hero_badge: 'Featured Works',
+      hero_title: 'Showcasing Digital Excellence',
+      hero_desc: 'Explore our collection of successful client projects, high-yield web platforms, and mobile apps.',
+      hero_btn_text: 'Request Similar Project',
+      hero_btn_link: '/request-service',
+      categories_heading: 'Browse by Discipline',
+      categories_list: 'All, Web Development, Mobile App, UI/UX Design, Digital Marketing',
+      cta_heading: 'Have a Unique Vision in Mind?',
+      cta_desc: 'We can design, engineer, and deploy your custom project in record time.',
+      cta_btn_text: 'Start Your Project',
+      cta_btn_link: '/contact'
+    }
   },
   {
     id: 'page-contact',
@@ -103,7 +636,24 @@ const DEFAULT_PAGES: PageItem[] = [
     commentsCount: 0,
     isFrontPage: false,
     content: 'Direct consultation booking and corporate inquiries.',
-    template: 'Default Template'
+    template: 'Default Template',
+    sectionsData: {
+      hero_badge: 'Get In Touch',
+      hero_title: 'Let\'s Build Something Great Together',
+      hero_desc: 'Have a project idea, question, or need a technical consultation? We are here to help.',
+      office_address: 'Lahore, Pakistan / Remote Global Delivery',
+      official_email: 'naeemhaiderf73@gmail.com',
+      official_phone: '+92 313 9023118',
+      response_sla: 'Guaranteed reply within 24 business hours',
+      form_heading: 'Send Us a Direct Message',
+      form_desc: 'Fill in your project details and our team will get back to you promptly.',
+      form_submit_text: 'Send Message',
+      facebook_url: 'https://facebook.com',
+      linkedin_url: 'https://linkedin.com',
+      instagram_url: 'https://instagram.com',
+      youtube_url: 'https://youtube.com',
+      github_url: 'https://github.com'
+    }
   },
   {
     id: 'page-faq',
@@ -116,9 +666,15 @@ const DEFAULT_PAGES: PageItem[] = [
     isFrontPage: false,
     content: 'Everything clients need to know before initiating a development project.',
     template: 'Default Template',
-    sections: {
-      badge_text: 'Support Center',
-      faq_title: 'Frequently Asked Questions'
+    sectionsData: {
+      hero_badge: 'Support Center',
+      hero_title: 'Frequently Asked Questions',
+      hero_desc: 'Everything you need to know about working with TechFNM, our pricing, and delivery timelines.',
+      search_placeholder: 'Search frequently asked questions...',
+      cta_heading: 'Still Have Questions?',
+      cta_desc: 'Can\'t find the answer you\'re looking for? Speak directly to our technical team.',
+      cta_btn_text: 'Talk to Our Engineers',
+      cta_btn_link: '/contact'
     }
   },
   {
@@ -131,10 +687,19 @@ const DEFAULT_PAGES: PageItem[] = [
     commentsCount: 0,
     isFrontPage: false,
     content: 'Interactive estimation form for bespoke development projects.',
-    template: 'Default Template'
+    template: 'Default Template',
+    sectionsData: {
+      hero_badge: 'Start A Project',
+      hero_title: 'Request a Custom Quote',
+      hero_desc: 'Tell us about your requirements, target timeline, and budget. We\'ll formulate a strategic plan.',
+      step1_title: '1. Personal & Business Information',
+      step2_title: '2. Select Service & Project Scope',
+      submit_btn_text: 'Submit Consultation Request',
+      guarantee_text: '100% Confidential. Protected under NDA.'
+    }
   },
   {
-    id: 'page-privacy',
+    id: 'page-sample',
     title: 'Sample Page',
     slug: '/sample-page',
     author: 'admin',
@@ -143,7 +708,16 @@ const DEFAULT_PAGES: PageItem[] = [
     commentsCount: 1,
     isFrontPage: false,
     content: 'Sample draft template page for internal draft reviews.',
-    template: 'Default Template'
+    template: 'Default Template',
+    sectionsData: {
+      hero_badge: 'Draft Template',
+      hero_title: 'Sample Page Headline',
+      hero_desc: 'This is a sample page demonstration for review.',
+      cta_heading: 'Call to Action',
+      cta_desc: 'Sample description...',
+      cta_btn_text: 'Learn More',
+      cta_btn_link: '/'
+    }
   }
 ];
 
@@ -151,7 +725,7 @@ export default function PageManager() {
   const [pages, setPages] = useState<PageItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Filter & Search
+  // Filters & Table Controls
   const [activeTab, setActiveTab] = useState<'all' | 'published' | 'draft' | 'trash'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -177,8 +751,10 @@ export default function PageManager() {
   // Full Editor State (Add New or Edit)
   const [isFullEditing, setIsFullEditing] = useState(false);
   const [editingPage, setEditingPage] = useState<PageItem | null>(null);
+  const [editorTab, setEditorTab] = useState<'sections' | 'attributes' | 'raw'>('sections');
+  const [openSectionAccordions, setOpenSectionAccordions] = useState<Record<string, boolean>>({});
 
-  // Screen Options & Help toggles (authentic WP)
+  // Screen Options & Help toggles
   const [showScreenOptions, setShowScreenOptions] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
@@ -189,29 +765,28 @@ export default function PageManager() {
   const loadPages = async () => {
     setLoading(true);
     try {
-      // 1. Try to load from localStorage first
-      const cached = localStorage.getItem('techfnm_site_pages');
+      const cached = localStorage.getItem('techfnm_site_pages_v2');
       if (cached) {
         setPages(JSON.parse(cached));
       } else {
-        // Also check supabase pages_content for any existing section updates
+        // Also check Supabase pages_content for any previously edited sections
         const { data: contentData } = await supabase.from('pages_content').select('*');
         const initial = [...DEFAULT_PAGES];
 
         if (contentData && contentData.length > 0) {
-          const heroContent = contentData.find(c => c.id === 'home_hero')?.content;
-          if (heroContent) {
-            initial[0].sections = { ...initial[0].sections, ...heroContent };
-          }
-          const faqContent = contentData.find(c => c.id === 'home_faq')?.content;
-          if (faqContent) {
-            const faqIdx = initial.findIndex(p => p.id === 'page-faq');
-            if (faqIdx !== -1) initial[faqIdx].sections = { ...initial[faqIdx].sections, ...faqContent };
-          }
+          contentData.forEach(c => {
+            if (c.id === 'home_hero') {
+              initial[0].sectionsData = { ...initial[0].sectionsData, ...c.content };
+            }
+            if (c.id === 'home_faq') {
+              const faqIdx = initial.findIndex(p => p.id === 'page-faq');
+              if (faqIdx !== -1) initial[faqIdx].sectionsData = { ...initial[faqIdx].sectionsData, ...c.content };
+            }
+          });
         }
 
         setPages(initial);
-        localStorage.setItem('techfnm_site_pages', JSON.stringify(initial));
+        localStorage.setItem('techfnm_site_pages_v2', JSON.stringify(initial));
       }
     } catch (err) {
       console.error(err);
@@ -223,10 +798,10 @@ export default function PageManager() {
 
   const savePagesList = (updated: PageItem[]) => {
     setPages(updated);
-    localStorage.setItem('techfnm_site_pages', JSON.stringify(updated));
+    localStorage.setItem('techfnm_site_pages_v2', JSON.stringify(updated));
   };
 
-  // Counts for subnav
+  // Counts for status subnav
   const counts = {
     all: pages.filter(p => p.status !== 'trash').length,
     published: pages.filter(p => p.status === 'published').length,
@@ -236,13 +811,11 @@ export default function PageManager() {
 
   // Filtered pages list
   const filteredPages = pages.filter((page) => {
-    // Status filter
     if (activeTab === 'all' && page.status === 'trash') return false;
     if (activeTab === 'published' && page.status !== 'published') return false;
     if (activeTab === 'draft' && page.status !== 'draft') return false;
     if (activeTab === 'trash' && page.status !== 'trash') return false;
 
-    // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchTitle = page.title.toLowerCase().includes(q);
@@ -253,7 +826,6 @@ export default function PageManager() {
     return true;
   });
 
-  // Select all toggle
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
       setSelectedIds(filteredPages.map(p => p.id));
@@ -270,7 +842,6 @@ export default function PageManager() {
     }
   };
 
-  // Bulk Actions
   const handleApplyBulkAction = () => {
     if (selectedIds.length === 0) {
       toast.error('No pages selected.');
@@ -296,7 +867,6 @@ export default function PageManager() {
     }
   };
 
-  // Move to trash or delete single
   const handleTrashPage = (page: PageItem) => {
     if (page.status === 'trash') {
       if (!window.confirm(`Permanently delete "${page.title}"?`)) return;
@@ -313,7 +883,6 @@ export default function PageManager() {
     toast.success(`"${page.title}" restored.`);
   };
 
-  // Quick Edit Handlers
   const startQuickEdit = (page: PageItem) => {
     setQuickEditingId(page.id);
     setQuickEditData({
@@ -345,14 +914,24 @@ export default function PageManager() {
     toast.success('Page updated successfully.');
   };
 
-  // Full Editor Handlers (Add New or Edit)
+  // Open Full Editor for a Page
   const openFullEditor = (page?: PageItem) => {
     if (page) {
-      setEditingPage(page);
-    } else {
-      // New page template
       setEditingPage({
-        id: `page-${Date.now()}`,
+        ...page,
+        sectionsData: { ...page.sectionsData }
+      });
+      // By default open all section accordions
+      const pageSections = PAGE_SECTIONS_REGISTRY[page.id] || GENERIC_CUSTOM_SECTIONS;
+      const initialAccordions: Record<string, boolean> = {};
+      pageSections.forEach((s, idx) => {
+        initialAccordions[s.id] = idx === 0; // open first section by default
+      });
+      setOpenSectionAccordions(initialAccordions);
+    } else {
+      const newId = `page-${Date.now()}`;
+      setEditingPage({
+        id: newId,
         title: '',
         slug: '',
         author: 'admin',
@@ -361,14 +940,36 @@ export default function PageManager() {
         commentsCount: 0,
         isFrontPage: false,
         content: '',
-        template: 'Default Template'
+        template: 'Default Template',
+        sectionsData: {}
       });
+      setOpenSectionAccordions({ custom_hero: true, custom_cta: true });
     }
+    setEditorTab('sections');
     setIsFullEditing(true);
   };
 
-  const saveFullEditor = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const toggleAccordion = (secId: string) => {
+    setOpenSectionAccordions(prev => ({
+      ...prev,
+      [secId]: !prev[secId]
+    }));
+  };
+
+  const updateSectionFieldValue = (key: string, value: any) => {
+    if (!editingPage) return;
+    setEditingPage({
+      ...editingPage,
+      sectionsData: {
+        ...editingPage.sectionsData,
+        [key]: value
+      }
+    });
+  };
+
+  // Save Full Editor
+  const saveFullEditor = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!editingPage || !editingPage.title.trim()) {
       toast.error('Please enter a valid page title.');
       return;
@@ -391,17 +992,30 @@ export default function PageManager() {
 
     savePagesList(updatedList);
 
-    // Also sync with Supabase if it has sections
-    if (updatedPage.sections && updatedPage.id === 'page-home') {
+    // Sync specific shared sections to Supabase if applicable
+    if (updatedPage.id === 'page-home') {
       try {
-        await supabase.from('pages_content').upsert({
-          id: 'home_hero',
-          section_name: 'Homepage Hero',
-          content: {
-            title: updatedPage.sections.hero_title || 'Your Digital Growth Partner',
-            subtitle: updatedPage.sections.hero_subtitle || 'We Build What You Imagine'
+        await supabase.from('pages_content').upsert([
+          {
+            id: 'home_hero',
+            section_name: 'Homepage Hero',
+            content: {
+              title: updatedPage.sectionsData.hero_title || 'We Build What You Imagine',
+              subtitle: updatedPage.sectionsData.hero_subtitle || 'Creative Solutions',
+              description: updatedPage.sectionsData.hero_desc || '',
+              cta1: updatedPage.sectionsData.hero_cta1_text || 'Getting Started',
+              cta2: updatedPage.sectionsData.hero_cta2_text || 'Our Services'
+            }
+          },
+          {
+            id: 'home_faq',
+            section_name: 'Homepage FAQ',
+            content: {
+              title: updatedPage.sectionsData.faq_heading || 'Frequently Asked Questions',
+              badge_text: updatedPage.sectionsData.faq_badge || 'Support Center'
+            }
           }
-        });
+        ]);
       } catch (err) {
         // silent fallback
       }
@@ -409,7 +1023,7 @@ export default function PageManager() {
 
     setIsFullEditing(false);
     setEditingPage(null);
-    toast.success(`Page "${updatedPage.title}" saved successfully!`);
+    toast.success(`Page "${updatedPage.title}" & all sections published successfully!`);
   };
 
   const formatDate = (dateStr: string) => {
@@ -421,163 +1035,354 @@ export default function PageManager() {
     }
   };
 
-  // If in Full Editor mode, render WordPress Classic / Block style editor
+  // ── FULL PAGE & SECTION EDITOR VIEW ──
   if (isFullEditing && editingPage) {
+    const currentSections = PAGE_SECTIONS_REGISTRY[editingPage.id] || GENERIC_CUSTOM_SECTIONS;
+
     return (
-      <div className="space-y-6 font-sans">
+      <div className="space-y-6 font-sans text-zinc-100 animate-in fade-in duration-150">
         <Toaster position="top-right" toastOptions={{ style: { background: '#18181b', color: '#fff' } }} />
 
-        {/* Top bar back button */}
-        <div className="flex items-center justify-between border-b border-zinc-800/80 pb-4">
+        {/* TOP BAR: Back button, Title & Action controls */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-800/80 pb-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => { setIsFullEditing(false); setEditingPage(null); }}
-              className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-850 transition-colors"
-              title="Back to Pages"
+              className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-850 transition-colors cursor-pointer"
+              title="Return to Pages list"
             >
               <ArrowLeft size={16} />
             </button>
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <span>{editingPage.title ? `Edit Page: ${editingPage.title}` : 'Add New Page'}</span>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-bold text-white">
+                  {editingPage.title ? `Edit Page: ${editingPage.title}` : 'Add New Page'}
+                </h2>
                 {editingPage.isFrontPage && (
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900/40">
                     Front Page
                   </span>
                 )}
-              </h2>
-              <p className="text-xs text-zinc-400">Configure page content, permalink, and display templates.</p>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border uppercase ${
+                  editingPage.status === 'published'
+                    ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900/40'
+                    : 'bg-amber-950/30 text-amber-400 border-amber-900/40'
+                }`}>
+                  {editingPage.status}
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Manage all headings, paragraphs, images, button links, and attributes A to Z.
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
+            {editingPage.slug && (
+              <a
+                href={editingPage.slug}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white text-xs font-semibold border border-zinc-800 transition-colors"
+              >
+                <ExternalLink size={13} className="text-red-400" />
+                <span>Preview Live Page</span>
+              </a>
+            )}
+
             <button
               type="button"
               onClick={() => { setIsFullEditing(false); setEditingPage(null); }}
-              className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-300 text-xs font-semibold border border-zinc-800 transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-white text-xs font-semibold border border-zinc-800 transition-colors cursor-pointer"
             >
               Cancel
             </button>
+
             <button
-              onClick={saveFullEditor}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold shadow-lg shadow-red-950/40 transition-all cursor-pointer"
+              onClick={() => saveFullEditor()}
+              className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold shadow-lg shadow-red-950/40 transition-all cursor-pointer"
             >
               <Save size={14} />
-              <span>{editingPage.status === 'published' ? 'Update Page' : 'Publish'}</span>
+              <span>Save & Publish All Sections</span>
             </button>
           </div>
         </div>
 
-        {/* Editor Two-Column Layout */}
-        <form onSubmit={saveFullEditor} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* EDITOR TABS (Section Manager A to Z vs Page Attributes) */}
+        <div className="flex items-center gap-2 border-b border-zinc-800">
+          <button
+            onClick={() => setEditorTab('sections')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold transition-all border-b-2 cursor-pointer ${
+              editorTab === 'sections'
+                ? 'border-red-500 text-white bg-zinc-900/50'
+                : 'border-transparent text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <Layers size={14} className={editorTab === 'sections' ? 'text-red-400' : 'text-zinc-500'} />
+            <span>⚡ Section Manager ({currentSections.length} Sections)</span>
+          </button>
 
-          {/* Main Content Area (2 cols) */}
-          <div className="lg:col-span-2 space-y-5">
-            {/* Title */}
-            <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-3">
-              <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
-                Page Title
-              </label>
-              <input
-                type="text"
-                required
-                value={editingPage.title}
-                onChange={(e) => setEditingPage({ ...editingPage, title: e.target.value })}
-                placeholder="Enter title here (e.g. About Us)"
-                className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-3 text-lg font-bold text-white placeholder-zinc-600 outline-none transition-all"
-              />
+          <button
+            onClick={() => setEditorTab('attributes')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold transition-all border-b-2 cursor-pointer ${
+              editorTab === 'attributes'
+                ? 'border-red-500 text-white bg-zinc-900/50'
+                : 'border-transparent text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <Settings size={14} className={editorTab === 'attributes' ? 'text-red-400' : 'text-zinc-500'} />
+            <span>📄 Page Attributes & Permalink</span>
+          </button>
 
-              {/* Permalink */}
-              <div className="flex items-center gap-2 text-xs text-zinc-400 pt-1">
-                <span className="font-semibold text-zinc-500">Permalink:</span>
-                <span className="text-zinc-600">https://techfnm.com</span>
-                <input
-                  type="text"
-                  value={editingPage.slug}
-                  onChange={(e) => setEditingPage({ ...editingPage, slug: e.target.value })}
-                  placeholder="/about"
-                  className="bg-[#141419] border border-zinc-800 focus:border-red-600/40 rounded px-2 py-1 text-red-400 font-mono text-xs outline-none"
-                />
-                {editingPage.slug && (
-                  <a
-                    href={editingPage.slug}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-blue-400 hover:underline flex items-center gap-1"
+          <button
+            onClick={() => setEditorTab('raw')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold transition-all border-b-2 cursor-pointer ${
+              editorTab === 'raw'
+                ? 'border-red-500 text-white bg-zinc-900/50'
+                : 'border-transparent text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <FileText size={14} className={editorTab === 'raw' ? 'text-red-400' : 'text-zinc-500'} />
+            <span>📝 Raw Body Content</span>
+          </button>
+        </div>
+
+        {/* ── TAB 1: SECTION MANAGER (A TO Z) ── */}
+        {editorTab === 'sections' && (
+          <div className="space-y-4">
+            <div className="bg-[#111116] border border-zinc-800/80 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+              <div className="space-y-0.5">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-2">
+                  <Sparkles size={14} className="text-red-400" />
+                  Live Section Customizer for: <span className="text-white font-mono">{editingPage.title}</span>
+                </h3>
+                <p className="text-[11px] text-zinc-400">
+                  Edit every heading, copy paragraph, button text/link, and image across each section of this page.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const allOpen: Record<string, boolean> = {};
+                    currentSections.forEach(s => allOpen[s.id] = true);
+                    setOpenSectionAccordions(allOpen);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-850 text-zinc-300 border border-zinc-800 text-[11px] font-medium transition-colors cursor-pointer"
+                >
+                  Expand All
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOpenSectionAccordions({})}
+                  className="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-850 text-zinc-300 border border-zinc-800 text-[11px] font-medium transition-colors cursor-pointer"
+                >
+                  Collapse All
+                </button>
+              </div>
+            </div>
+
+            {/* SECTIONS ACCORDION LIST */}
+            <div className="space-y-3">
+              {currentSections.map((section, idx) => {
+                const Icon = section.icon;
+                const isOpen = !!openSectionAccordions[section.id];
+
+                return (
+                  <div
+                    key={section.id}
+                    className="rounded-2xl border border-zinc-800/90 bg-[#0e0e12] overflow-hidden shadow-lg transition-all"
                   >
-                    <span>View</span>
-                    <ExternalLink size={11} />
-                  </a>
-                )}
-              </div>
-            </div>
+                    {/* ACCORDION HEADER */}
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordion(section.id)}
+                      className="w-full flex items-center justify-between px-5 py-4 bg-[#131319] hover:bg-[#171720] border-b border-zinc-800/80 transition-colors text-left cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-red-400 shrink-0">
+                          <Icon size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono text-zinc-500 uppercase">Section {idx + 1}</span>
+                            <span className="text-zinc-600">•</span>
+                            <h4 className="text-sm font-bold text-white tracking-tight truncate">
+                              {section.title}
+                            </h4>
+                          </div>
+                          <p className="text-xs text-zinc-400 line-clamp-1 mt-0.5">
+                            {section.description}
+                          </p>
+                        </div>
+                      </div>
 
-            {/* Page Content / Body */}
-            <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-3">
-              <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2.5">
-                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
-                  Page Content / Copy
-                </label>
-                <span className="text-[11px] text-zinc-500 font-medium">Standard Editor</span>
-              </div>
-              <textarea
-                rows={8}
-                value={editingPage.content || ''}
-                onChange={(e) => setEditingPage({ ...editingPage, content: e.target.value })}
-                placeholder="Write page content, descriptions, or HTML markup here..."
-                className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl p-4 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition-all resize-y"
-              />
-            </div>
+                      <div className="flex items-center gap-3 shrink-0 ml-3">
+                        <span className="text-[10px] font-bold text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800 hidden sm:inline">
+                          {section.fields.length} Fields
+                        </span>
+                        {isOpen ? <ChevronUp size={16} className="text-zinc-400" /> : <ChevronDown size={16} className="text-zinc-400" />}
+                      </div>
+                    </button>
 
-            {/* Dynamic Section Customizer (Preserving sections feature) */}
-            {editingPage.sections && (
-              <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-4">
-                <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <Layers size={16} className="text-red-400" />
-                    <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
-                      Dynamic Section Variables
-                    </h3>
+                    {/* ACCORDION CONTENT / INPUT FIELDS */}
+                    {isOpen && (
+                      <div className="p-5 sm:p-6 space-y-5 bg-[#0e0e12]">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {section.fields.map((field) => {
+                            const value = editingPage.sectionsData[field.key] ?? '';
+                            const isFullWidth = field.type === 'textarea' || field.type === 'image';
+
+                            return (
+                              <div
+                                key={field.key}
+                                className={`space-y-1.5 ${isFullWidth ? 'md:col-span-2' : ''}`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <label className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
+                                    {field.type === 'image' && <ImageIcon size={13} className="text-amber-400" />}
+                                    {field.type === 'url' && <LinkIcon size={13} className="text-blue-400" />}
+                                    {field.type === 'text' && <Type size={13} className="text-red-400" />}
+                                    {field.type === 'textarea' && <AlignLeft size={13} className="text-purple-400" />}
+                                    <span>{field.label}</span>
+                                  </label>
+                                  <span className="text-[10px] font-mono text-zinc-600">{field.key}</span>
+                                </div>
+
+                                {field.type === 'textarea' ? (
+                                  <textarea
+                                    rows={3}
+                                    value={value}
+                                    onChange={(e) => updateSectionFieldValue(field.key, e.target.value)}
+                                    placeholder={field.placeholder}
+                                    className="w-full bg-[#131318] border border-zinc-800 focus:border-red-600/50 rounded-xl p-3 text-xs text-zinc-200 placeholder-zinc-600 outline-none transition-all resize-y"
+                                  />
+                                ) : field.type === 'image' ? (
+                                  <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                      <input
+                                        type="text"
+                                        value={value}
+                                        onChange={(e) => updateSectionFieldValue(field.key, e.target.value)}
+                                        placeholder={field.placeholder || 'https://images.unsplash.com/...'}
+                                        className="w-full bg-[#131318] border border-zinc-800 focus:border-red-600/50 rounded-xl px-3.5 py-2.5 text-xs text-zinc-200 placeholder-zinc-600 outline-none transition-all"
+                                      />
+                                    </div>
+                                    {value && (
+                                      <div className="relative w-36 h-20 rounded-xl border border-zinc-800 overflow-hidden bg-zinc-950">
+                                        <img
+                                          src={value}
+                                          alt="Preview"
+                                          className="w-full h-full object-cover"
+                                          onError={(e: any) => { e.target.style.display = 'none'; }}
+                                        />
+                                        <span className="absolute bottom-1 right-1 bg-black/80 px-1.5 py-0.5 rounded text-[9px] text-zinc-400 font-mono">
+                                          Preview
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    value={value}
+                                    onChange={(e) => updateSectionFieldValue(field.key, e.target.value)}
+                                    placeholder={field.placeholder}
+                                    className="w-full bg-[#131318] border border-zinc-800 focus:border-red-600/50 rounded-xl px-3.5 py-2.5 text-xs text-zinc-200 placeholder-zinc-600 outline-none transition-all"
+                                  />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/30 px-2 py-0.5 rounded border border-emerald-900/30">
-                    Live Reactive
-                  </span>
-                </div>
+                );
+              })}
+            </div>
 
-                <div className="space-y-3">
-                  {Object.entries(editingPage.sections).map(([k, val]: any) => (
-                    <div key={k} className="space-y-1">
-                      <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block">
-                        {k.replace(/_/g, ' ')}
-                      </label>
-                      <input
-                        type="text"
-                        value={val || ''}
-                        onChange={(e) => setEditingPage({
-                          ...editingPage,
-                          sections: { ...editingPage.sections, [k]: e.target.value }
-                        })}
-                        className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/40 rounded-xl px-3.5 py-2.5 text-xs text-zinc-200 outline-none"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Bottom Save bar */}
+            <div className="flex justify-end pt-3">
+              <button
+                type="button"
+                onClick={() => saveFullEditor()}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold shadow-lg shadow-red-950/40 transition-all cursor-pointer"
+              >
+                <Save size={14} />
+                <span>Save All Sections</span>
+              </button>
+            </div>
           </div>
+        )}
 
-          {/* Sidebar Area (1 col) - WordPress style Publish & Page Attributes */}
-          <div className="space-y-5">
-            {/* Publish Box */}
-            <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl overflow-hidden shadow-lg">
-              <div className="px-4 py-3 bg-[#121217] border-b border-zinc-800/80 flex items-center justify-between">
-                <span className="font-bold text-xs uppercase tracking-wider text-zinc-300">Publish</span>
-                <span className={`w-2 h-2 rounded-full ${editingPage.status === 'published' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+        {/* ── TAB 2: PAGE ATTRIBUTES & SEO ── */}
+        {editorTab === 'attributes' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-5">
+              {/* Title & Slug */}
+              <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-4 shadow-lg">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
+                    Page Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editingPage.title}
+                    onChange={(e) => setEditingPage({ ...editingPage, title: e.target.value })}
+                    placeholder="Enter page title (e.g. Services Catalog)"
+                    className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-3 text-base font-bold text-white outline-none transition-all"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
+                    Permalink / Slug
+                  </label>
+                  <div className="flex items-center gap-2 bg-[#141419] border border-zinc-800 rounded-xl px-4 py-2 text-xs">
+                    <span className="text-zinc-500 font-medium">https://techfnm.com</span>
+                    <input
+                      type="text"
+                      value={editingPage.slug}
+                      onChange={(e) => setEditingPage({ ...editingPage, slug: e.target.value })}
+                      placeholder="/services"
+                      className="bg-transparent text-red-400 font-mono flex-1 outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Featured Image URL */}
+                <div className="space-y-1.5 pt-2">
+                  <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
+                    Featured Image URL
+                  </label>
+                  <input
+                    type="text"
+                    value={editingPage.featuredImage || ''}
+                    onChange={(e) => setEditingPage({ ...editingPage, featuredImage: e.target.value })}
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-3.5 py-2.5 text-xs text-zinc-200 outline-none"
+                  />
+                  {editingPage.featuredImage && (
+                    <div className="w-48 h-28 rounded-xl border border-zinc-800 overflow-hidden mt-2 bg-zinc-950">
+                      <img src={editingPage.featuredImage} alt="Featured" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
               </div>
+            </div>
 
-              <div className="p-4 space-y-4 text-xs">
+            {/* Sidebar box */}
+            <div className="space-y-5">
+              <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-4 shadow-lg text-xs">
+                <span className="font-bold text-xs uppercase tracking-wider text-zinc-300 block border-b border-zinc-800 pb-2">
+                  Page Configuration
+                </span>
+
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400 font-medium">Status:</span>
+                  <span className="text-zinc-400">Status:</span>
                   <select
                     value={editingPage.status}
                     onChange={(e) => setEditingPage({ ...editingPage, status: e.target.value as any })}
@@ -589,17 +1394,12 @@ export default function PageManager() {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400 font-medium">Visibility:</span>
-                  <span className="text-zinc-200 font-semibold">Public</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-zinc-400 font-medium">Author:</span>
+                  <span className="text-zinc-400">Author:</span>
                   <span className="text-zinc-200 font-semibold">{editingPage.author}</span>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400 font-medium">Front Page:</span>
+                  <span className="text-zinc-400">Front Page:</span>
                   <button
                     type="button"
                     onClick={() => setEditingPage({ ...editingPage, isFrontPage: !editingPage.isFrontPage })}
@@ -609,59 +1409,73 @@ export default function PageManager() {
                         : 'bg-zinc-900 text-zinc-500 border-zinc-800'
                     }`}
                   >
-                    {editingPage.isFrontPage ? 'Yes (Front Page)' : 'No'}
+                    {editingPage.isFrontPage ? 'Yes' : 'No'}
                   </button>
                 </div>
 
-                <div className="pt-3 border-t border-zinc-800 flex justify-between items-center">
+                <div className="space-y-1.5 pt-2 border-t border-zinc-800">
+                  <span className="text-zinc-400 font-medium block">Template</span>
+                  <select
+                    value={editingPage.template || 'Default Template'}
+                    onChange={(e) => setEditingPage({ ...editingPage, template: e.target.value })}
+                    className="w-full bg-[#141419] border border-zinc-800 rounded-lg px-3 py-2 text-zinc-200 outline-none"
+                  >
+                    <option value="Default Template">Default Template</option>
+                    <option value="Front Page">Front Page Template</option>
+                    <option value="Full Width">Full Width Page</option>
+                    <option value="Contact Form Page">Contact Form Page</option>
+                  </select>
+                </div>
+
+                <div className="pt-3 border-t border-zinc-800">
                   <button
                     type="button"
-                    onClick={() => { handleTrashPage(editingPage); setIsFullEditing(false); }}
-                    className="text-red-400 hover:text-red-300 text-xs font-semibold hover:underline"
+                    onClick={() => saveFullEditor()}
+                    className="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-all cursor-pointer shadow-md"
                   >
-                    Move to Trash
-                  </button>
-
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-all cursor-pointer"
-                  >
-                    {editingPage.status === 'published' ? 'Update' : 'Publish'}
+                    Save Attributes
                   </button>
                 </div>
               </div>
             </div>
-
-            {/* Page Attributes */}
-            <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl overflow-hidden shadow-lg">
-              <div className="px-4 py-3 bg-[#121217] border-b border-zinc-800/80">
-                <span className="font-bold text-xs uppercase tracking-wider text-zinc-300">Page Attributes</span>
-              </div>
-              <div className="p-4 space-y-3 text-xs">
-                <label className="text-zinc-400 font-medium block">Template</label>
-                <select
-                  value={editingPage.template || 'Default Template'}
-                  onChange={(e) => setEditingPage({ ...editingPage, template: e.target.value })}
-                  className="w-full bg-[#141419] border border-zinc-800 rounded-lg px-3 py-2 text-zinc-200 outline-none"
-                >
-                  <option value="Default Template">Default Template</option>
-                  <option value="Front Page">Front Page Template</option>
-                  <option value="Full Width">Full Width Page</option>
-                  <option value="Contact Form Page">Contact Form Page</option>
-                </select>
-              </div>
-            </div>
-
           </div>
+        )}
 
-        </form>
+        {/* ── TAB 3: RAW CONTENT COPY ── */}
+        {editorTab === 'raw' && (
+          <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-3 shadow-lg">
+            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2.5">
+              <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
+                Standard Body Content / Copy
+              </label>
+              <span className="text-[11px] text-zinc-500">General narrative markup</span>
+            </div>
+            <textarea
+              rows={10}
+              value={editingPage.content || ''}
+              onChange={(e) => setEditingPage({ ...editingPage, content: e.target.value })}
+              placeholder="Enter main page paragraphs or HTML markup..."
+              className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl p-4 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition-all resize-y"
+            />
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => saveFullEditor()}
+                className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-all cursor-pointer shadow-md"
+              >
+                Save Content
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
     );
   }
 
-  // DEFAULT VIEW: Exact WordPress Pages Table View
+  // ── DEFAULT VIEW: CLASSIC WORDPRESS TABLE VIEW ──
   return (
-    <div className="space-y-4 font-sans text-zinc-200">
+    <div className="space-y-4 font-sans text-zinc-200 animate-in fade-in duration-150">
       <Toaster position="top-right" toastOptions={{ style: { background: '#18181b', color: '#fff' } }} />
 
       {/* TOP HEADER: Pages + Add New button + Screen Options & Help */}
@@ -682,7 +1496,7 @@ export default function PageManager() {
           <div className="relative">
             <button
               onClick={() => { setShowScreenOptions(!showScreenOptions); setShowHelp(false); }}
-              className="flex items-center gap-1 px-2.5 py-1 rounded bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-200 border border-zinc-800 transition-colors text-[11px]"
+              className="flex items-center gap-1 px-2.5 py-1 rounded bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-200 border border-zinc-800 transition-colors text-[11px] cursor-pointer"
             >
               <SlidersHorizontal size={12} />
               <span>Screen Options</span>
@@ -699,6 +1513,10 @@ export default function PageManager() {
                 </label>
                 <label className="flex items-center gap-2 text-zinc-300 text-xs cursor-pointer">
                   <input type="checkbox" defaultChecked className="accent-red-600 rounded" />
+                  <span>Sections Count</span>
+                </label>
+                <label className="flex items-center gap-2 text-zinc-300 text-xs cursor-pointer">
+                  <input type="checkbox" defaultChecked className="accent-red-600 rounded" />
                   <span>Comments</span>
                 </label>
                 <label className="flex items-center gap-2 text-zinc-300 text-xs cursor-pointer">
@@ -712,7 +1530,7 @@ export default function PageManager() {
           <div className="relative">
             <button
               onClick={() => { setShowHelp(!showHelp); setShowScreenOptions(false); }}
-              className="flex items-center gap-1 px-2.5 py-1 rounded bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-200 border border-zinc-800 transition-colors text-[11px]"
+              className="flex items-center gap-1 px-2.5 py-1 rounded bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-200 border border-zinc-800 transition-colors text-[11px] cursor-pointer"
             >
               <HelpCircle size={12} />
               <span>Help</span>
@@ -721,10 +1539,10 @@ export default function PageManager() {
             {showHelp && (
               <div className="absolute right-0 mt-1.5 w-72 bg-[#141419] border border-zinc-800 rounded-xl p-3.5 shadow-2xl z-30 text-xs space-y-2">
                 <span className="font-bold text-zinc-300 block border-b border-zinc-800 pb-1.5 text-[11px] uppercase tracking-wider">
-                  Pages Overview
+                  Section Customizer
                 </span>
                 <p className="text-zinc-400 text-xs leading-relaxed">
-                  Pages are distinct from blog posts. They are static hierarchical documents used for Home, About, Services, Portfolio, and Contact.
+                  Click <strong>Edit</strong> on any page to customize all its live sections (Hero, Headings, Subtitles, Paragraphs, Images, and CTA Buttons) from A to Z!
                 </p>
               </div>
             )}
@@ -780,7 +1598,7 @@ export default function PageManager() {
 
       {/* TOP CONTROLS & SEARCH BAR */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-        {/* Bulk action & dates */}
+        {/* Bulk actions & dates */}
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <select
             value={bulkAction}
@@ -863,6 +1681,7 @@ export default function PageManager() {
                 </th>
                 <th className="px-4 py-3 font-semibold text-zinc-300">Title</th>
                 <th className="px-4 py-3 font-semibold text-zinc-400 w-36">Author</th>
+                <th className="px-4 py-3 font-semibold text-zinc-400 w-36">Managed Sections</th>
                 <th className="px-4 py-3 font-semibold text-zinc-400 w-20 text-center">
                   <MessageSquare size={13} className="mx-auto text-zinc-500" />
                 </th>
@@ -874,13 +1693,13 @@ export default function PageManager() {
             <tbody className="divide-y divide-zinc-800/60">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-zinc-500 font-mono text-xs">
+                  <td colSpan={6} className="py-12 text-center text-zinc-500 font-mono text-xs">
                     Loading pages database...
                   </td>
                 </tr>
               ) : filteredPages.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-zinc-400">
+                  <td colSpan={6} className="py-12 text-center text-zinc-400">
                     <p className="font-semibold text-zinc-300 text-sm">No pages found.</p>
                     <p className="text-xs text-zinc-500 mt-1">Try changing search query or status filter.</p>
                   </td>
@@ -889,6 +1708,7 @@ export default function PageManager() {
                 filteredPages.map((page) => {
                   const isQuickEditing = quickEditingId === page.id;
                   const isSelected = selectedIds.includes(page.id);
+                  const sectionsCount = (PAGE_SECTIONS_REGISTRY[page.id] || GENERIC_CUSTOM_SECTIONS).length;
 
                   return (
                     <React.Fragment key={page.id}>
@@ -949,9 +1769,9 @@ export default function PageManager() {
                                 <>
                                   <button
                                     onClick={() => openFullEditor(page)}
-                                    className="text-[#58a6ff] hover:underline cursor-pointer"
+                                    className="text-[#58a6ff] hover:underline cursor-pointer font-medium"
                                   >
-                                    Edit
+                                    Edit (Sections A-Z)
                                   </button>
                                   <span>|</span>
                                   <button
@@ -990,6 +1810,17 @@ export default function PageManager() {
                           </span>
                         </td>
 
+                        {/* Managed Sections Count Pill */}
+                        <td className="px-4 py-3.5 align-top">
+                          <button
+                            onClick={() => openFullEditor(page)}
+                            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-850 hover:bg-zinc-800 text-zinc-300 border border-zinc-750 transition-colors cursor-pointer"
+                          >
+                            <Layers size={10} className="text-red-400" />
+                            <span>{sectionsCount} Live Sections</span>
+                          </button>
+                        </td>
+
                         {/* Comments */}
                         <td className="px-4 py-3.5 align-top text-center text-zinc-500">
                           {page.commentsCount > 0 ? (
@@ -1014,10 +1845,10 @@ export default function PageManager() {
                         </td>
                       </tr>
 
-                      {/* INLINE QUICK EDIT ROW (WordPress exact) */}
+                      {/* INLINE QUICK EDIT ROW */}
                       {isQuickEditing && (
                         <tr className="bg-[#121217] border-y-2 border-red-600/40">
-                          <td colSpan={5} className="p-5">
+                          <td colSpan={6} className="p-5">
                             <div className="space-y-4">
                               <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
                                 <span className="font-bold text-xs uppercase tracking-wider text-red-400">
@@ -1032,7 +1863,6 @@ export default function PageManager() {
                               </div>
 
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                                {/* Title & Slug */}
                                 <div className="space-y-2">
                                   <label className="text-zinc-400 font-semibold block">Title</label>
                                   <input
@@ -1051,7 +1881,6 @@ export default function PageManager() {
                                   />
                                 </div>
 
-                                {/* Author & Status */}
                                 <div className="space-y-2">
                                   <label className="text-zinc-400 font-semibold block">Author</label>
                                   <select
@@ -1074,7 +1903,6 @@ export default function PageManager() {
                                   </select>
                                 </div>
 
-                                {/* Template */}
                                 <div className="space-y-2">
                                   <label className="text-zinc-400 font-semibold block">Template</label>
                                   <select
@@ -1089,7 +1917,6 @@ export default function PageManager() {
                                 </div>
                               </div>
 
-                              {/* Quick Edit Action Buttons */}
                               <div className="flex items-center justify-between pt-3 border-t border-zinc-800">
                                 <button
                                   type="button"
@@ -1116,7 +1943,7 @@ export default function PageManager() {
               )}
             </tbody>
 
-            {/* Table Footer (Classic WordPress repeating header) */}
+            {/* Table Footer */}
             <tfoot className="bg-[#14141a] text-zinc-400 font-bold border-t border-zinc-800 select-none">
               <tr>
                 <th className="w-10 px-4 py-3 text-center">
@@ -1129,6 +1956,7 @@ export default function PageManager() {
                 </th>
                 <th className="px-4 py-3 font-semibold text-zinc-300">Title</th>
                 <th className="px-4 py-3 font-semibold text-zinc-400">Author</th>
+                <th className="px-4 py-3 font-semibold text-zinc-400">Managed Sections</th>
                 <th className="px-4 py-3 font-semibold text-zinc-400 text-center">
                   <MessageSquare size={13} className="mx-auto text-zinc-500" />
                 </th>
@@ -1139,7 +1967,7 @@ export default function PageManager() {
         </div>
       </div>
 
-      {/* BOTTOM CONTROLS (Classic WordPress Bulk Actions bar repeat) */}
+      {/* BOTTOM CONTROLS (Bulk Actions repeat) */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs pt-1">
         <div className="flex items-center gap-2">
           <select
@@ -1172,7 +2000,7 @@ export default function PageManager() {
         </span>
       </div>
 
-      {/* WORDPRESS FOOTER BANNER */}
+      {/* FOOTER CREDITS */}
       <div className="pt-6 border-t border-zinc-800/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-zinc-400">
         <p>
           Thank you for creating with <span className="text-white font-medium">WordPress</span> & <span className="text-red-400 font-bold">TechFNM Console</span>.
