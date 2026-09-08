@@ -750,43 +750,91 @@ export default function PageManager() {
   const loadPages = async () => {
     setLoading(true);
     try {
+      // 1. Instant load from local cache
       const cached = localStorage.getItem('techfnm_site_pages_v2');
       if (cached) {
-        setPages(JSON.parse(cached));
+        try {
+          setPages(JSON.parse(cached));
+        } catch {}
+      }
+
+      // 2. Fetch directly from Supabase site_pages table
+      const { data: dbPages } = await supabase.from('site_pages').select('*');
+      if (dbPages && dbPages.length > 0) {
+        const mappedPages: PageItem[] = dbPages.map((row: any) => ({
+          id: row.id,
+          title: row.title,
+          slug: row.slug,
+          author: row.author || 'admin',
+          status: row.status || 'published',
+          date: row.updated_at || new Date().toISOString(),
+          commentsCount: 0,
+          isFrontPage: row.is_front_page,
+          template: row.template || 'Default Template',
+          featuredImage: row.featured_image || '',
+          content: row.content || '',
+          sectionsData: row.sections_data || {}
+        }));
+
+        // Merge defaults
+        const merged = [...mappedPages];
+        DEFAULT_PAGES.forEach(dp => {
+          if (!merged.some(m => m.id === dp.id)) {
+            merged.push(dp);
+          }
+        });
+
+        setPages(merged);
+        localStorage.setItem('techfnm_site_pages_v2', JSON.stringify(merged));
       } else {
-        const { data: contentData } = await supabase.from('pages_content').select('*');
-        const initial = [...DEFAULT_PAGES];
-
-        if (contentData && contentData.length > 0) {
-          contentData.forEach(c => {
-            if (c.id === 'home_hero') {
-              initial[0].sectionsData = { ...initial[0].sectionsData, ...c.content };
-            }
-            if (c.id === 'home_about') {
-              initial[0].sectionsData = { ...initial[0].sectionsData, ...c.content };
-            }
-            if (c.id === 'home_faq') {
-              const faqIdx = initial.findIndex(p => p.id === 'page-faq');
-              if (faqIdx !== -1) initial[faqIdx].sectionsData = { ...initial[faqIdx].sectionsData, ...c.content };
-            }
-          });
-        }
-
-        setPages(initial);
-        localStorage.setItem('techfnm_site_pages_v2', JSON.stringify(initial));
+        // Seed default pages to Supabase site_pages
+        const seedRows = DEFAULT_PAGES.map(p => ({
+          id: p.id,
+          title: p.title,
+          slug: p.slug,
+          author: p.author,
+          status: p.status,
+          template: p.template || 'Default Template',
+          featured_image: p.featuredImage || '',
+          content: p.content || '',
+          sections_data: p.sectionsData || {},
+          is_front_page: p.isFrontPage || false,
+          updated_at: new Date().toISOString()
+        }));
+        await supabase.from('site_pages').upsert(seedRows);
+        setPages(DEFAULT_PAGES);
+        localStorage.setItem('techfnm_site_pages_v2', JSON.stringify(DEFAULT_PAGES));
       }
     } catch (err) {
-      console.error(err);
-      setPages(DEFAULT_PAGES);
+      console.error('Error loading pages from Supabase:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const savePagesList = (updated: PageItem[]) => {
+  const savePagesList = async (updated: PageItem[]) => {
     setPages(updated);
     localStorage.setItem('techfnm_site_pages_v2', JSON.stringify(updated));
     triggerContentUpdate();
+
+    try {
+      const rows = updated.map(p => ({
+        id: p.id,
+        title: p.title,
+        slug: p.slug,
+        author: p.author,
+        status: p.status,
+        template: p.template || 'Default Template',
+        featured_image: p.featuredImage || '',
+        content: p.content || '',
+        sections_data: p.sectionsData || {},
+        is_front_page: p.isFrontPage || false,
+        updated_at: new Date().toISOString()
+      }));
+      await supabase.from('site_pages').upsert(rows);
+    } catch (err) {
+      console.error('Error syncing pages to Supabase:', err);
+    }
   };
 
   const counts = {

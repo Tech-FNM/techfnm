@@ -24,15 +24,27 @@ export function usePageContent(pageId: string, defaultData: Record<string, any> 
   }));
 
   useEffect(() => {
-    // 1. Initial load from localStorage
+    // 1. Initial quick load from local cache
     const local = getPageData(pageId);
     if (local && Object.keys(local).length > 0) {
       setData(prev => ({ ...prev, ...local }));
     }
 
-    // 2. Fetch from Supabase pages_content
+    // 2. Fetch directly from Supabase Database (both site_pages & pages_content)
     const fetchRemote = async () => {
       try {
+        // A. Check site_pages for full page sections_data
+        const { data: pageRow } = await supabase
+          .from('site_pages')
+          .select('sections_data')
+          .eq('id', pageId)
+          .maybeSingle();
+
+        if (pageRow && pageRow.sections_data && Object.keys(pageRow.sections_data).length > 0) {
+          setData(prev => ({ ...prev, ...pageRow.sections_data }));
+        }
+
+        // B. Check pages_content for individual section entries
         const { data: remoteData } = await supabase.from('pages_content').select('*');
         if (remoteData && remoteData.length > 0) {
           const remoteObj: Record<string, any> = {};
@@ -47,9 +59,37 @@ export function usePageContent(pageId: string, defaultData: Record<string, any> 
         // silent fallback
       }
     };
+
     fetchRemote();
 
-    // 3. Listen to local storage changes or custom event
+    // 3. Setup Supabase Realtime WebSocket subscription for live database changes!
+    const channel = supabase
+      .channel(`realtime_${pageId}_${Date.now()}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'pages_content' },
+        (payload: any) => {
+          if (payload.new && payload.new.content) {
+            setData(prev => ({ ...prev, ...payload.new.content }));
+          } else {
+            fetchRemote();
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'site_pages' },
+        (payload: any) => {
+          if (payload.new && payload.new.id === pageId && payload.new.sections_data) {
+            setData(prev => ({ ...prev, ...payload.new.sections_data }));
+          } else {
+            fetchRemote();
+          }
+        }
+      )
+      .subscribe();
+
+    // 4. Local storage event listener (for intra-tab communication)
     const handleStorageUpdate = () => {
       const updated = getPageData(pageId);
       if (updated && Object.keys(updated).length > 0) {
@@ -59,7 +99,9 @@ export function usePageContent(pageId: string, defaultData: Record<string, any> 
 
     window.addEventListener('storage', handleStorageUpdate);
     window.addEventListener('techfnm_content_updated', handleStorageUpdate);
+
     return () => {
+      supabase.removeChannel(channel);
       window.removeEventListener('storage', handleStorageUpdate);
       window.removeEventListener('techfnm_content_updated', handleStorageUpdate);
     };

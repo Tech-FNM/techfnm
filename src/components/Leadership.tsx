@@ -55,6 +55,17 @@ export default function Leadership() {
     };
 
     fetchData();
+
+    const channel = supabase
+      .channel('public:leadership')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leadership' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const ensureAbsoluteUrl = (url: string) => {

@@ -85,6 +85,17 @@ export default function Services() {
       }
     };
     fetchServices();
+
+    const channel = supabase
+      .channel('public:services')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'services' }, () => {
+        fetchServices();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return (

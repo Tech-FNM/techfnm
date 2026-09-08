@@ -39,6 +39,17 @@ export default function FAQ() {
 
   useEffect(() => {
     fetchFaqs();
+
+    const channel = supabase
+      .channel('public:faqs')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'faqs' }, () => {
+        fetchFaqs();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchFaqs = async () => {

@@ -54,6 +54,17 @@ export default function Testimonials() {
       }
     };
     fetchTestimonials();
+
+    const channel = supabase
+      .channel('public:testimonials')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'testimonials' }, () => {
+        fetchTestimonials();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return (

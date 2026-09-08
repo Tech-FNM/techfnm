@@ -175,17 +175,19 @@ export default function UserManager() {
 
       saveUsersList(updated);
 
-      // Attempt Supabase sync
+      // Sync to Supabase database profiles table
       try {
-        await supabase.from('profiles').upsert(updated.map(u => ({
-          id: typeof u.id === 'string' && u.id.startsWith('user-') ? undefined : u.id,
+        const rows = updated.map(u => ({
+          id: String(u.id),
           name: u.name,
           email: u.email,
           role: u.role,
+          password: u.password || 'TechFNM@2026',
           updated_at: new Date().toISOString()
-        })));
-      } catch {
-        // LocalStorage is source of truth
+        }));
+        await supabase.from('profiles').upsert(rows);
+      } catch (err) {
+        console.error('Database profile sync error:', err);
       }
 
       setIsEditing(false);
@@ -195,7 +197,7 @@ export default function UserManager() {
     }
   };
 
-  const handleDelete = (id: string | number, name: string) => {
+  const handleDelete = async (id: string | number, name: string) => {
     if (users.length <= 1) {
       toast.error('Cannot remove the only remaining administrative user.');
       return;
@@ -204,6 +206,13 @@ export default function UserManager() {
 
     const filtered = users.filter(u => u.id !== id);
     saveUsersList(filtered);
+
+    try {
+      await supabase.from('profiles').delete().eq('id', String(id));
+    } catch (err) {
+      console.error('Database delete error:', err);
+    }
+
     toast.success(`User "${name}" has been deleted.`);
   };
 
