@@ -408,68 +408,6 @@ export default function SeoSettingsPanel({
                 You can change the default type under Content types in the Settings.
               </p>
             </div>
-
-            {/* FAQ SCHEMA BUILDER */}
-            <div className="border border-zinc-800/80 rounded-2xl p-5 bg-[#121217] space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-200">
-                    Frequently Asked Questions (FAQ Schema)
-                  </h4>
-                  <p className="text-[11px] text-zinc-500">
-                    Google automatically renders these FAQ accordions directly under your Google Search listing!
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleAddFaq}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold cursor-pointer transition-all shadow-sm"
-                >
-                  <Plus size={14} />
-                  <span>Add FAQ</span>
-                </button>
-              </div>
-
-              {faqs.length === 0 ? (
-                <div className="py-6 text-center text-zinc-500 text-xs border border-dashed border-zinc-800 rounded-xl">
-                  No FAQs added to schema yet. Click "+ Add FAQ" to generate Google FAQ Rich Snippets!
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {faqs.map((faq, index) => (
-                    <div key={index} className="p-3.5 bg-[#181820] border border-zinc-700/70 rounded-xl space-y-2.5 relative">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-blue-400 font-mono uppercase tracking-wider">
-                          FAQ Item #{index + 1}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFaq(index)}
-                          className="text-red-400 hover:text-red-300 p-1 cursor-pointer"
-                          title="Delete FAQ"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                      <input
-                        type="text"
-                        value={faq.question}
-                        onChange={(e) => handleUpdateFaq(index, 'question', e.target.value)}
-                        placeholder="Question title (e.g. How long does development take?)"
-                        className="w-full bg-[#131318] border border-zinc-800 focus:border-blue-500/50 rounded-lg px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-600 outline-none"
-                      />
-                      <textarea
-                        rows={2}
-                        value={faq.answer}
-                        onChange={(e) => handleUpdateFaq(index, 'answer', e.target.value)}
-                        placeholder="Comprehensive answer text shown directly on search results..."
-                        className="w-full bg-[#131318] border border-zinc-800 focus:border-blue-500/50 rounded-lg p-2.5 text-xs text-zinc-100 placeholder-zinc-600 outline-none resize-y"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
         )}
 
