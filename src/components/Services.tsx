@@ -3,6 +3,7 @@ import { Code, Smartphone, Globe, PenTool, ShoppingCart, Share2 } from 'lucide-r
 import { motion } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import { usePageContent } from '../lib/cmsContent';
+import { CANONICAL_SERVICES, getCached, setCached } from '../lib/canonicalData';
 
 const iconMap: any = {
   Code,
@@ -14,7 +15,7 @@ const iconMap: any = {
 };
 
 export default function Services() {
-  const [services, setServices] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>(() => getCached('techfnm_services_cache', CANONICAL_SERVICES));
   const pageContent = usePageContent('page-home', {
     services_badge: 'What We Do',
     services_heading: 'Our Services',
@@ -24,61 +25,17 @@ export default function Services() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const { data, error } = await supabase.from('services').select('*');
+        const { data, error } = await supabase.from('services').select('*').order('id', { ascending: true });
         
         if (error) {
           console.error('Supabase error fetching services:', error);
-          // Don't throw, just let it fall through to fallback
         }
 
         if (data && data.length > 0) {
           setServices(data);
-        } else {
-          console.log('No services found or error occurred, using fallback data.');
-          setServices([
-            {
-              id: 1,
-              title: 'Web Development',
-              description: 'Get a high-performance, responsive website built with the latest tech to ensure a smooth user experience on any device.',
-              icon: 'Code',
-              color: 'bg-blue-500/10 text-white',
-            },
-            {
-              id: 2,
-              title: 'Content Writing',
-              description: 'We craft compelling, SEO-friendly stories that capture your brand’s voice and turn casual readers into loyal customers.',
-              icon: 'PenTool',
-              color: 'bg-purple-500/10 text-white',
-            },
-            {
-              id: 3,
-              title: 'Digital Marketing',
-              description: 'Drive targeted traffic and boost your brand visibility with our data-driven marketing strategies designed for high growth.',
-              icon: 'Globe',
-              color: 'bg-green-500/10 text-white',
-            },
-            {
-              id: 4,
-              title: 'UI/UX Design',
-              description: 'Intuitive and visually appealing interfaces designed to maximize user engagement and satisfaction.',
-              icon: 'PenTool',
-              color: 'bg-pink-500/10 text-white',
-            },
-            {
-              id: 5,
-              title: 'E-Commerce',
-              description: 'Launch a powerful online store with seamless navigation and secure payment gateways to maximize your global sales.',
-              icon: 'ShoppingCart',
-              color: 'bg-orange-500/10 text-white',
-            },
-            {
-              id: 6,
-              title: 'Social Media',
-              description: 'Build a thriving community and increase engagement across platforms with creative campaigns that get people talking.',
-              icon: 'Share2',
-              color: 'bg-red-500/10 text-white',
-            }
-          ]);
+          setCached('techfnm_services_cache', data);
+        } else if (services.length === 0) {
+          setServices(CANONICAL_SERVICES);
         }
       } catch (err) {
         console.error('Error in fetchServices:', err);

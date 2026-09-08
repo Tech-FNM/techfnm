@@ -1,27 +1,44 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './supabase';
+import { CANONICAL_PAGES_DATA, getCached, setCached } from './canonicalData';
 
 export function getPageData(pageId: string): Record<string, any> {
+  const canonical = CANONICAL_PAGES_DATA[pageId] || {};
+  const cachedPage = getCached<Record<string, any>>(`techfnm_page_cache_${pageId}`, {});
+
   try {
     const raw = localStorage.getItem('techfnm_site_pages_v2');
     if (raw) {
       const pages = JSON.parse(raw);
       const page = pages.find((p: any) => p.id === pageId);
-      if (page && page.sectionsData) {
-        return page.sectionsData;
+      if (page && page.sectionsData && Object.keys(page.sectionsData).length > 0) {
+        return {
+          ...canonical,
+          ...cachedPage,
+          ...page.sectionsData
+        };
       }
     }
   } catch (e) {
     // fallback
   }
-  return {};
+
+  return {
+    ...canonical,
+    ...cachedPage
+  };
 }
 
 export function usePageContent(pageId: string, defaultData: Record<string, any> = {}) {
-  const [data, setData] = useState<Record<string, any>>(() => ({
-    ...defaultData,
-    ...getPageData(pageId)
-  }));
+  const [data, setData] = useState<Record<string, any>>(() => {
+    const canonical = CANONICAL_PAGES_DATA[pageId] || {};
+    const local = getPageData(pageId);
+    return {
+      ...defaultData,
+      ...canonical,
+      ...local
+    };
+  });
 
   useEffect(() => {
     // 1. Initial quick load from local cache
@@ -42,6 +59,7 @@ export function usePageContent(pageId: string, defaultData: Record<string, any> 
 
         if (pageRow && pageRow.sections_data && Object.keys(pageRow.sections_data).length > 0) {
           setData(prev => ({ ...prev, ...pageRow.sections_data }));
+          setCached(`techfnm_page_cache_${pageId}`, pageRow.sections_data);
         }
 
         // B. Check pages_content for individual section entries
@@ -53,7 +71,9 @@ export function usePageContent(pageId: string, defaultData: Record<string, any> 
               Object.assign(remoteObj, item.content);
             }
           });
-          setData(prev => ({ ...prev, ...remoteObj }));
+          if (Object.keys(remoteObj).length > 0) {
+            setData(prev => ({ ...prev, ...remoteObj }));
+          }
         }
       } catch (err) {
         // silent fallback
@@ -82,6 +102,7 @@ export function usePageContent(pageId: string, defaultData: Record<string, any> 
         (payload: any) => {
           if (payload.new && payload.new.id === pageId && payload.new.sections_data) {
             setData(prev => ({ ...prev, ...payload.new.sections_data }));
+            setCached(`techfnm_page_cache_${pageId}`, payload.new.sections_data);
           } else {
             fetchRemote();
           }

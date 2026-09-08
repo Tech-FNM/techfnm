@@ -3,9 +3,10 @@ import { motion } from 'motion/react';
 import { ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { usePageContent } from '../lib/cmsContent';
+import { CANONICAL_PROJECTS, getCached, setCached } from '../lib/canonicalData';
 
 export default function Portfolio() {
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>(() => getCached('techfnm_projects_cache', CANONICAL_PROJECTS));
   const pageContent = usePageContent('page-home', {
     portfolio_badge: 'Portfolio & Project',
     portfolio_heading: 'Our Works',
@@ -15,7 +16,7 @@ export default function Portfolio() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const { data, error } = await supabase.from('projects').select('*');
+        const { data, error } = await supabase.from('projects').select('*').order('id', { ascending: true });
         
         if (error) {
           console.error('Supabase error fetching projects:', error);
@@ -23,46 +24,9 @@ export default function Portfolio() {
 
         if (data && data.length > 0) {
           setProjects(data);
-        } else {
-          console.log('No projects found or error occurred, using fallback data.');
-          setProjects([
-            {
-              id: 1,
-              title: 'E-Commerce Platform',
-              category: 'Web Development',
-              image: 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800',
-            },
-            {
-              id: 2,
-              title: 'Fitness Tracking App',
-              category: 'Mobile App',
-              image: 'https://images.unsplash.com/photo-1526506114642-903c5e470580?auto=format&fit=crop&q=80&w=800',
-            },
-            {
-              id: 3,
-              title: 'Corporate Dashboard',
-              category: 'UI/UX Design',
-              image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
-            },
-            {
-              id: 4,
-              title: 'Real Estate Portal',
-              category: 'Web Development',
-              image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=800',
-            },
-            {
-              id: 5,
-              title: 'Food Delivery App',
-              category: 'Mobile App',
-              image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=800',
-            },
-            {
-              id: 6,
-              title: 'Marketing Campaign',
-              category: 'Digital Marketing',
-              image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800',
-            }
-          ]);
+          setCached('techfnm_projects_cache', data);
+        } else if (projects.length === 0) {
+          setProjects(CANONICAL_PROJECTS);
         }
       } catch (err) {
         console.error('Error in fetchProjects:', err);

@@ -3,32 +3,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Minus, HelpCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { usePageContent } from '../lib/cmsContent';
-
-const DEFAULT_FAQS = [
-  {
-    id: 1,
-    question: 'What technologies does TechFNM specialize in?',
-    answer: 'We specialize in modern web and mobile application development using React, Next.js, TypeScript, TailwindCSS, Node.js, Python, Supabase, PostgreSQL, and AWS cloud infrastructure.'
-  },
-  {
-    id: 2,
-    question: 'How long does a custom web application take to develop?',
-    answer: 'Typical MVP web applications take between 2 to 6 weeks, while large-scale enterprise platforms may take 8 to 12 weeks depending on feature complexity and third-party integrations.'
-  },
-  {
-    id: 3,
-    question: 'Do you offer ongoing post-launch support and maintenance?',
-    answer: 'Yes, we provide 24/7 technical monitoring, database backups, performance optimization, and regular security patching with flexible monthly SLA agreements.'
-  },
-  {
-    id: 4,
-    question: 'How do you handle project management and communication?',
-    answer: 'We follow agile sprint methodologies. You will have direct access to senior engineers via Slack, weekly live video demos, and real-time dashboard progress tracking.'
-  }
-];
+import { CANONICAL_FAQS, getCached, setCached } from '../lib/canonicalData';
 
 export default function FAQ() {
-  const [faqs, setFaqs] = useState<any[]>(DEFAULT_FAQS);
+  const [faqs, setFaqs] = useState<any[]>(() => getCached('techfnm_faqs_cache', CANONICAL_FAQS));
   const [activeIndex, setActiveIndex] = useState<number | null>(0);
 
   const pageContent = usePageContent('page-home', {
@@ -57,6 +35,9 @@ export default function FAQ() {
       const { data, error } = await supabase.from('faqs').select('*').order('created_at', { ascending: true });
       if (data && data.length > 0) {
         setFaqs(data);
+        setCached('techfnm_faqs_cache', data);
+      } else if (faqs.length === 0) {
+        setFaqs(CANONICAL_FAQS);
       }
     } catch (error) {
       console.error('Error fetching FAQs:', error);

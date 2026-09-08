@@ -7,6 +7,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
 import { usePageContent } from '../../lib/cmsContent';
+import { CANONICAL_SERVICES, getCached, setCached } from '../../lib/canonicalData';
 
 const iconMap: any = {
   Code,
@@ -18,16 +19,16 @@ const iconMap: any = {
 };
 
 export default function ServicesPage() {
-  const [services, setServices] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState<any[]>(() => getCached('techfnm_services_cache', CANONICAL_SERVICES));
+  const [loading, setLoading] = useState(false);
 
   const pageContent = usePageContent('page-services', {
-    hero_badge: 'Innovative Solutions',
-    hero_title: 'Our Digital Offerings',
-    hero_desc: 'We offer a wide spectrum of modern design, development, and strategic marketing capabilities to take your business to the next level.',
-    cta_heading: 'Ready to launch your vision?',
-    cta_desc: "Drop us a line and let's craft custom solutions that accelerate your business results.",
-    cta_btn_text: 'Get Started Now',
+    hero_badge: 'What We Offer',
+    hero_title: 'Comprehensive Digital Solutions',
+    hero_desc: 'From concept to deployment, we build high-impact web and mobile solutions designed to accelerate growth.',
+    cta_heading: 'Ready to Build Something Amazing?',
+    cta_desc: "Let's turn your vision into a production-grade software asset.",
+    cta_btn_text: 'Start Free Estimate',
     cta_btn_link: '/request-service'
   });
 
@@ -37,61 +38,15 @@ export default function ServicesPage() {
 
   const fetchServices = async () => {
     try {
-      setLoading(true);
-      const { data, error } = await supabase.from('services').select('*');
+      const { data, error } = await supabase.from('services').select('*').order('id', { ascending: true });
       if (data && data.length > 0) {
         setServices(data);
-      } else {
-        // Fallback static data
-        setServices([
-          {
-            id: 1,
-            title: 'Web Development',
-            description: 'Get a high-performance, responsive website built with the latest tech to ensure a smooth user experience on any device.',
-            icon: 'Code',
-            color: 'bg-red-500/10 text-red-500',
-          },
-          {
-            id: 2,
-            title: 'Content Writing',
-            description: 'We craft compelling, SEO-friendly stories that capture your brand’s voice and turn casual readers into loyal customers.',
-            icon: 'PenTool',
-            color: 'bg-red-500/10 text-red-500',
-          },
-          {
-            id: 3,
-            title: 'Digital Marketing',
-            description: 'Drive targeted traffic and boost your brand visibility with our data-driven marketing strategies designed for high growth.',
-            icon: 'Globe',
-            color: 'bg-red-500/10 text-red-500',
-          },
-          {
-            id: 4,
-            title: 'UI/UX Design',
-            description: 'Intuitive and visually appealing interfaces designed to maximize user engagement and satisfaction.',
-            icon: 'PenTool',
-            color: 'bg-red-500/10 text-red-500',
-          },
-          {
-            id: 5,
-            title: 'E-Commerce',
-            description: 'Launch a powerful online store with seamless navigation and secure payment gateways to maximize your global sales.',
-            icon: 'ShoppingCart',
-            color: 'bg-red-500/10 text-red-500',
-          },
-          {
-            id: 6,
-            title: 'Social Media',
-            description: 'Build a thriving community and increase engagement across platforms with creative campaigns that get people talking.',
-            icon: 'Share2',
-            color: 'bg-red-500/10 text-red-500',
-          }
-        ]);
+        setCached('techfnm_services_cache', data);
+      } else if (services.length === 0) {
+        setServices(CANONICAL_SERVICES);
       }
     } catch (err) {
       console.error('Error fetching services:', err);
-    } finally {
-      setLoading(false);
     }
   };
 

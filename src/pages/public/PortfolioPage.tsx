@@ -5,15 +5,16 @@ import { supabase } from '../../lib/supabase';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
+import { CANONICAL_PROJECTS, getCached, setCached } from '../../lib/canonicalData';
 
 export default function PortfolioPage() {
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>(() => getCached('techfnm_projects_cache', CANONICAL_PROJECTS));
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
 
   // Available categories for filtering
-  const categories = ['All', 'Web Development', 'Mobile App', 'UI/UX Design', 'Digital Marketing'];
+  const categories = ['All', 'Web Development', 'Mobile App', 'UI/UX Design', 'Digital Marketing', 'Graphic Designing'];
 
   useEffect(() => {
     fetchProjects();
@@ -21,61 +22,15 @@ export default function PortfolioPage() {
 
   const fetchProjects = async () => {
     try {
-      setLoading(true);
-      const { data, error } = await supabase.from('projects').select('*');
+      const { data, error } = await supabase.from('projects').select('*').order('id', { ascending: true });
       if (data && data.length > 0) {
         setProjects(data);
-      } else {
-        // Fallback static data
-        setProjects([
-          {
-            id: 1,
-            title: 'E-Commerce Platform',
-            category: 'Web Development',
-            image: 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800',
-            description: 'A robust online shopping platform optimized for performance and sales.'
-          },
-          {
-            id: 2,
-            title: 'Fitness Tracking App',
-            category: 'Mobile App',
-            image: 'https://images.unsplash.com/photo-1526506114642-903c5e470580?auto=format&fit=crop&q=80&w=800',
-            description: 'Intuitive iOS & Android application tracking real-time health metrics.'
-          },
-          {
-            id: 3,
-            title: 'Corporate Dashboard',
-            category: 'UI/UX Design',
-            image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
-            description: 'High-fidelity dashboard designed for comprehensive business insights.'
-          },
-          {
-            id: 4,
-            title: 'Real Estate Portal',
-            category: 'Web Development',
-            image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=800',
-            description: 'Feature-rich property search engine and catalog for real estate.'
-          },
-          {
-            id: 5,
-            title: 'Food Delivery App',
-            category: 'Mobile App',
-            image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=800',
-            description: 'Fast, location-based food ordering and tracking application.'
-          },
-          {
-            id: 6,
-            title: 'Marketing Campaign',
-            category: 'Digital Marketing',
-            image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800',
-            description: 'A data-driven SEO & advertising program maximizing brand reach.'
-          }
-        ]);
+        setCached('techfnm_projects_cache', data);
+      } else if (projects.length === 0) {
+        setProjects(CANONICAL_PROJECTS);
       }
     } catch (err) {
       console.error('Error fetching projects:', err);
-    } finally {
-      setLoading(false);
     }
   };
 

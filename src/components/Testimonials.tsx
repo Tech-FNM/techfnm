@@ -3,13 +3,14 @@ import { motion } from 'motion/react';
 import { Quote } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { usePageContent } from '../lib/cmsContent';
+import { CANONICAL_TESTIMONIALS, getCached, setCached } from '../lib/canonicalData';
 
 export default function Testimonials() {
-  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<any[]>(() => getCached('techfnm_testimonials_cache', CANONICAL_TESTIMONIALS));
   const pageContent = usePageContent('page-home', {
-    testimonials_badge: 'What Clients Say?',
-    testimonials_heading: 'Testimonials',
-    testimonials_desc: "Don't just take our word for it. Hear what our satisfied clients have to say about our services."
+    testimonials_badge: 'Client Voices',
+    testimonials_heading: 'What Founders Say About Us',
+    testimonials_desc: 'Trusted by forward-thinking companies worldwide.'
   });
 
   useEffect(() => {
@@ -23,31 +24,9 @@ export default function Testimonials() {
 
         if (data && data.length > 0) {
           setTestimonials(data);
-        } else {
-          console.log('No testimonials found or error occurred, using fallback data.');
-          setTestimonials([
-            {
-              id: 1,
-              name: 'David Chen',
-              role: 'Tech Startup Founder',
-              content: 'Working with this team was a game-changer for our business. They delivered a high-quality product on time and within budget.',
-              image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200',
-            },
-            {
-              id: 2,
-              name: 'Emily Rodriguez',
-              role: 'E-commerce Director',
-              content: 'The redesign of our online store resulted in a 40% increase in conversions. Their attention to detail and user experience is unmatched.',
-              image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200',
-            },
-            {
-              id: 3,
-              name: 'Michael Chang',
-              role: 'Marketing Manager',
-              content: 'Their digital marketing strategies helped us reach a wider audience and significantly boost our brand awareness across all platforms.',
-              image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
-            }
-          ]);
+          setCached('techfnm_testimonials_cache', data);
+        } else if (testimonials.length === 0) {
+          setTestimonials(CANONICAL_TESTIMONIALS);
         }
       } catch (err) {
         console.error('Error in fetchTestimonials:', err);
@@ -57,7 +36,7 @@ export default function Testimonials() {
 
     const channel = supabase
       .channel('public:testimonials')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'testimonials' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'testimonials' }, (payload: any) => {
         fetchTestimonials();
       })
       .subscribe();

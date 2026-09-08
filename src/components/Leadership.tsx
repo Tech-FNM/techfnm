@@ -3,19 +3,20 @@ import { motion } from 'motion/react';
 import { Linkedin, Twitter, Facebook, Quote } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { usePageContent } from '../lib/cmsContent';
+import { CANONICAL_LEADERSHIP, getCached, setCached } from '../lib/canonicalData';
 
 export default function Leadership() {
-  const [leader, setLeader] = useState<any>(null);
+  const [leader, setLeader] = useState<any>(() => getCached('techfnm_leadership_cache', CANONICAL_LEADERSHIP));
   const pageContent = usePageContent('page-home', {
     leadership_badge: 'Our Leadership',
     leadership_heading: 'Visionary Minds Driving TechFNM',
-    leadership_desc: 'Engineering excellence meets digital growth. TechFNM brings reliability, scale, and high performance to modern businesses worldwide.'
+    leadership_desc: "Meet the executive talent building tomorrow's web."
   });
 
   const [headers, setHeaders] = useState({
     subtitle: 'Our Leadership',
     title: 'Visionary Minds Driving TechFNM',
-    description: 'Engineering excellence meets digital growth. TechFNM brings reliability, scale, and high performance to modern businesses worldwide.'
+    description: "Meet the executive talent building tomorrow's web."
   });
 
   useEffect(() => {
@@ -37,17 +38,9 @@ export default function Leadership() {
         
         if (data) {
           setLeader(data);
-        } else {
-          // TechFNM Founder Profile
-          setLeader({
-            name: 'Naeem Ur Rehman',
-            role: 'Founder & CEO',
-            sub_titles: 'FULL-STACK CLOUD ARCHITECT | DIGITAL STRATEGIST',
-            quote: 'TechFNM was built to engineer digital assets that convert visitors into lifelong partners.',
-            bio: "Based in Pakistan and serving global clientele, TechFNM was founded by Naeem Ur Rehman to deliver production-grade software engineering, modern web applications, and data-driven marketing without the bloat of traditional agencies.",
-            badge_text: 'React | Next.js | Cloud Architecture',
-            image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800'
-          });
+          setCached('techfnm_leadership_cache', data);
+        } else if (!leader) {
+          setLeader(CANONICAL_LEADERSHIP);
         }
       } catch (err) {
         console.error('Error in Leadership fetch:', err);
@@ -58,8 +51,13 @@ export default function Leadership() {
 
     const channel = supabase
       .channel('public:leadership')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'leadership' }, () => {
-        fetchData();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leadership' }, (payload: any) => {
+        if (payload.new) {
+          setLeader(payload.new);
+          setCached('techfnm_leadership_cache', payload.new);
+        } else {
+          fetchData();
+        }
       })
       .subscribe();
 

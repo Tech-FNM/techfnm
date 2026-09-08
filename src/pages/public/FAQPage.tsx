@@ -5,11 +5,12 @@ import { supabase } from '../../lib/supabase';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
+import { CANONICAL_FAQS, getCached, setCached } from '../../lib/canonicalData';
 
 export default function FAQPage() {
-  const [faqs, setFaqs] = useState<any[]>([]);
+  const [faqs, setFaqs] = useState<any[]>(() => getCached('techfnm_faqs_cache', CANONICAL_FAQS));
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchFaqs();
@@ -17,18 +18,16 @@ export default function FAQPage() {
 
   const fetchFaqs = async () => {
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('faqs')
         .select('*')
         .order('created_at', { ascending: true });
-      if (data) {
+      if (data && data.length > 0) {
         setFaqs(data);
+        setCached('techfnm_faqs_cache', data);
       }
     } catch (error) {
       console.error('Error fetching FAQs:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
