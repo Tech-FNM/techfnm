@@ -3,6 +3,7 @@ import { Plus, Trash2, Edit2, ChevronLeft, MessageSquare } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast, Toaster } from 'react-hot-toast';
 import InsertMediaModal from '../../components/admin/InsertMediaModal';
+import SeoSettingsPanel, { SeoSettingsData } from '../../components/admin/SeoSettingsPanel';
 
 export default function PostManager() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -15,6 +16,7 @@ export default function PostManager() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTab, setFilterTab] = useState('all');
   const [mediaModalOpen, setMediaModalOpen] = useState(false);
+  const [seoSettings, setSeoSettings] = useState<SeoSettingsData>({});
 
   const quillRef = useRef<any>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
@@ -91,6 +93,10 @@ export default function PostManager() {
     setTitle(post.title || '');
     setSlug(post.slug || '');
     setImage(post.image || '');
+    setSeoSettings(post.seo_settings || {
+      seoTitle: post.meta_title || post.title,
+      metaDescription: post.meta_description || ''
+    });
     setIsEditing(true);
   };
 
@@ -107,7 +113,10 @@ export default function PostManager() {
         author: 'admin',
         category: selectedPost?.category || 'Uncategorized',
         tags: selectedPost?.tags || '—',
-        comments_count: selectedPost?.comments_count || 0
+        comments_count: selectedPost?.comments_count || 0,
+        meta_title: seoSettings.seoTitle || title,
+        meta_description: seoSettings.metaDescription || '',
+        seo_settings: seoSettings
       };
 
       if (selectedPost) {
@@ -207,6 +216,17 @@ export default function PostManager() {
                 </div>
                 <div ref={editorContainerRef} className="min-h-[380px]" />
               </div>
+
+              {/* YOAST / RANKMATH STYLE SEO SETTINGS PANEL */}
+              <SeoSettingsPanel
+                data={seoSettings}
+                onChange={setSeoSettings}
+                defaultTitle={title}
+                defaultSlug={`/blog/${slug}`}
+                defaultDescription={selectedPost?.meta_description || ''}
+                defaultImage={image}
+                contentType="post"
+              />
 
             </div>
 
@@ -332,7 +352,7 @@ export default function PostManager() {
           <div className="flex items-center gap-4">
             <h2 className="text-2xl font-semibold text-white tracking-tight">Posts</h2>
             <button
-              onClick={() => { setSelectedPost(null); setTitle(''); setSlug(''); setImage(''); setIsEditing(true); }}
+              onClick={() => { setSelectedPost(null); setTitle(''); setSlug(''); setImage(''); setSeoSettings({}); setIsEditing(true); }}
               className="border border-red-600/40 hover:bg-red-950/20 text-red-500 px-3 py-1 text-xs rounded font-bold transition-all"
             >
               Add New

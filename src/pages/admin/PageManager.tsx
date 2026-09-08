@@ -41,6 +41,7 @@ import {
 import { supabase } from '../../lib/supabase';
 import { triggerContentUpdate } from '../../lib/cmsContent';
 import { toast, Toaster } from 'react-hot-toast';
+import SeoSettingsPanel, { SeoSettingsData } from '../../components/admin/SeoSettingsPanel';
 
 interface SectionField {
   key: string;
@@ -71,6 +72,7 @@ interface PageItem {
   template?: string;
   featuredImage?: string;
   sectionsData: Record<string, any>;
+  seoSettings?: SeoSettingsData;
 }
 
 // ── DEFINITION OF SECTIONS FOR EVERY PAGE (A TO Z) ──
@@ -773,7 +775,8 @@ export default function PageManager() {
           template: row.template || 'Default Template',
           featuredImage: row.featured_image || '',
           content: row.content || '',
-          sectionsData: row.sections_data || {}
+          sectionsData: row.sections_data || {},
+          seoSettings: row.seo_settings || row.sections_data?.seo_settings || {}
         }));
 
         // Merge defaults
@@ -828,6 +831,7 @@ export default function PageManager() {
         featured_image: p.featuredImage || '',
         content: p.content || '',
         sections_data: p.sectionsData || {},
+        seo_settings: p.seoSettings || p.sectionsData?.seo_settings || {},
         is_front_page: p.isFrontPage || false,
         updated_at: new Date().toISOString()
       }));
@@ -952,7 +956,8 @@ export default function PageManager() {
     if (page) {
       setEditingPage({
         ...page,
-        sectionsData: { ...page.sectionsData }
+        sectionsData: { ...page.sectionsData },
+        seoSettings: page.seoSettings || page.sectionsData?.seo_settings || {}
       });
       const pageSections = PAGE_SECTIONS_REGISTRY[page.id] || GENERIC_CUSTOM_SECTIONS;
       const initialAccordions: Record<string, boolean> = {};
@@ -974,7 +979,8 @@ export default function PageManager() {
         content: '',
         template: 'Default Template',
         featuredImage: '',
-        sectionsData: {}
+        sectionsData: {},
+        seoSettings: {}
       });
       setOpenSectionAccordions({ custom_hero: true, custom_cta: true });
     }
@@ -1424,6 +1430,17 @@ export default function PageManager() {
                 />
               </div>
             )}
+
+            {/* YOAST / RANKMATH STYLE SEO SETTINGS PANEL */}
+            <SeoSettingsPanel
+              data={editingPage.seoSettings || {}}
+              onChange={(updated) => setEditingPage({ ...editingPage, seoSettings: updated })}
+              defaultTitle={editingPage.title}
+              defaultSlug={editingPage.slug}
+              defaultDescription={editingPage.content || editingPage.sectionsData?.hero_desc || editingPage.sectionsData?.about_desc1 || ''}
+              defaultImage={editingPage.featuredImage || editingPage.sectionsData?.hero_bg_image || editingPage.sectionsData?.about_image || ''}
+              contentType="page"
+            />
 
           </div>
 
