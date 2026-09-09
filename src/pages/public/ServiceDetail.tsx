@@ -19,33 +19,54 @@ const iconMap: any = {
   Share2,
 };
 
+const featIconMap: any = {
+  Code,
+  Smartphone,
+  Globe,
+  PenTool,
+  ShoppingCart,
+  Share2,
+  Shield,
+  Zap,
+  Sparkles,
+  ArrowRight,
+  CheckCircle2
+};
+
+const defaultProcessSteps = [
+  { step: '01', title: 'Consultation & Scope', desc: 'Understanding your product vision, key features, and growth metrics.' },
+  { step: '02', title: 'Strategy & Mockups', desc: 'Creating structured layouts, interactive user paths, and wireframes.' },
+  { step: '03', title: 'Agile Implementation', desc: 'Writing clean, production-ready code with continuous feature reviews.' },
+  { step: '04', title: 'Deployment & Support', desc: 'Launching the system online followed by periodic optimization reports.' }
+];
+
 // Curated custom feature benefits based on service categories/names
 // New services added in future will fallback to generic features dynamically
 const serviceFeaturesFallback: any = {
   'web development': [
-    { title: 'Custom Architectures', desc: 'Custom built codebases optimized for loading speeds, scalability, and security.', icon: Code },
-    { title: 'Responsive Design', desc: 'Perfect layouts across mobile, tablet, and widescreen monitor displays.', icon: Smartphone },
-    { title: 'SEO Optimized Structure', desc: 'Semantic markup designed to help search engine crawlers rank your site higher.', icon: Globe }
+    { title: 'Custom Architectures', desc: 'Custom built codebases optimized for loading speeds, scalability, and security.', icon: 'Code' },
+    { title: 'Responsive Design', desc: 'Perfect layouts across mobile, tablet, and widescreen monitor displays.', icon: 'Smartphone' },
+    { title: 'SEO Optimized Structure', desc: 'Semantic markup designed to help search engine crawlers rank your site higher.', icon: 'Globe' }
   ],
   'content writing': [
-    { title: 'SEO Friendly Copy', desc: 'Crafting texts targeting organic search keywords while maintaining human engagement.', icon: Globe },
-    { title: 'Brand Tone Alignment', desc: 'Aligning vocabulary and voice with your corporate values and targeted demographics.', icon: PenTool },
-    { title: 'Proofread & Ready', desc: 'Flawless execution with ZERO grammatical errors or formatting issues.', icon: Sparkles }
+    { title: 'SEO Friendly Copy', desc: 'Crafting texts targeting organic search keywords while maintaining human engagement.', icon: 'Globe' },
+    { title: 'Brand Tone Alignment', desc: 'Aligning vocabulary and voice with your corporate values and targeted demographics.', icon: 'PenTool' },
+    { title: 'Proofread & Ready', desc: 'Flawless execution with ZERO grammatical errors or formatting issues.', icon: 'Sparkles' }
   ],
   'digital marketing': [
-    { title: 'Data-Driven Insights', desc: 'Targeting demographics based on real-time search trends and customer actions.', icon: Zap },
-    { title: 'Lead Ingestion', desc: 'Converting traffic into actual prospects through structured funnels and CTAs.', icon: ArrowRight },
-    { title: 'High ROI Campaigns', desc: 'Budget allocation focused on channels showing maximum click-through rates.', icon: Shield }
+    { title: 'Data-Driven Insights', desc: 'Targeting demographics based on real-time search trends and customer actions.', icon: 'Zap' },
+    { title: 'Lead Ingestion', desc: 'Converting traffic into actual prospects through structured funnels and CTAs.', icon: 'ArrowRight' },
+    { title: 'High ROI Campaigns', desc: 'Budget allocation focused on channels showing maximum click-through rates.', icon: 'Shield' }
   ],
   'ui/ux design': [
-    { title: 'Interactive Prototypes', desc: 'Before writing code, interact with high fidelity mockups to test workflows.', icon: Sparkles },
-    { title: 'Aesthetic Interfaces', desc: 'Stunning layouts crafted using modern typography, glassmorphism, and color theory.', icon: PenTool },
-    { title: 'User-Centric Journeys', desc: 'Flows designed to minimize friction and lead users straight to checkout or signup.', icon: CheckCircle2 }
+    { title: 'Interactive Prototypes', desc: 'Before writing code, interact with high fidelity mockups to test workflows.', icon: 'Sparkles' },
+    { title: 'Aesthetic Interfaces', desc: 'Stunning layouts crafted using modern typography, glassmorphism, and color theory.', icon: 'PenTool' },
+    { title: 'User-Centric Journeys', desc: 'Flows designed to minimize friction and lead users straight to checkout or signup.', icon: 'CheckCircle2' }
   ],
   'e-commerce': [
-    { title: 'Secure Payment Flow', desc: 'Integration with Stripe, PayPal, and local gateways prioritizing cardholder data safety.', icon: Shield },
-    { title: 'Easy Catalog Updates', desc: 'Admin panel configured to easily update inventory, prices, and discounts.', icon: ShoppingCart },
-    { title: 'Fast Checkouts', desc: 'Minimize cart abandonment with optimized, single-page checkout forms.', icon: Zap }
+    { title: 'Secure Payment Flow', desc: 'Integration with Stripe, PayPal, and local gateways prioritizing cardholder data safety.', icon: 'Shield' },
+    { title: 'Easy Catalog Updates', desc: 'Admin panel configured to easily update inventory, prices, and discounts.', icon: 'ShoppingCart' },
+    { title: 'Fast Checkouts', desc: 'Minimize cart abandonment with optimized, single-page checkout forms.', icon: 'Zap' }
   ]
 };
 
@@ -84,9 +105,9 @@ const genericPricing = [
 ];
 
 const genericFeatures = [
-  { title: 'Tailored Strategy', desc: 'Solutions crafted specifically around your unique business objectives and target audience.', icon: Sparkles },
-  { title: 'Performance First', desc: 'Optimized execution ensuring fast response times and high usability index.', icon: Zap },
-  { title: 'Continuous Support', desc: 'Technical support post-delivery to ensure system updates and stable operation.', icon: Shield }
+  { title: 'Tailored Strategy', desc: 'Solutions crafted specifically around your unique business objectives and target audience.', icon: 'Sparkles' },
+  { title: 'Performance First', desc: 'Optimized execution ensuring fast response times and high usability index.', icon: 'Zap' },
+  { title: 'Continuous Support', desc: 'Technical support post-delivery to ensure system updates and stable operation.', icon: 'Shield' }
 ];
 
 export default function ServiceDetail() {
@@ -198,19 +219,29 @@ export default function ServiceDetail() {
 
   const Icon = iconMap[service.icon] || Code;
   
-  // Resolve features: check custom list, fallback to generic
-  const resolvedFeatures = serviceFeaturesFallback[service.title.toLowerCase()] || genericFeatures;
+  // Resolve Hero Badge
+  const heroBadge = service.hero_badge || service.seo_settings?.hero_badge || 'Innovative Solutions';
 
-  // Resolve plans: check custom list, fallback to generic
-  const resolvedPlans = servicePricingFallback[service.title.toLowerCase()] || genericPricing;
+  // Resolve features: check custom service data, then seo_settings, then fallback
+  const resolvedFeatures = (service.features && service.features.length > 0)
+    ? service.features
+    : (service.seo_settings?.features && service.seo_settings.features.length > 0)
+      ? service.seo_settings.features
+      : (serviceFeaturesFallback[service.title?.toLowerCase()] || genericFeatures);
+
+  // Resolve plans: check custom service data, then seo_settings, then fallback
+  const resolvedPlans = (service.pricing && service.pricing.length > 0)
+    ? service.pricing
+    : (service.seo_settings?.pricing && service.seo_settings.pricing.length > 0)
+      ? service.seo_settings.pricing
+      : (servicePricingFallback[service.title?.toLowerCase()] || genericPricing);
 
   // Process timeline data
-  const processSteps = [
-    { step: '01', title: 'Consultation & Scope', desc: 'Understanding your product vision, key features, and growth metrics.' },
-    { step: '02', title: 'Strategy & Mockups', desc: 'Creating structured layouts, interactive user paths, and wireframes.' },
-    { step: '03', title: 'Agile Implementation', desc: 'Writing clean, production-ready code with continuous feature reviews.' },
-    { step: '04', title: 'Deployment & Support', desc: 'Launching the system online followed by periodic optimization reports.' }
-  ];
+  const resolvedProcessSteps = (service.process_steps && service.process_steps.length > 0)
+    ? service.process_steps
+    : (service.seo_settings?.process_steps && service.seo_settings.process_steps.length > 0)
+      ? service.seo_settings.process_steps
+      : defaultProcessSteps;
 
   return (
     <div className="min-h-screen bg-black font-sans text-white scroll-smooth overflow-x-hidden w-full flex flex-col justify-between animate-fadeIn">
@@ -242,9 +273,16 @@ export default function ServiceDetail() {
             </Link>
 
             {/* Dynamic Service Icon */}
-            <div className="w-16 h-16 rounded-2xl bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-500 shadow-xl shadow-red-950/10 mb-4 animate-pulse">
+            <div className="w-16 h-16 rounded-2xl bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-500 shadow-xl shadow-red-950/10 mb-2 animate-pulse">
               <Icon size={32} />
             </div>
+
+            {heroBadge && (
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold uppercase tracking-wider">
+                <Sparkles size={12} />
+                <span>{heroBadge}</span>
+              </div>
+            )}
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight">
               {service.title}
@@ -283,7 +321,10 @@ export default function ServiceDetail() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {resolvedFeatures.map((feature: any, index: number) => {
-                const FeatIcon = feature.icon || Sparkles;
+                const FeatIcon = typeof feature.icon === 'string'
+                  ? (featIconMap[feature.icon] || Sparkles)
+                  : (feature.icon || Sparkles);
+
                 return (
                   <motion.div
                     key={index}
@@ -314,13 +355,13 @@ export default function ServiceDetail() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-              {processSteps.map((step, index) => (
+              {resolvedProcessSteps.map((step: any, index: number) => (
                 <div key={index} className="space-y-4 relative">
                   <div className="flex items-baseline justify-between">
                     <span className="text-4xl sm:text-5xl font-black text-red-900/40 select-none font-mono">
-                      {step.step}
+                      {step.step || `0${index + 1}`}
                     </span>
-                    {index < 3 && (
+                    {index < resolvedProcessSteps.length - 1 && (
                       <div className="hidden lg:block w-full h-[1px] bg-gradient-to-r from-zinc-800 to-transparent absolute top-6 left-28 z-0" />
                     )}
                   </div>
@@ -374,7 +415,7 @@ export default function ServiceDetail() {
                     <div className="w-full h-[1px] bg-zinc-850/60" />
 
                     <ul className="space-y-3.5">
-                      {plan.features.map((feature: string, idx: number) => (
+                      {(Array.isArray(plan.features) ? plan.features : []).map((feature: string, idx: number) => (
                         <li key={idx} className="flex items-start gap-2.5 text-zinc-400 text-xs sm:text-sm">
                           <CheckCircle2 size={16} className="text-red-500 shrink-0 mt-0.5" />
                           <span>{feature}</span>

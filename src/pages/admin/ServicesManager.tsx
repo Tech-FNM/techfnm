@@ -26,13 +26,39 @@ import {
   PenTool,
   ShoppingCart,
   Share2,
-  CheckCircle2
+  CheckCircle2,
+  Shield,
+  Zap,
+  DollarSign,
+  ArrowRight,
+  ListPlus,
+  CheckSquare
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast, Toaster } from 'react-hot-toast';
 import SeoSettingsPanel, { SeoSettingsData } from '../../components/admin/SeoSettingsPanel';
 import { setCached, CANONICAL_SERVICES } from '../../lib/canonicalData';
 import { triggerContentUpdate } from '../../lib/cmsContent';
+
+export interface FeatureBenefit {
+  title: string;
+  desc: string;
+  icon: string;
+}
+
+export interface PricingPlan {
+  name: string;
+  price: string;
+  period: 'one-time' | 'month';
+  popular: boolean;
+  features: string[];
+}
+
+export interface ProcessStep {
+  step: string;
+  title: string;
+  desc: string;
+}
 
 const AVAILABLE_ICONS = [
   { name: 'Code', icon: Code, label: 'Web / Code' },
@@ -43,6 +69,20 @@ const AVAILABLE_ICONS = [
   { name: 'Share2', icon: Share2, label: 'Social Media' }
 ];
 
+const AVAILABLE_FEATURE_ICONS = [
+  { name: 'Sparkles', icon: Sparkles, label: 'Sparkles / AI' },
+  { name: 'Zap', icon: Zap, label: 'Speed / Fast' },
+  { name: 'Shield', icon: Shield, label: 'Security' },
+  { name: 'Code', icon: Code, label: 'Code / Dev' },
+  { name: 'Smartphone', icon: Smartphone, label: 'Mobile' },
+  { name: 'Globe', icon: Globe, label: 'SEO / Web' },
+  { name: 'PenTool', icon: PenTool, label: 'Design / Creative' },
+  { name: 'ShoppingCart', icon: ShoppingCart, label: 'E-Commerce' },
+  { name: 'Share2', icon: Share2, label: 'Social' },
+  { name: 'CheckCircle2', icon: CheckCircle2, label: 'Verified' },
+  { name: 'ArrowRight', icon: ArrowRight, label: 'Growth' }
+];
+
 const COLOR_PRESETS = [
   { label: 'Red Glow', value: 'bg-red-500/10 text-red-500 border-red-500/30' },
   { label: 'Blue Sky', value: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
@@ -51,6 +91,81 @@ const COLOR_PRESETS = [
   { label: 'Amber Gold', value: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
   { label: 'Rose Pink', value: 'bg-rose-500/10 text-rose-400 border-rose-500/30' }
 ];
+
+const DEFAULT_FEATURES: FeatureBenefit[] = [
+  { title: 'Tailored Strategy', desc: 'Solutions crafted specifically around your unique business objectives and target audience.', icon: 'Sparkles' },
+  { title: 'Performance First', desc: 'Optimized execution ensuring fast response times and high usability index.', icon: 'Zap' },
+  { title: 'Continuous Support', desc: 'Technical support post-delivery to ensure system updates and stable operation.', icon: 'Shield' }
+];
+
+const DEFAULT_PRICING: PricingPlan[] = [
+  { name: 'Essential Pack', price: '$399', period: 'one-time', popular: false, features: ['Basic setup & implementation', 'Optimized standard layouts', '2 Revision cycles', 'Standard support'] },
+  { name: 'Professional Suite', price: '$799', period: 'one-time', popular: true, features: ['Comprehensive custom features', 'High-performance components', '5 Revision cycles', 'Priority support'] },
+  { name: 'Enterprise Custom', price: 'Custom Quote', period: 'one-time', popular: false, features: ['Fully tailored system requirements', 'Unlimited scale architectures', 'Unlimited revisions', 'Dedicated developer resource'] }
+];
+
+const DEFAULT_STEPS: ProcessStep[] = [
+  { step: '01', title: 'Consultation & Scope', desc: 'Understanding your product vision, key features, and growth metrics.' },
+  { step: '02', title: 'Strategy & Mockups', desc: 'Creating structured layouts, interactive user paths, and wireframes.' },
+  { step: '03', title: 'Agile Implementation', desc: 'Writing clean, production-ready code with continuous feature reviews.' },
+  { step: '04', title: 'Deployment & Support', desc: 'Launching the system online followed by periodic optimization reports.' }
+];
+
+const SERVICE_FEATURES_MAP: Record<string, FeatureBenefit[]> = {
+  'web development': [
+    { title: 'Custom Architectures', desc: 'Custom built codebases optimized for loading speeds, scalability, and security.', icon: 'Code' },
+    { title: 'Responsive Design', desc: 'Perfect layouts across mobile, tablet, and widescreen monitor displays.', icon: 'Smartphone' },
+    { title: 'SEO Optimized Structure', desc: 'Semantic markup designed to help search engine crawlers rank your site higher.', icon: 'Globe' }
+  ],
+  'content writing': [
+    { title: 'SEO Friendly Copy', desc: 'Crafting texts targeting organic search keywords while maintaining human engagement.', icon: 'Globe' },
+    { title: 'Brand Tone Alignment', desc: 'Aligning vocabulary and voice with your corporate values and targeted demographics.', icon: 'PenTool' },
+    { title: 'Proofread & Ready', desc: 'Flawless execution with ZERO grammatical errors or formatting issues.', icon: 'Sparkles' }
+  ],
+  'digital marketing': [
+    { title: 'Data-Driven Insights', desc: 'Targeting demographics based on real-time search trends and customer actions.', icon: 'Zap' },
+    { title: 'Lead Ingestion', desc: 'Converting traffic into actual prospects through structured funnels and CTAs.', icon: 'ArrowRight' },
+    { title: 'High ROI Campaigns', desc: 'Budget allocation focused on channels showing maximum click-through rates.', icon: 'Shield' }
+  ],
+  'ui/ux design': [
+    { title: 'Interactive Prototypes', desc: 'Before writing code, interact with high fidelity mockups to test workflows.', icon: 'Sparkles' },
+    { title: 'Aesthetic Interfaces', desc: 'Stunning layouts crafted using modern typography, glassmorphism, and color theory.', icon: 'PenTool' },
+    { title: 'User-Centric Journeys', desc: 'Flows designed to minimize friction and lead users straight to checkout or signup.', icon: 'CheckCircle2' }
+  ],
+  'e-commerce': [
+    { title: 'Secure Payment Flow', desc: 'Integration with Stripe, PayPal, and local gateways prioritizing cardholder data safety.', icon: 'Shield' },
+    { title: 'Easy Catalog Updates', desc: 'Admin panel configured to easily update inventory, prices, and discounts.', icon: 'ShoppingCart' },
+    { title: 'Fast Checkouts', desc: 'Minimize cart abandonment with optimized, single-page checkout forms.', icon: 'Zap' }
+  ]
+};
+
+const SERVICE_PRICING_MAP: Record<string, PricingPlan[]> = {
+  'web development': [
+    { name: 'Starter Pack', price: '$499', period: 'one-time', popular: false, features: ['5 Sections Landing Page', 'Custom Framer Motion animations', 'Basic SEO optimization', '3 Revision cycles', '1 Month post support'] },
+    { name: 'Standard Growth', price: '$999', period: 'one-time', popular: true, features: ['Up to 5 custom pages', 'Interactive dynamic dashboard', 'SEO audit & keyword mapping', '5 Revision cycles', '3 Months priority support'] },
+    { name: 'Enterprise Custom', price: '$2,499', period: 'one-time', popular: false, features: ['Unlimited customized pages', 'API & Serverless integrations', 'Complete design system', 'Unlimited revisions', '12 Months SLA support'] }
+  ],
+  'content writing': [
+    { name: 'Blog Starter', price: '$99', period: 'one-time', popular: false, features: ['3 Custom blogs (1000 words)', 'Keyword SEO research', '1 Revision cycle', 'Turnaround: 5 days'] },
+    { name: 'Brand Authority', price: '$249', period: 'one-time', popular: true, features: ['10 Optimized blogs (1200 words)', 'Topic research & strategy', 'Tone of voice alignment', '3 Revision cycles', 'Turnaround: 10 days'] },
+    { name: 'Full Ingestion Pack', price: '$599', period: 'one-time', popular: false, features: ['Complete website copywriting', 'Continuous newsletter campaigns', 'Meta descriptions & Alt texts', 'Unlimited revisions', 'Dedicated content editor'] }
+  ],
+  'digital marketing': [
+    { name: 'Social Setup', price: '$199', period: 'month', popular: false, features: ['Social audits & profiles setup', '4 Custom creatives/mo', 'Basic hashtag analysis', 'Monthly analytics report'] },
+    { name: 'Lead Multiplier', price: '$499', period: 'month', popular: true, features: ['PPC Ads campaign setup', '12 Custom creatives/mo', 'A/B testing & landing copy', 'Weekly performance sync'] },
+    { name: 'Market Omnipresence', price: '$1,199', period: 'month', popular: false, features: ['Complete Google & Meta PPC management', 'Daily keyword optimization', 'Advanced conversion funnels', 'Dedicated marketing lead'] }
+  ],
+  'ui/ux design': [
+    { name: 'Visual Draft', price: '$299', period: 'one-time', popular: false, features: ['Landing page UI layout design', 'Complete typography & assets', '2 Revision cycles', 'Figma source delivery'] },
+    { name: 'Interactive System', price: '$699', period: 'one-time', popular: true, features: ['Full web/mobile app design system', 'High-fidelity dynamic prototype', 'User journey mapping', '5 Revision cycles', 'Figma dev handoff'] },
+    { name: 'Product Suite Design', price: '$1,499', period: 'one-time', popular: false, features: ['Unlimited product UI assets', 'Full SaaS dashboard design', 'Interactive UX animations', 'Unlimited revisions', 'Design review syncs'] }
+  ],
+  'e-commerce': [
+    { name: 'Shopify Lite', price: '$699', period: 'one-time', popular: false, features: ['Shopify store setup & premium theme', 'Up to 20 products setup', 'Payment & shipping integrations', 'Basic training guide'] },
+    { name: 'Advanced WooCommerce', price: '$1,499', period: 'one-time', popular: true, features: ['Custom WordPress/Next.js store', 'Up to 100 products setup', 'Fast checkout flow integration', '3 Months developer support'] },
+    { name: 'Headless Scaler', price: '$3,499', period: 'one-time', popular: false, features: ['Complete Headless commerce engine', 'Unlimited products / collections', 'ERP & warehouse integrations', 'Custom payment pipelines', '12 Months SLA support'] }
+  ]
+};
 
 interface ServiceItem {
   id: any;
@@ -64,7 +179,16 @@ interface ServiceItem {
   author?: string;
   status?: 'published' | 'draft' | 'trash';
   updated_at?: string;
-  seo_settings?: SeoSettingsData;
+  hero_badge?: string;
+  features?: FeatureBenefit[];
+  pricing?: PricingPlan[];
+  process_steps?: ProcessStep[];
+  seo_settings?: SeoSettingsData & {
+    hero_badge?: string;
+    features?: FeatureBenefit[];
+    pricing?: PricingPlan[];
+    process_steps?: ProcessStep[];
+  };
 }
 
 export default function ServicesManager() {
@@ -109,13 +233,17 @@ export default function ServicesManager() {
           author: row.author || 'admin',
           status: (row.status as any) || 'published',
           updated_at: row.updated_at || new Date().toISOString(),
+          hero_badge: row.hero_badge || row.seo_settings?.hero_badge || '',
+          features: row.features || row.seo_settings?.features,
+          pricing: row.pricing || row.seo_settings?.pricing,
+          process_steps: row.process_steps || row.seo_settings?.process_steps,
           seo_settings: row.seo_settings || {
             seoTitle: row.meta_title,
             metaDescription: row.meta_description
           }
         }));
         setServices(mapped);
-        setCached('techfnm_services_cache', data);
+        setCached('techfnm_services_cache', mapped);
       } else {
         // Use canonical baseline
         setServices(
@@ -141,22 +269,31 @@ export default function ServicesManager() {
     triggerContentUpdate();
 
     try {
-      const rows = updated.map(s => ({
-        id: typeof s.id === 'number' ? s.id : undefined,
-        title: s.title,
-        slug: s.slug,
-        description: s.description,
-        icon: s.icon,
-        color: s.color,
-        image: s.image,
-        content: s.content,
-        author: s.author || 'admin',
-        status: s.status || 'published',
-        meta_title: s.seo_settings?.seoTitle || s.title,
-        meta_description: s.seo_settings?.metaDescription || s.description,
-        seo_settings: s.seo_settings || {},
-        updated_at: new Date().toISOString()
-      }));
+      const rows = updated.map(s => {
+        const extSeo = {
+          ...(s.seo_settings || {}),
+          hero_badge: s.hero_badge,
+          features: s.features,
+          pricing: s.pricing,
+          process_steps: s.process_steps
+        };
+        return {
+          id: typeof s.id === 'number' ? s.id : undefined,
+          title: s.title,
+          slug: s.slug,
+          description: s.description,
+          icon: s.icon,
+          color: s.color,
+          image: s.image,
+          content: s.content,
+          author: s.author || 'admin',
+          status: s.status || 'published',
+          meta_title: s.seo_settings?.seoTitle || s.title,
+          meta_description: s.seo_settings?.metaDescription || s.description,
+          seo_settings: extSeo,
+          updated_at: new Date().toISOString()
+        };
+      });
 
       // Upsert into Supabase services table
       for (const row of rows) {
@@ -243,8 +380,18 @@ export default function ServicesManager() {
   // Full Editor Open
   const openFullEditor = (service?: ServiceItem) => {
     if (service) {
+      const key = (service.title || '').toLowerCase().trim();
+      const existingFeatures = service.features || service.seo_settings?.features || SERVICE_FEATURES_MAP[key] || DEFAULT_FEATURES;
+      const existingPricing = service.pricing || service.seo_settings?.pricing || SERVICE_PRICING_MAP[key] || DEFAULT_PRICING;
+      const existingSteps = service.process_steps || service.seo_settings?.process_steps || DEFAULT_STEPS;
+      const existingHeroBadge = service.hero_badge || service.seo_settings?.hero_badge || 'Innovative Solutions';
+
       setEditingService({
         ...service,
+        hero_badge: existingHeroBadge,
+        features: JSON.parse(JSON.stringify(existingFeatures)),
+        pricing: JSON.parse(JSON.stringify(existingPricing)),
+        process_steps: JSON.parse(JSON.stringify(existingSteps)),
         seo_settings: service.seo_settings || {
           seoTitle: service.title,
           slug: service.slug,
@@ -264,6 +411,10 @@ export default function ServicesManager() {
         author: 'admin',
         status: 'published',
         updated_at: new Date().toISOString(),
+        hero_badge: 'Innovative Solutions',
+        features: JSON.parse(JSON.stringify(DEFAULT_FEATURES)),
+        pricing: JSON.parse(JSON.stringify(DEFAULT_PRICING)),
+        process_steps: JSON.parse(JSON.stringify(DEFAULT_STEPS)),
         seo_settings: {}
       });
     }
@@ -277,15 +428,25 @@ export default function ServicesManager() {
       return;
     }
 
+    const extendedSeoSettings = {
+      ...(editingService.seo_settings || {}),
+      hero_badge: editingService.hero_badge,
+      features: editingService.features,
+      pricing: editingService.pricing,
+      process_steps: editingService.process_steps
+    };
+
     let updatedList: ServiceItem[];
     if (editingService.id) {
       const cleanSlug = `/services/${editingService.id}`;
       const updatedService: ServiceItem = {
         ...editingService,
         slug: cleanSlug,
+        seo_settings: extendedSeoSettings,
         updated_at: new Date().toISOString()
       };
       updatedList = services.map(s => (s.id === updatedService.id ? updatedService : s));
+
       await supabase.from('services').update({
         title: updatedService.title,
         slug: cleanSlug,
@@ -298,7 +459,7 @@ export default function ServicesManager() {
         status: updatedService.status,
         meta_title: updatedService.seo_settings?.seoTitle || updatedService.title,
         meta_description: updatedService.seo_settings?.metaDescription || updatedService.description,
-        seo_settings: updatedService.seo_settings || {},
+        seo_settings: extendedSeoSettings,
         updated_at: new Date().toISOString()
       }).eq('id', updatedService.id);
 
@@ -320,7 +481,7 @@ export default function ServicesManager() {
         status: editingService.status,
         meta_title: editingService.seo_settings?.seoTitle || editingService.title,
         meta_description: editingService.seo_settings?.metaDescription || editingService.description,
-        seo_settings: editingService.seo_settings || {},
+        seo_settings: extendedSeoSettings,
         updated_at: new Date().toISOString()
       }]).select().single();
 
@@ -336,6 +497,7 @@ export default function ServicesManager() {
         ...editingService,
         id: newId,
         slug: cleanSlug,
+        seo_settings: extendedSeoSettings,
         updated_at: new Date().toISOString()
       };
 
@@ -430,17 +592,32 @@ export default function ServicesManager() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* LEFT 8 COLS */}
           <div className="lg:col-span-8 space-y-6">
-            {/* 1. TITLE & SERVICE PAGE URL CARD */}
+            {/* 1. TITLE, HERO BADGE & SERVICE PAGE URL CARD */}
             <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-4 shadow-xl">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">Service Title</label>
-                <input
-                  type="text"
-                  value={editingService.title}
-                  onChange={e => setEditingService({ ...editingService, title: e.target.value })}
-                  placeholder="e.g. Web Development"
-                  className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-3 text-base text-white font-bold placeholder-zinc-600 outline-none transition-all shadow-inner"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">Service Title</label>
+                  <input
+                    type="text"
+                    value={editingService.title}
+                    onChange={e => setEditingService({ ...editingService, title: e.target.value })}
+                    placeholder="e.g. Web Development"
+                    className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-3 text-base text-white font-bold placeholder-zinc-600 outline-none transition-all shadow-inner"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
+                    Hero Badge (Top Pill)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingService.hero_badge || ''}
+                    onChange={e => setEditingService({ ...editingService, hero_badge: e.target.value })}
+                    placeholder="e.g. Full-Cycle Engineering"
+                    className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-all shadow-inner"
+                  />
+                </div>
               </div>
 
               <div className="space-y-1.5">
@@ -494,7 +671,349 @@ export default function ServicesManager() {
               />
             </div>
 
-            {/* 3. DETAILED CONTENT / NARRATIVE */}
+            {/* 3. CORE ADVANTAGES / FEATURES BENEFITS (3-COLUMN GRID) */}
+            <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Sparkles size={16} className="text-red-500" />
+                    <span>Core Advantages (Features Section)</span>
+                  </h3>
+                  <p className="text-[11px] text-zinc-400">
+                    Highlighted cards shown in the 3-column benefits grid on the live service page.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const current = editingService.features || [];
+                    setEditingService({
+                      ...editingService,
+                      features: [
+                        ...current,
+                        { title: 'New Advantage', desc: 'Key outcome, guarantee, or architecture benefit...', icon: 'Sparkles' }
+                      ]
+                    });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs font-semibold transition-all cursor-pointer"
+                >
+                  <Plus size={13} />
+                  <span>Add Advantage</span>
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {(editingService.features || []).map((feat, idx) => (
+                  <div key={idx} className="bg-[#141419] border border-zinc-800 rounded-xl p-3.5 space-y-3 relative">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
+                        Advantage #{idx + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = (editingService.features || []).filter((_, i) => i !== idx);
+                          setEditingService({ ...editingService, features: updated });
+                        }}
+                        className="text-zinc-500 hover:text-red-400 p-1 transition-colors cursor-pointer"
+                        title="Remove Advantage"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                      <div className="sm:col-span-8 space-y-1">
+                        <label className="text-[11px] font-semibold text-zinc-400">Title</label>
+                        <input
+                          type="text"
+                          value={feat.title}
+                          onChange={e => {
+                            const list = [...(editingService.features || [])];
+                            list[idx] = { ...list[idx], title: e.target.value };
+                            setEditingService({ ...editingService, features: list });
+                          }}
+                          placeholder="e.g. Custom Architectures"
+                          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-red-500/50"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-4 space-y-1">
+                        <label className="text-[11px] font-semibold text-zinc-400">Icon</label>
+                        <select
+                          value={feat.icon || 'Sparkles'}
+                          onChange={e => {
+                            const list = [...(editingService.features || [])];
+                            list[idx] = { ...list[idx], icon: e.target.value };
+                            setEditingService({ ...editingService, features: list });
+                          }}
+                          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 outline-none focus:border-red-500/50"
+                        >
+                          {AVAILABLE_FEATURE_ICONS.map(i => (
+                            <option key={i.name} value={i.name}>
+                              {i.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-zinc-400">Description</label>
+                      <textarea
+                        rows={2}
+                        value={feat.desc}
+                        onChange={e => {
+                          const list = [...(editingService.features || [])];
+                          list[idx] = { ...list[idx], desc: e.target.value };
+                          setEditingService({ ...editingService, features: list });
+                        }}
+                        placeholder="Explain how this benefits the client..."
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-200 outline-none focus:border-red-500/50 resize-y"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 4. PRICING TABLES & PACKAGES (3-COLUMN GRID) */}
+            <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <DollarSign size={16} className="text-red-500" />
+                    <span>Pricing Tables & Packages</span>
+                  </h3>
+                  <p className="text-[11px] text-zinc-400">
+                    Manage the 3 pricing tiers displayed on the service page.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const current = editingService.pricing || [];
+                    setEditingService({
+                      ...editingService,
+                      pricing: [
+                        ...current,
+                        {
+                          name: 'New Tier',
+                          price: '$499',
+                          period: 'one-time',
+                          popular: false,
+                          features: ['Deliverable 1', 'Deliverable 2', 'Support included']
+                        }
+                      ]
+                    });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs font-semibold transition-all cursor-pointer"
+                >
+                  <Plus size={13} />
+                  <span>Add Plan</span>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {(editingService.pricing || []).map((plan, idx) => (
+                  <div key={idx} className="bg-[#141419] border border-zinc-800 rounded-xl p-4 space-y-3 relative">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-850 pb-2.5">
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                          Tier #{idx + 1}
+                        </span>
+                        <label className="flex items-center gap-1.5 text-xs text-zinc-300 font-medium cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={plan.popular || false}
+                            onChange={e => {
+                              const list = [...(editingService.pricing || [])];
+                              list[idx] = { ...list[idx], popular: e.target.checked };
+                              setEditingService({ ...editingService, pricing: list });
+                            }}
+                            className="rounded border-zinc-700 text-red-600 focus:ring-red-500 bg-zinc-900"
+                          />
+                          <span className="text-[11px] text-zinc-400">Mark as "Most Popular"</span>
+                        </label>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = (editingService.pricing || []).filter((_, i) => i !== idx);
+                          setEditingService({ ...editingService, pricing: updated });
+                        }}
+                        className="text-zinc-500 hover:text-red-400 p-1 transition-colors cursor-pointer"
+                        title="Remove Plan"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-semibold text-zinc-400">Package Name</label>
+                        <input
+                          type="text"
+                          value={plan.name}
+                          onChange={e => {
+                            const list = [...(editingService.pricing || [])];
+                            list[idx] = { ...list[idx], name: e.target.value };
+                            setEditingService({ ...editingService, pricing: list });
+                          }}
+                          placeholder="e.g. Standard Growth"
+                          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-red-500/50"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-semibold text-zinc-400">Price Display</label>
+                        <input
+                          type="text"
+                          value={plan.price}
+                          onChange={e => {
+                            const list = [...(editingService.pricing || [])];
+                            list[idx] = { ...list[idx], price: e.target.value };
+                            setEditingService({ ...editingService, pricing: list });
+                          }}
+                          placeholder="e.g. $999 or Custom Quote"
+                          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-red-500/50 font-bold"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-semibold text-zinc-400">Billing Cadence</label>
+                        <select
+                          value={plan.period || 'one-time'}
+                          onChange={e => {
+                            const list = [...(editingService.pricing || [])];
+                            list[idx] = { ...list[idx], period: e.target.value as any };
+                            setEditingService({ ...editingService, pricing: list });
+                          }}
+                          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 outline-none focus:border-red-500/50"
+                        >
+                          <option value="one-time">One-time payment (/pack)</option>
+                          <option value="month">Monthly subscription (/mo)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-semibold text-zinc-400">
+                          Included Deliverables & Checklist
+                        </label>
+                        <span className="text-[10px] text-zinc-500">1 deliverable per line</span>
+                      </div>
+                      <textarea
+                        rows={4}
+                        value={Array.isArray(plan.features) ? plan.features.join('\n') : ''}
+                        onChange={e => {
+                          const lines = e.target.value.split('\n');
+                          const list = [...(editingService.pricing || [])];
+                          list[idx] = { ...list[idx], features: lines };
+                          setEditingService({ ...editingService, pricing: list });
+                        }}
+                        placeholder="5 Sections Landing Page&#10;Custom Framer Motion animations&#10;SEO audit & keyword mapping"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-200 outline-none focus:border-red-500/50 resize-y font-mono"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 5. WORKING PROCESS TIMELINE (STEP-BY-STEP) */}
+            <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <ListPlus size={16} className="text-red-500" />
+                    <span>Working Process (Step-by-Step Delivery)</span>
+                  </h3>
+                  <p className="text-[11px] text-zinc-400">
+                    Execution milestones shown in the process section on the service page.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const current = editingService.process_steps || [];
+                    const nextNum = current.length + 1;
+                    setEditingService({
+                      ...editingService,
+                      process_steps: [
+                        ...current,
+                        {
+                          step: nextNum < 10 ? `0${nextNum}` : `${nextNum}`,
+                          title: 'New Milestone',
+                          desc: 'Description of milestone actions...'
+                        }
+                      ]
+                    });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs font-semibold transition-all cursor-pointer"
+                >
+                  <Plus size={13} />
+                  <span>Add Step</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {(editingService.process_steps || []).map((step, idx) => (
+                  <div key={idx} className="bg-[#141419] border border-zinc-800 rounded-xl p-3.5 space-y-2.5 relative">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold font-mono text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
+                        STEP {step.step || `0${idx + 1}`}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = (editingService.process_steps || []).filter((_, i) => i !== idx);
+                          setEditingService({ ...editingService, process_steps: updated });
+                        }}
+                        className="text-zinc-500 hover:text-red-400 p-1 transition-colors cursor-pointer"
+                        title="Remove Step"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-zinc-400">Stage Title</label>
+                      <input
+                        type="text"
+                        value={step.title}
+                        onChange={e => {
+                          const list = [...(editingService.process_steps || [])];
+                          list[idx] = { ...list[idx], title: e.target.value };
+                          setEditingService({ ...editingService, process_steps: list });
+                        }}
+                        placeholder="e.g. Consultation & Scope"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-red-500/50 font-medium"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-zinc-400">Description</label>
+                      <textarea
+                        rows={2}
+                        value={step.desc}
+                        onChange={e => {
+                          const list = [...(editingService.process_steps || [])];
+                          list[idx] = { ...list[idx], desc: e.target.value };
+                          setEditingService({ ...editingService, process_steps: list });
+                        }}
+                        placeholder="What is delivered during this phase..."
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-200 outline-none focus:border-red-500/50 resize-y"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 6. DETAILED CONTENT / NARRATIVE */}
             <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-3 shadow-xl">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
@@ -511,7 +1030,7 @@ export default function ServicesManager() {
               />
             </div>
 
-            {/* 4. YOAST / RANKMATH STYLE SEO SETTINGS PANEL */}
+            {/* 7. YOAST / RANKMATH STYLE SEO SETTINGS PANEL */}
             <SeoSettingsPanel
               data={editingService.seo_settings || {}}
               onChange={updated => setEditingService({ ...editingService, seo_settings: updated })}
