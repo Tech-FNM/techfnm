@@ -191,6 +191,17 @@ interface ServiceItem {
   };
 }
 
+export const formatSlug = (val?: string, fallback: string = '') => {
+  const clean = (val || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^\/services\//, '')
+    .replace(/^\//, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-_]/g, '');
+  return clean || fallback;
+};
+
 export default function ServicesManager() {
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -221,27 +232,32 @@ export default function ServicesManager() {
       setLoading(true);
       const { data, error } = await supabase.from('services').select('*').order('id', { ascending: true });
       if (data && data.length > 0) {
-        const mapped: ServiceItem[] = data.map((row: any) => ({
-          id: row.id,
-          title: row.title || 'Untitled Service',
-          slug: `/services/${row.id}`,
-          description: row.description || '',
-          icon: row.icon || 'Code',
-          color: row.color || 'bg-red-500/10 text-red-500',
-          image: row.image || row.featured_image || '',
-          content: row.content || '',
-          author: row.author || 'admin',
-          status: (row.status as any) || 'published',
-          updated_at: row.updated_at || new Date().toISOString(),
-          hero_badge: row.hero_badge || row.seo_settings?.hero_badge || '',
-          features: row.features || row.seo_settings?.features,
-          pricing: row.pricing || row.seo_settings?.pricing,
-          process_steps: row.process_steps || row.seo_settings?.process_steps,
-          seo_settings: row.seo_settings || {
-            seoTitle: row.meta_title,
-            metaDescription: row.meta_description
-          }
-        }));
+        const mapped: ServiceItem[] = data.map((row: any) => {
+          const rawSlug = row.slug || String(row.id);
+          const currentSlug = formatSlug(rawSlug, String(row.id));
+          return {
+            id: row.id,
+            title: row.title || 'Untitled Service',
+            slug: currentSlug,
+            description: row.description || '',
+            icon: row.icon || 'Code',
+            color: row.color || 'bg-red-500/10 text-red-500',
+            image: row.image || row.featured_image || '',
+            content: row.content || '',
+            author: row.author || 'admin',
+            status: (row.status as any) || 'published',
+            updated_at: row.updated_at || new Date().toISOString(),
+            hero_badge: row.hero_badge || row.seo_settings?.hero_badge || '',
+            features: row.features || row.seo_settings?.features,
+            pricing: row.pricing || row.seo_settings?.pricing,
+            process_steps: row.process_steps || row.seo_settings?.process_steps,
+            seo_settings: row.seo_settings || {
+              seoTitle: row.meta_title,
+              metaDescription: row.meta_description,
+              slug: currentSlug
+            }
+          };
+        });
         setServices(mapped);
         setCached('techfnm_services_cache', mapped);
       } else {
@@ -249,7 +265,7 @@ export default function ServicesManager() {
         setServices(
           CANONICAL_SERVICES.map((s: any) => ({
             ...s,
-            slug: `/services/${s.id}`,
+            slug: s.slug ? formatSlug(s.slug, String(s.id)) : String(s.id),
             author: 'admin',
             status: 'published',
             updated_at: new Date().toISOString()
@@ -270,8 +286,10 @@ export default function ServicesManager() {
 
     try {
       const rows = updated.map(s => {
+        const currentSlug = formatSlug(s.slug, String(s.id || ''));
         const extSeo = {
           ...(s.seo_settings || {}),
+          slug: currentSlug,
           hero_badge: s.hero_badge,
           features: s.features,
           pricing: s.pricing,
@@ -280,7 +298,7 @@ export default function ServicesManager() {
         return {
           id: typeof s.id === 'number' ? s.id : undefined,
           title: s.title,
-          slug: s.slug,
+          slug: currentSlug,
           description: s.description,
           icon: s.icon,
           color: s.color,
@@ -385,17 +403,20 @@ export default function ServicesManager() {
       const existingPricing = service.pricing || service.seo_settings?.pricing || SERVICE_PRICING_MAP[key] || DEFAULT_PRICING;
       const existingSteps = service.process_steps || service.seo_settings?.process_steps || DEFAULT_STEPS;
       const existingHeroBadge = service.hero_badge || service.seo_settings?.hero_badge || 'Innovative Solutions';
+      const currentSlug = formatSlug(service.slug || service.seo_settings?.slug, String(service.id || ''));
 
       setEditingService({
         ...service,
+        slug: currentSlug,
         hero_badge: existingHeroBadge,
         features: JSON.parse(JSON.stringify(existingFeatures)),
         pricing: JSON.parse(JSON.stringify(existingPricing)),
         process_steps: JSON.parse(JSON.stringify(existingSteps)),
-        seo_settings: service.seo_settings || {
-          seoTitle: service.title,
-          slug: service.slug,
-          metaDescription: service.description
+        seo_settings: {
+          ...(service.seo_settings || {}),
+          seoTitle: service.seo_settings?.seoTitle || service.title,
+          slug: currentSlug,
+          metaDescription: service.seo_settings?.metaDescription || service.description
         }
       });
     } else {
@@ -428,8 +449,14 @@ export default function ServicesManager() {
       return;
     }
 
+    const targetSlug = formatSlug(
+      editingService.slug || editingService.seo_settings?.slug,
+      editingService.title ? formatSlug(editingService.title) : (editingService.id ? String(editingService.id) : '')
+    );
+
     const extendedSeoSettings = {
       ...(editingService.seo_settings || {}),
+      slug: targetSlug,
       hero_badge: editingService.hero_badge,
       features: editingService.features,
       pricing: editingService.pricing,
@@ -438,18 +465,18 @@ export default function ServicesManager() {
 
     let updatedList: ServiceItem[];
     if (editingService.id) {
-      const cleanSlug = `/services/${editingService.id}`;
+      const finalSlug = targetSlug || String(editingService.id);
       const updatedService: ServiceItem = {
         ...editingService,
-        slug: cleanSlug,
-        seo_settings: extendedSeoSettings,
+        slug: finalSlug,
+        seo_settings: { ...extendedSeoSettings, slug: finalSlug },
         updated_at: new Date().toISOString()
       };
       updatedList = services.map(s => (s.id === updatedService.id ? updatedService : s));
 
       await supabase.from('services').update({
         title: updatedService.title,
-        slug: cleanSlug,
+        slug: finalSlug,
         description: updatedService.description,
         icon: updatedService.icon,
         color: updatedService.color,
@@ -459,7 +486,7 @@ export default function ServicesManager() {
         status: updatedService.status,
         meta_title: updatedService.seo_settings?.seoTitle || updatedService.title,
         meta_description: updatedService.seo_settings?.metaDescription || updatedService.description,
-        seo_settings: extendedSeoSettings,
+        seo_settings: { ...extendedSeoSettings, slug: finalSlug },
         updated_at: new Date().toISOString()
       }).eq('id', updatedService.id);
 
@@ -468,10 +495,11 @@ export default function ServicesManager() {
       triggerContentUpdate();
       setIsFullEditing(false);
       setEditingService(null);
-      toast.success(`Service "${updatedService.title}" updated successfully!`);
+      toast.success(`Service "${updatedService.title}" updated successfully! Slug: /services/${finalSlug}`);
     } else {
       const { data: newRow } = await supabase.from('services').insert([{
         title: editingService.title,
+        slug: targetSlug || null,
         description: editingService.description,
         icon: editingService.icon,
         color: editingService.color,
@@ -486,18 +514,18 @@ export default function ServicesManager() {
       }]).select().single();
 
       const newId = newRow ? newRow.id : Date.now();
-      const cleanSlug = `/services/${newId}`;
+      const finalSlug = targetSlug || String(newId);
 
-      // Update the generated slug with the id
-      if (newRow) {
-        await supabase.from('services').update({ slug: cleanSlug }).eq('id', newId);
+      // Update the generated slug in DB if auto-assigned
+      if (newRow && !targetSlug) {
+        await supabase.from('services').update({ slug: finalSlug }).eq('id', newId);
       }
 
       const createdService: ServiceItem = {
         ...editingService,
         id: newId,
-        slug: cleanSlug,
-        seo_settings: extendedSeoSettings,
+        slug: finalSlug,
+        seo_settings: { ...extendedSeoSettings, slug: finalSlug },
         updated_at: new Date().toISOString()
       };
 
@@ -507,21 +535,26 @@ export default function ServicesManager() {
       triggerContentUpdate();
       setIsFullEditing(false);
       setEditingService(null);
-      toast.success(`Service "${createdService.title}" created successfully at ${cleanSlug}!`);
+      toast.success(`Service "${createdService.title}" created successfully at /services/${finalSlug}!`);
     }
   };
 
   // Quick Edit Save
   const saveQuickEdit = async () => {
     if (!quickEditingId) return;
+    const cleanSlug = formatSlug(quickEditData.slug, String(quickEditingId));
     const updated = services.map(s => {
       if (s.id === quickEditingId) {
         return {
           ...s,
           title: quickEditData.title,
-          slug: `/services/${s.id}`,
+          slug: cleanSlug,
           icon: quickEditData.icon,
-          status: quickEditData.status
+          status: quickEditData.status,
+          seo_settings: {
+            ...(s.seo_settings || {}),
+            slug: cleanSlug
+          }
         };
       }
       return s;
@@ -623,11 +656,11 @@ export default function ServicesManager() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
-                    Dedicated Service Page URL
+                    Dedicated Service Page URL / Slug
                   </label>
-                  {editingService.id && (
+                  {(editingService.slug || editingService.id) && (
                     <a
-                      href={`/services/${editingService.id}`}
+                      href={`/services/${editingService.slug || editingService.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[11px] text-red-400 hover:text-red-300 flex items-center gap-1 font-semibold"
@@ -637,23 +670,80 @@ export default function ServicesManager() {
                     </a>
                   )}
                 </div>
-                <div className="flex items-center justify-between bg-[#141419] border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs">
-                  <span className="text-zinc-300 font-mono">
-                    https://techfnm.com/services/<span className="text-red-400 font-bold">{editingService.id || 'auto-assigned'}</span>
-                  </span>
-                  {editingService.id && (
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-[#141419] border border-zinc-800 rounded-xl px-3.5 py-2 text-xs focus-within:border-red-600/50 transition-colors gap-2">
+                  <div className="flex items-center flex-1">
+                    <span className="text-zinc-500 font-mono select-none whitespace-nowrap">
+                      https://techfnm.com/services/
+                    </span>
+                    <input
+                      type="text"
+                      value={editingService.slug || ''}
+                      onChange={e => {
+                        const newSlug = e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '');
+                        setEditingService({
+                          ...editingService,
+                          slug: newSlug,
+                          seo_settings: {
+                            ...(editingService.seo_settings || {}),
+                            slug: newSlug
+                          }
+                        });
+                      }}
+                      placeholder={editingService.id ? String(editingService.id) : 'custom-slug'}
+                      className="flex-1 bg-transparent text-red-400 font-mono font-bold outline-none border-none px-1"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0 justify-end">
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(`https://techfnm.com/services/${editingService.id}`);
+                        const generated = formatSlug(editingService.title, String(editingService.id || 'service'));
+                        setEditingService({
+                          ...editingService,
+                          slug: generated,
+                          seo_settings: { ...(editingService.seo_settings || {}), slug: generated }
+                        });
+                        toast.success('Slug generated from title!');
+                      }}
+                      className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-[10px] text-zinc-300 font-semibold cursor-pointer transition-colors"
+                      title="Generate slug from title"
+                    >
+                      From Title
+                    </button>
+                    {editingService.id && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const idSlug = String(editingService.id);
+                          setEditingService({
+                            ...editingService,
+                            slug: idSlug,
+                            seo_settings: { ...(editingService.seo_settings || {}), slug: idSlug }
+                          });
+                          toast.success(`Slug set to ID (${idSlug})!`);
+                        }}
+                        className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-[10px] text-zinc-300 font-semibold cursor-pointer transition-colors"
+                        title="Use ID as slug"
+                      >
+                        Use ID
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const fullUrl = `https://techfnm.com/services/${editingService.slug || editingService.id}`;
+                        navigator.clipboard.writeText(fullUrl);
                         toast.success('Service URL copied to clipboard!');
                       }}
                       className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[11px] font-semibold transition-colors cursor-pointer"
                     >
                       Copy URL
                     </button>
-                  )}
+                  </div>
                 </div>
+                <p className="text-[11px] text-zinc-500">
+                  Aap yahan slug ko numeric (jaise <span className="text-zinc-400 font-mono">4</span>) ya custom text (jaise <span className="text-zinc-400 font-mono">web-development</span>) me tabdeel kar sakte hain.
+                </p>
               </div>
             </div>
 
@@ -1032,10 +1122,23 @@ export default function ServicesManager() {
 
             {/* 7. YOAST / RANKMATH STYLE SEO SETTINGS PANEL */}
             <SeoSettingsPanel
-              data={editingService.seo_settings || {}}
-              onChange={updated => setEditingService({ ...editingService, seo_settings: updated })}
+              data={{
+                ...(editingService.seo_settings || {}),
+                slug: editingService.slug || (editingService.id ? String(editingService.id) : '')
+              }}
+              onChange={updated => {
+                const cleanSlugFromSeo = formatSlug(updated.slug, editingService.slug);
+                setEditingService({
+                  ...editingService,
+                  slug: cleanSlugFromSeo,
+                  seo_settings: {
+                    ...updated,
+                    slug: cleanSlugFromSeo
+                  }
+                });
+              }}
               defaultTitle={editingService.title}
-              defaultSlug={editingService.id ? `/services/${editingService.id}` : '/services'}
+              defaultSlug={editingService.slug ? `/services/${editingService.slug}` : (editingService.id ? `/services/${editingService.id}` : '/services')}
               defaultDescription={editingService.description}
               defaultImage={editingService.image}
               contentType="service"
@@ -1330,9 +1433,19 @@ export default function ServicesManager() {
                               />
                             </div>
                             <div className="space-y-1">
-                              <label className="text-[11px] text-zinc-400 block font-medium">Service URL</label>
-                              <div className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-red-400 font-mono">
-                                /services/{quickEditingId}
+                              <label className="text-[11px] text-zinc-400 block font-medium">Service Slug</label>
+                              <div className="flex items-center bg-zinc-950 border border-zinc-700 rounded-lg px-2.5 py-1 text-xs">
+                                <span className="text-zinc-500 font-mono mr-1">/services/</span>
+                                <input
+                                  type="text"
+                                  value={quickEditData.slug}
+                                  onChange={e => setQuickEditData({
+                                    ...quickEditData,
+                                    slug: e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '')
+                                  })}
+                                  placeholder={String(quickEditingId)}
+                                  className="w-full bg-transparent border-none text-red-400 font-mono font-bold outline-none"
+                                />
                               </div>
                             </div>
                             <div className="space-y-1">
@@ -1391,7 +1504,7 @@ export default function ServicesManager() {
                             {service.title}
                           </button>
                           <span className="text-[11px] text-zinc-400 font-mono block truncate max-w-md">
-                            https://techfnm.com/services/{service.id}
+                            https://techfnm.com/services/{service.slug || service.id}
                           </span>
 
                           {/* Action links */}
@@ -1408,7 +1521,7 @@ export default function ServicesManager() {
                                 setQuickEditingId(service.id);
                                 setQuickEditData({
                                   title: service.title,
-                                  slug: `/services/${service.id}`,
+                                  slug: service.slug || String(service.id),
                                   icon: service.icon,
                                   status: service.status === 'trash' ? 'draft' : (service.status as any)
                                 });

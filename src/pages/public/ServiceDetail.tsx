@@ -122,20 +122,41 @@ export default function ServiceDetail() {
   const fetchServiceDetail = async () => {
     try {
       setLoading(true);
+      const cleanParam = (id || '').trim();
       
-      // 1. Try Supabase query by id
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
+      // 1. Try Supabase query by numeric id or slug
+      let serviceData: any = null;
 
-      if (data) {
-        setService(data);
+      if (!isNaN(Number(cleanParam))) {
+        const { data: byId } = await supabase
+          .from('services')
+          .select('*')
+          .eq('id', Number(cleanParam))
+          .maybeSingle();
+        if (byId) serviceData = byId;
+      }
+
+      if (!serviceData) {
+        const { data: bySlug } = await supabase
+          .from('services')
+          .select('*')
+          .or(`slug.eq.${cleanParam},slug.eq./services/${cleanParam},slug.eq./${cleanParam}`)
+          .maybeSingle();
+        if (bySlug) serviceData = bySlug;
+      }
+
+      if (serviceData) {
+        setService(serviceData);
       } else {
         // 2. Check cached or canonical services
         const cached = getCached('techfnm_services_cache', CANONICAL_SERVICES);
-        const match = cached?.find((item: any) => String(item.id) === String(id) || item.slug === id || item.slug === `/services/${id}`);
+        const match = cached?.find((item: any) => {
+          const sId = String(item.id);
+          const sSlug = String(item.slug || '').replace(/^\/services\//, '').replace(/^\//, '');
+          const cleanP = cleanParam.replace(/^\/services\//, '').replace(/^\//, '');
+          return sId === cleanP || sSlug === cleanP || item.slug === cleanParam || item.slug === `/services/${cleanParam}`;
+        });
+
         if (match) {
           setService(match);
         } else {
@@ -144,6 +165,7 @@ export default function ServiceDetail() {
             {
               id: '1',
               title: 'Digital Marketing',
+              slug: 'digital-marketing',
               description: 'Drive targeted traffic and boost your brand visibility with our data-driven marketing strategies designed for high growth.',
               icon: 'Globe',
               color: 'bg-red-500/10 text-red-500',
@@ -151,6 +173,7 @@ export default function ServiceDetail() {
             {
               id: '2',
               title: 'Content Writing',
+              slug: 'content-writing',
               description: 'We craft compelling, SEO-friendly stories that capture your brand’s voice and turn casual readers into loyal customers.',
               icon: 'PenTool',
               color: 'bg-red-500/10 text-red-500',
@@ -158,6 +181,7 @@ export default function ServiceDetail() {
             {
               id: '3',
               title: 'Ecommerce',
+              slug: 'ecommerce',
               description: 'Launch a powerful online store with seamless navigation and secure payment gateways to maximize your global sales.',
               icon: 'ShoppingCart',
               color: 'bg-red-500/10 text-red-500',
@@ -165,6 +189,7 @@ export default function ServiceDetail() {
             {
               id: '4',
               title: 'Social Media',
+              slug: 'social-media',
               description: 'Build a thriving community and increase engagement across platforms with creative campaigns that get people talking.',
               icon: 'Share2',
               color: 'bg-red-500/10 text-red-500',
@@ -172,6 +197,7 @@ export default function ServiceDetail() {
             {
               id: '5',
               title: 'Web Development',
+              slug: 'web-development',
               description: 'Get a high-performance, responsive website built with the latest tech to ensure a smooth user experience on any device.',
               icon: 'Code',
               color: 'bg-red-500/10 text-red-500',
@@ -179,12 +205,13 @@ export default function ServiceDetail() {
             {
               id: '6',
               title: 'App Development',
+              slug: 'app-development',
               description: 'Build fast, scalable mobile and web apps tailored to your business needs — delivering smooth performance across all platforms worldwide.',
               icon: 'Smartphone',
               color: 'bg-red-500/10 text-red-500',
             }
           ];
-          const fMatch = fallbacks.find(item => String(item.id) === String(id));
+          const fMatch = fallbacks.find(item => String(item.id) === cleanParam || item.slug === cleanParam);
           if (fMatch) {
             setService(fMatch);
           }
