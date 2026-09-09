@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Trash2, Edit2, ChevronLeft, MessageSquare } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast, Toaster } from 'react-hot-toast';
@@ -6,6 +7,9 @@ import InsertMediaModal from '../../components/admin/InsertMediaModal';
 import SeoSettingsPanel, { SeoSettingsData } from '../../components/admin/SeoSettingsPanel';
 
 export default function PostManager() {
+  const navigate = useNavigate();
+  const { action, itemId } = useParams();
+
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -97,8 +101,50 @@ export default function PostManager() {
       seoTitle: post.meta_title || post.title,
       metaDescription: post.meta_description || ''
     });
+    if (String(post.id) !== itemId || action !== 'edit') {
+      navigate(`/admin/posts/edit/${post.id}`);
+    }
     setIsEditing(true);
   };
+
+  const handleNew = () => {
+    setSelectedPost(null);
+    setTitle('');
+    setSlug('');
+    setImage('');
+    setSeoSettings({});
+    if (action !== 'new') {
+      navigate('/admin/posts/new');
+    }
+    setIsEditing(true);
+  };
+
+  const closeEditor = () => {
+    setIsEditing(false);
+    setSelectedPost(null);
+    if (action) {
+      navigate('/admin/posts');
+    }
+  };
+
+  useEffect(() => {
+    if (posts.length === 0) return;
+    if (action === 'edit' && itemId) {
+      const target = posts.find(p => String(p.id) === itemId || p.slug === itemId);
+      if (target) {
+        if (!selectedPost || String(selectedPost.id) !== String(target.id)) {
+          handleEdit(target);
+        }
+      }
+    } else if (action === 'new') {
+      if (!isEditing || selectedPost !== null) {
+        handleNew();
+      }
+    } else if (!action && isEditing) {
+      setIsEditing(false);
+      setSelectedPost(null);
+    }
+  }, [action, itemId, posts.length]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,8 +176,7 @@ export default function PostManager() {
         else fetchPosts();
         toast.success('New blog post published');
       }
-      setIsEditing(false);
-      setSelectedPost(null);
+      closeEditor();
     } catch (err: any) { toast.error(err.message || 'Error saving post'); }
   };
 
@@ -172,8 +217,8 @@ export default function PostManager() {
             </h2>
             <button
               type="button"
-              onClick={() => setIsEditing(false)}
-              className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-xs font-semibold"
+              onClick={closeEditor}
+              className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-xs font-semibold cursor-pointer"
             >
               <ChevronLeft size={16} /> Back to list
             </button>
@@ -352,8 +397,8 @@ export default function PostManager() {
           <div className="flex items-center gap-4">
             <h2 className="text-2xl font-semibold text-white tracking-tight">Posts</h2>
             <button
-              onClick={() => { setSelectedPost(null); setTitle(''); setSlug(''); setImage(''); setSeoSettings({}); setIsEditing(true); }}
-              className="border border-red-600/40 hover:bg-red-950/20 text-red-500 px-3 py-1 text-xs rounded font-bold transition-all"
+              onClick={handleNew}
+              className="border border-red-600/40 hover:bg-red-950/20 text-red-500 px-3 py-1 text-xs rounded font-bold transition-all cursor-pointer"
             >
               Add New
             </button>

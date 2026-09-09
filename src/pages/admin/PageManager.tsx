@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Plus,
   Trash2,
@@ -709,6 +710,9 @@ const DEFAULT_PAGES: PageItem[] = [
 ];
 
 export default function PageManager() {
+  const navigate = useNavigate();
+  const { action, itemId } = useParams();
+
   const [pages, setPages] = useState<PageItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -965,6 +969,9 @@ export default function PageManager() {
         initialAccordions[s.id] = idx === 0;
       });
       setOpenSectionAccordions(initialAccordions);
+      if (itemId !== page.id || action !== 'edit') {
+        navigate(`/admin/pages/edit/${page.id}`);
+      }
     } else {
       const newId = `page-${Date.now()}`;
       setEditingPage({
@@ -983,10 +990,40 @@ export default function PageManager() {
         seoSettings: {}
       });
       setOpenSectionAccordions({ custom_hero: true, custom_cta: true });
+      if (action !== 'new') {
+        navigate('/admin/pages/new');
+      }
     }
     setEditorSubTab('sections');
     setIsFullEditing(true);
   };
+
+  const closeFullEditor = () => {
+    setIsFullEditing(false);
+    setEditingPage(null);
+    if (action) {
+      navigate('/admin/pages');
+    }
+  };
+
+  useEffect(() => {
+    if (pages.length === 0) return;
+    if (action === 'edit' && itemId) {
+      const target = pages.find(p => p.id === itemId || p.slug === itemId || p.slug === `/${itemId}`);
+      if (target) {
+        if (!editingPage || editingPage.id !== target.id) {
+          openFullEditor(target);
+        }
+      }
+    } else if (action === 'new') {
+      if (!isFullEditing) {
+        openFullEditor();
+      }
+    } else if (!action && isFullEditing) {
+      setIsFullEditing(false);
+      setEditingPage(null);
+    }
+  }, [action, itemId, pages.length]);
 
   const toggleAccordion = (secId: string) => {
     setOpenSectionAccordions(prev => ({
@@ -1104,8 +1141,7 @@ export default function PageManager() {
       // silent fallback
     }
 
-    setIsFullEditing(false);
-    setEditingPage(null);
+    closeFullEditor();
     toast.success(`Page "${updatedPage.title}" & all sections published successfully!`);
   };
 
@@ -1130,7 +1166,7 @@ export default function PageManager() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-800/80 pb-3.5">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => { setIsFullEditing(false); setEditingPage(null); }}
+              onClick={closeFullEditor}
               className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-850 transition-colors cursor-pointer"
               title="Return to Pages list"
             >
@@ -1175,7 +1211,7 @@ export default function PageManager() {
 
             <button
               type="button"
-              onClick={() => { setIsFullEditing(false); setEditingPage(null); }}
+              onClick={closeFullEditor}
               className="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-white text-xs font-semibold border border-zinc-800 transition-colors cursor-pointer"
             >
               Cancel

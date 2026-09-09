@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Briefcase,
   Plus,
@@ -203,6 +204,9 @@ export const formatSlug = (val?: string, fallback: string = '') => {
 };
 
 export default function ServicesManager() {
+  const navigate = useNavigate();
+  const { action, itemId } = useParams();
+
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'published' | 'draft' | 'trash'>('all');
@@ -419,6 +423,9 @@ export default function ServicesManager() {
           metaDescription: service.seo_settings?.metaDescription || service.description
         }
       });
+      if (String(service.id) !== itemId || action !== 'edit') {
+        navigate(`/admin/services/edit/${service.id}`);
+      }
     } else {
       setEditingService({
         id: null,
@@ -438,9 +445,39 @@ export default function ServicesManager() {
         process_steps: JSON.parse(JSON.stringify(DEFAULT_STEPS)),
         seo_settings: {}
       });
+      if (action !== 'new') {
+        navigate('/admin/services/new');
+      }
     }
     setIsFullEditing(true);
   };
+
+  const closeFullEditor = () => {
+    setIsFullEditing(false);
+    setEditingService(null);
+    if (action) {
+      navigate('/admin/services');
+    }
+  };
+
+  useEffect(() => {
+    if (services.length === 0) return;
+    if (action === 'edit' && itemId) {
+      const target = services.find(s => String(s.id) === itemId || s.slug === itemId);
+      if (target) {
+        if (!editingService || String(editingService.id) !== String(target.id)) {
+          openFullEditor(target);
+        }
+      }
+    } else if (action === 'new') {
+      if (!isFullEditing) {
+        openFullEditor();
+      }
+    } else if (!action && isFullEditing) {
+      setIsFullEditing(false);
+      setEditingService(null);
+    }
+  }, [action, itemId, services.length]);
 
   // Save Full Editor
   const saveFullEditor = async () => {
@@ -493,8 +530,7 @@ export default function ServicesManager() {
       setServices(updatedList);
       setCached('techfnm_services_cache', updatedList);
       triggerContentUpdate();
-      setIsFullEditing(false);
-      setEditingService(null);
+      closeFullEditor();
       toast.success(`Service "${updatedService.title}" updated successfully! Slug: /services/${finalSlug}`);
     } else {
       const { data: newRow } = await supabase.from('services').insert([{
@@ -533,8 +569,7 @@ export default function ServicesManager() {
       setServices(updatedList);
       setCached('techfnm_services_cache', updatedList);
       triggerContentUpdate();
-      setIsFullEditing(false);
-      setEditingService(null);
+      closeFullEditor();
       toast.success(`Service "${createdService.title}" created successfully at /services/${finalSlug}!`);
     }
   };
@@ -593,7 +628,7 @@ export default function ServicesManager() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-800/80 pb-3.5">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => { setIsFullEditing(false); setEditingService(null); }}
+              onClick={closeFullEditor}
               className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-850 transition-colors cursor-pointer"
               title="Return to Services list"
             >

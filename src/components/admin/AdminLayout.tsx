@@ -47,7 +47,7 @@ interface NavSection {
 
 export default function AdminLayout({ children, activeTab }: AdminLayoutProps) {
   const navigate = useNavigate();
-  const { tab: pathTab } = useParams();
+  const { tab: pathTab, action: pathAction, itemId: pathItemId } = useParams();
   const [searchParams] = useSearchParams();
   const currentTab =
     activeTab ||
@@ -317,9 +317,24 @@ export default function AdminLayout({ children, activeTab }: AdminLayoutProps) {
               <span className="text-zinc-600 hidden sm:inline">/</span>
               <span className="text-zinc-400 font-medium">Console</span>
               <span className="text-zinc-600">/</span>
-              <span className="text-white font-semibold px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800">
+              <button
+                onClick={() => selectTab(currentTab)}
+                className={`font-semibold px-2.5 py-1 rounded-lg border transition-colors ${
+                  pathAction
+                    ? 'text-zinc-400 hover:text-white bg-zinc-950 border-zinc-800 cursor-pointer'
+                    : 'text-white bg-zinc-900 border-zinc-800'
+                }`}
+              >
                 {currentTabLabel}
-              </span>
+              </button>
+              {pathAction && (
+                <>
+                  <span className="text-zinc-600">/</span>
+                  <span className="text-red-400 font-bold px-2.5 py-1 rounded-lg bg-red-950/30 border border-red-900/40 capitalize">
+                    {pathAction === 'new' ? 'Add New' : `Edit ${pathItemId || ''}`.trim()}
+                  </span>
+                </>
+              )}
             </div>
           </div>
 

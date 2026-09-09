@@ -27,6 +27,8 @@ function App() {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/dashboard/:tab" element={<AdminDashboard />} />
         <Route path="/admin/:tab" element={<AdminDashboard />} />
+        <Route path="/admin/:tab/:action" element={<AdminDashboard />} />
+        <Route path="/admin/:tab/:action/:itemId" element={<AdminDashboard />} />
         
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />

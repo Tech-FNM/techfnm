@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   FolderGit2,
   Plus,
@@ -55,6 +56,9 @@ interface ProjectItem {
 }
 
 export default function PortfolioManager() {
+  const navigate = useNavigate();
+  const { action, itemId } = useParams();
+
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'published' | 'draft' | 'trash'>('all');
@@ -267,12 +271,14 @@ export default function PortfolioManager() {
   };
 
   // Open Full Editor
-  // Open Full Editor
   const openFullEditor = (project?: ProjectItem) => {
     if (project) {
       setEditingProject({
         ...project
       });
+      if (String(project.id) !== itemId || action !== 'edit') {
+        navigate(`/admin/portfolio/edit/${project.id}`);
+      }
     } else {
       setEditingProject({
         id: null,
@@ -289,9 +295,39 @@ export default function PortfolioManager() {
         updated_at: new Date().toISOString(),
         seo_settings: {}
       });
+      if (action !== 'new') {
+        navigate('/admin/portfolio/new');
+      }
     }
     setIsFullEditing(true);
   };
+
+  const closeFullEditor = () => {
+    setIsFullEditing(false);
+    setEditingProject(null);
+    if (action) {
+      navigate('/admin/portfolio');
+    }
+  };
+
+  useEffect(() => {
+    if (projects.length === 0) return;
+    if (action === 'edit' && itemId) {
+      const target = projects.find(p => String(p.id) === itemId);
+      if (target) {
+        if (!editingProject || String(editingProject.id) !== String(target.id)) {
+          openFullEditor(target);
+        }
+      }
+    } else if (action === 'new') {
+      if (!isFullEditing) {
+        openFullEditor();
+      }
+    } else if (!action && isFullEditing) {
+      setIsFullEditing(false);
+      setEditingProject(null);
+    }
+  }, [action, itemId, projects.length]);
 
   // Save Full Editor
   const saveFullEditor = async () => {
@@ -355,8 +391,7 @@ export default function PortfolioManager() {
     setCached('techfnm_projects_cache', updatedList);
     triggerContentUpdate();
 
-    setIsFullEditing(false);
-    setEditingProject(null);
+    closeFullEditor();
     toast.success(`Project "${updatedProject.title}" saved successfully!`);
   };
 
@@ -408,7 +443,7 @@ export default function PortfolioManager() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-800/80 pb-3.5">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => { setIsFullEditing(false); setEditingProject(null); }}
+              onClick={closeFullEditor}
               className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-850 transition-colors cursor-pointer"
               title="Return to Portfolio list"
             >
