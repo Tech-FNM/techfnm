@@ -80,10 +80,19 @@ async function main() {
         icon TEXT DEFAULT 'Code',
         color TEXT DEFAULT 'bg-red-500/10 text-red-500',
         image TEXT DEFAULT '',
+        featured_image TEXT DEFAULT '',
         slug TEXT UNIQUE,
         content TEXT,
+        author TEXT DEFAULT 'admin',
+        status TEXT DEFAULT 'published',
         meta_title TEXT,
         meta_description TEXT,
+        hero_badge TEXT DEFAULT '',
+        features JSONB DEFAULT '[]'::jsonb,
+        pricing JSONB DEFAULT '[]'::jsonb,
+        process_steps JSONB DEFAULT '[]'::jsonb,
+        seo_settings JSONB DEFAULT '{}'::jsonb,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
       );
     `);

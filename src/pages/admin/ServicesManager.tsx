@@ -237,7 +237,7 @@ export default function ServicesManager() {
       const { data, error } = await supabase.from('services').select('*').order('id', { ascending: true });
       if (data && data.length > 0) {
         const mapped: ServiceItem[] = data.map((row: any) => {
-          const rawSlug = row.slug || String(row.id);
+          const rawSlug = row.slug || row.seo_settings?.slug || String(row.id);
           const currentSlug = formatSlug(rawSlug, String(row.id));
           return {
             id: row.id,
@@ -252,9 +252,9 @@ export default function ServicesManager() {
             status: (row.status as any) || 'published',
             updated_at: row.updated_at || new Date().toISOString(),
             hero_badge: row.hero_badge || row.seo_settings?.hero_badge || '',
-            features: row.features || row.seo_settings?.features,
-            pricing: row.pricing || row.seo_settings?.pricing,
-            process_steps: row.process_steps || row.seo_settings?.process_steps,
+            features: (Array.isArray(row.features) && row.features.length > 0) ? row.features : (row.seo_settings?.features),
+            pricing: (Array.isArray(row.pricing) && row.pricing.length > 0) ? row.pricing : (row.seo_settings?.pricing),
+            process_steps: (Array.isArray(row.process_steps) && row.process_steps.length > 0) ? row.process_steps : (row.seo_settings?.process_steps),
             seo_settings: row.seo_settings || {
               seoTitle: row.meta_title,
               metaDescription: row.meta_description,
@@ -306,8 +306,13 @@ export default function ServicesManager() {
           description: s.description,
           icon: s.icon,
           color: s.color,
-          image: s.image,
-          content: s.content,
+          image: s.image || '',
+          featured_image: s.image || '',
+          hero_badge: s.hero_badge || '',
+          features: s.features || [],
+          pricing: s.pricing || [],
+          process_steps: s.process_steps || [],
+          content: s.content || '',
           author: s.author || 'admin',
           status: s.status || 'published',
           meta_title: s.seo_settings?.seoTitle || s.title,
@@ -511,21 +516,32 @@ export default function ServicesManager() {
       };
       updatedList = services.map(s => (s.id === updatedService.id ? updatedService : s));
 
-      await supabase.from('services').update({
+      const { error: updateError } = await supabase.from('services').update({
         title: updatedService.title,
         slug: finalSlug,
         description: updatedService.description,
         icon: updatedService.icon,
         color: updatedService.color,
-        image: updatedService.image,
-        content: updatedService.content,
-        author: updatedService.author,
-        status: updatedService.status,
+        image: updatedService.image || '',
+        featured_image: updatedService.image || '',
+        hero_badge: updatedService.hero_badge || '',
+        features: updatedService.features || [],
+        pricing: updatedService.pricing || [],
+        process_steps: updatedService.process_steps || [],
+        content: updatedService.content || '',
+        author: updatedService.author || 'admin',
+        status: updatedService.status || 'published',
         meta_title: updatedService.seo_settings?.seoTitle || updatedService.title,
         meta_description: updatedService.seo_settings?.metaDescription || updatedService.description,
         seo_settings: { ...extendedSeoSettings, slug: finalSlug },
         updated_at: new Date().toISOString()
       }).eq('id', updatedService.id);
+
+      if (updateError) {
+        console.error('Failed to update service in Supabase:', updateError);
+        toast.error('Failed to save to database: ' + updateError.message);
+        return;
+      }
 
       setServices(updatedList);
       setCached('techfnm_services_cache', updatedList);
@@ -533,21 +549,32 @@ export default function ServicesManager() {
       setEditingService(updatedService);
       toast.success(`Service "${updatedService.title}" updated successfully! Slug: /services/${finalSlug}`);
     } else {
-      const { data: newRow } = await supabase.from('services').insert([{
+      const { data: newRow, error: insertError } = await supabase.from('services').insert([{
         title: editingService.title,
         slug: targetSlug || null,
         description: editingService.description,
         icon: editingService.icon,
         color: editingService.color,
-        image: editingService.image,
-        content: editingService.content,
-        author: editingService.author,
-        status: editingService.status,
+        image: editingService.image || '',
+        featured_image: editingService.image || '',
+        hero_badge: editingService.hero_badge || '',
+        features: editingService.features || [],
+        pricing: editingService.pricing || [],
+        process_steps: editingService.process_steps || [],
+        content: editingService.content || '',
+        author: editingService.author || 'admin',
+        status: editingService.status || 'published',
         meta_title: editingService.seo_settings?.seoTitle || editingService.title,
         meta_description: editingService.seo_settings?.metaDescription || editingService.description,
         seo_settings: extendedSeoSettings,
         updated_at: new Date().toISOString()
       }]).select().single();
+
+      if (insertError) {
+        console.error('Failed to insert service in Supabase:', insertError);
+        toast.error('Failed to create service in database: ' + insertError.message);
+        return;
+      }
 
       const newId = newRow ? newRow.id : Date.now();
       const finalSlug = targetSlug || String(newId);
