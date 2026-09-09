@@ -391,7 +391,10 @@ export default function PortfolioManager() {
     setCached('techfnm_projects_cache', updatedList);
     triggerContentUpdate();
 
-    closeFullEditor();
+    setEditingProject(updatedProject);
+    if (action === 'new') {
+      navigate(`/admin/portfolio/edit/${updatedProject.id}`, { replace: true });
+    }
     toast.success(`Project "${updatedProject.title}" saved successfully!`);
   };
 

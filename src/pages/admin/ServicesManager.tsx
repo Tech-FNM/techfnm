@@ -530,7 +530,7 @@ export default function ServicesManager() {
       setServices(updatedList);
       setCached('techfnm_services_cache', updatedList);
       triggerContentUpdate();
-      closeFullEditor();
+      setEditingService(updatedService);
       toast.success(`Service "${updatedService.title}" updated successfully! Slug: /services/${finalSlug}`);
     } else {
       const { data: newRow } = await supabase.from('services').insert([{
@@ -569,7 +569,10 @@ export default function ServicesManager() {
       setServices(updatedList);
       setCached('techfnm_services_cache', updatedList);
       triggerContentUpdate();
-      closeFullEditor();
+      setEditingService(createdService);
+      if (action === 'new') {
+        navigate(`/admin/services/edit/${createdService.id}`, { replace: true });
+      }
       toast.success(`Service "${createdService.title}" created successfully at /services/${finalSlug}!`);
     }
   };

@@ -167,16 +167,23 @@ export default function PostManager() {
 
       if (selectedPost) {
         const { error } = await supabase.from('blogs').update(payload).eq('id', selectedPost.id);
-        if (error) setPosts(posts.map(p => p.id === selectedPost.id ? { ...p, ...payload } : p));
+        const updated = { ...selectedPost, ...payload };
+        if (error) setPosts(posts.map(p => p.id === selectedPost.id ? updated : p));
         else fetchPosts();
+        setSelectedPost(updated);
         toast.success('Post updated successfully');
       } else {
-        const { error } = await supabase.from('blogs').insert([payload]);
-        if (error) setPosts([{ id: Date.now(), ...payload, created_at: new Date().toISOString() }, ...posts]);
+        const newId = Date.now();
+        const { data: newRow, error } = await supabase.from('blogs').insert([payload]).select().single();
+        const created = newRow || { id: newId, ...payload, created_at: new Date().toISOString() };
+        if (error) setPosts([created, ...posts]);
         else fetchPosts();
+        setSelectedPost(created);
+        if (action === 'new') {
+          navigate(`/admin/posts/edit/${created.id}`, { replace: true });
+        }
         toast.success('New blog post published');
       }
-      closeEditor();
     } catch (err: any) { toast.error(err.message || 'Error saving post'); }
   };
 

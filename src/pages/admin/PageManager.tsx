@@ -1141,7 +1141,10 @@ export default function PageManager() {
       // silent fallback
     }
 
-    closeFullEditor();
+    setEditingPage(updatedPage);
+    if (action === 'new') {
+      navigate(`/admin/pages/edit/${updatedPage.id}`, { replace: true });
+    }
     toast.success(`Page "${updatedPage.title}" & all sections published successfully!`);
   };
 
