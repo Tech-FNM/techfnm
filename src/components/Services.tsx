@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Code, Smartphone, Globe, PenTool, ShoppingCart, Share2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Code, Smartphone, Globe, PenTool, ShoppingCart, Share2, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import { usePageContent } from '../lib/cmsContent';
@@ -82,15 +83,28 @@ export default function Services() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-zinc-900 rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-zinc-800 group hover:border-red-500/30 overflow-hidden relative"
+                className="bg-zinc-900 rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-zinc-800 group hover:border-red-500/30 overflow-hidden relative flex flex-col justify-between"
               >
-                <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 ${service.color || 'bg-red-500/10 text-red-500'} group-hover:scale-110 transition-transform`}>
-                  <Icon size={28} />
+                <div>
+                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 ${service.color || 'bg-red-500/10 text-red-500'} group-hover:scale-110 transition-transform`}>
+                    <Icon size={28} />
+                  </div>
+                  <Link to={`/services/${service.id}`} className="block">
+                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors">{service.title}</h3>
+                  </Link>
+                  <p className="text-gray-400 leading-relaxed text-sm">
+                    {service.description}
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors">{service.title}</h3>
-                <p className="text-gray-400 leading-relaxed">
-                  {service.description}
-                </p>
+                <div className="pt-6">
+                  <Link
+                    to={`/services/${service.id}`}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-red-500 hover:text-red-400 transition-colors group/link"
+                  >
+                    <span>View Service Page</span>
+                    <ArrowRight size={13} className="transform group-hover/link:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
               </motion.div>
             );
           })}

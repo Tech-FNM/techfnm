@@ -131,7 +131,7 @@ export default function DashboardHome() {
     {
       label: 'Services Offered',
       value: stats.services,
-      subtitle: 'Live catalog items',
+      subtitle: 'Live service pages',
       badge: 'Online',
       icon: Briefcase,
       tab: 'services',
@@ -169,7 +169,7 @@ export default function DashboardHome() {
   // Quick Action Jumpcards
   const quickActions = [
     {
-      title: 'Services Catalog',
+      title: 'Services Management',
       desc: 'Add, update pricing, descriptions & capabilities',
       tab: 'services',
       icon: Briefcase,

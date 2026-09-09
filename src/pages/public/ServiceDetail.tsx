@@ -8,6 +8,7 @@ import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
 import Testimonials from '../../components/Testimonials';
 import FAQ from '../../components/FAQ';
+import { CANONICAL_SERVICES, getCached } from '../../lib/canonicalData';
 
 const iconMap: any = {
   Code,
@@ -100,63 +101,72 @@ export default function ServiceDetail() {
   const fetchServiceDetail = async () => {
     try {
       setLoading(true);
+      
+      // 1. Try Supabase query by id
       const { data, error } = await supabase
         .from('services')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (data) {
         setService(data);
       } else {
-        // Local fallback matching by ID
-        const fallbacks = [
-          {
-            id: '1',
-            title: 'Web Development',
-            description: 'Get a high-performance, responsive website built with the latest tech to ensure a smooth user experience on any device.',
-            icon: 'Code',
-            color: 'bg-red-500/10 text-red-500',
-          },
-          {
-            id: '2',
-            title: 'Content Writing',
-            description: 'We craft compelling, SEO-friendly stories that capture your brand’s voice and turn casual readers into loyal customers.',
-            icon: 'PenTool',
-            color: 'bg-red-500/10 text-red-500',
-          },
-          {
-            id: '3',
-            title: 'Digital Marketing',
-            description: 'Drive targeted traffic and boost your brand visibility with our data-driven marketing strategies designed for high growth.',
-            icon: 'Globe',
-            color: 'bg-red-500/10 text-red-500',
-          },
-          {
-            id: '4',
-            title: 'UI/UX Design',
-            description: 'Intuitive and visually appealing interfaces designed to maximize user engagement and satisfaction.',
-            icon: 'PenTool',
-            color: 'bg-red-500/10 text-red-500',
-          },
-          {
-            id: '5',
-            title: 'E-Commerce',
-            description: 'Launch a powerful online store with seamless navigation and secure payment gateways to maximize your global sales.',
-            icon: 'ShoppingCart',
-            color: 'bg-red-500/10 text-red-500',
-          },
-          {
-            id: '6',
-            title: 'Social Media',
-            description: 'Build a thriving community and increase engagement across platforms with creative campaigns that get people talking.',
-            icon: 'Share2',
-            color: 'bg-red-500/10 text-red-500',
-          }
-        ];
-        const match = fallbacks.find(item => item.id === id);
+        // 2. Check cached or canonical services
+        const cached = getCached('techfnm_services_cache', CANONICAL_SERVICES);
+        const match = cached?.find((item: any) => String(item.id) === String(id) || item.slug === id || item.slug === `/services/${id}`);
         if (match) {
           setService(match);
+        } else {
+          // 3. Fallback matching
+          const fallbacks = [
+            {
+              id: '1',
+              title: 'Digital Marketing',
+              description: 'Drive targeted traffic and boost your brand visibility with our data-driven marketing strategies designed for high growth.',
+              icon: 'Globe',
+              color: 'bg-red-500/10 text-red-500',
+            },
+            {
+              id: '2',
+              title: 'Content Writing',
+              description: 'We craft compelling, SEO-friendly stories that capture your brand’s voice and turn casual readers into loyal customers.',
+              icon: 'PenTool',
+              color: 'bg-red-500/10 text-red-500',
+            },
+            {
+              id: '3',
+              title: 'Ecommerce',
+              description: 'Launch a powerful online store with seamless navigation and secure payment gateways to maximize your global sales.',
+              icon: 'ShoppingCart',
+              color: 'bg-red-500/10 text-red-500',
+            },
+            {
+              id: '4',
+              title: 'Social Media',
+              description: 'Build a thriving community and increase engagement across platforms with creative campaigns that get people talking.',
+              icon: 'Share2',
+              color: 'bg-red-500/10 text-red-500',
+            },
+            {
+              id: '5',
+              title: 'Web Development',
+              description: 'Get a high-performance, responsive website built with the latest tech to ensure a smooth user experience on any device.',
+              icon: 'Code',
+              color: 'bg-red-500/10 text-red-500',
+            },
+            {
+              id: '6',
+              title: 'App Development',
+              description: 'Build fast, scalable mobile and web apps tailored to your business needs — delivering smooth performance across all platforms worldwide.',
+              icon: 'Smartphone',
+              color: 'bg-red-500/10 text-red-500',
+            }
+          ];
+          const fMatch = fallbacks.find(item => String(item.id) === String(id));
+          if (fMatch) {
+            setService(fMatch);
+          }
         }
       }
     } catch (err) {
@@ -204,7 +214,14 @@ export default function ServiceDetail() {
 
   return (
     <div className="min-h-screen bg-black font-sans text-white scroll-smooth overflow-x-hidden w-full flex flex-col justify-between animate-fadeIn">
-      <SeoHead pageId="services" />
+      <SeoHead
+        pageId="services"
+        title={service.meta_title || service.seo_settings?.seoTitle || `${service.title} | TechFNM`}
+        description={service.meta_description || service.seo_settings?.metaDescription || service.description}
+        image={service.image}
+        url={`https://techfnm.com/services/${service.id}`}
+        seoSettings={service.seo_settings}
+      />
       <Header />
 
       <main className="flex-grow">
@@ -238,6 +255,23 @@ export default function ServiceDetail() {
             </p>
           </div>
         </section>
+
+        {/* DETAILED CONTENT SECTION */}
+        {service.content && service.content.trim().length > 0 && (
+          <section className="py-16 bg-black px-4 sm:px-6 lg:px-8 border-b border-zinc-900">
+            <div className="max-w-4xl mx-auto space-y-6">
+              <div className="space-y-2 text-center sm:text-left">
+                <span className="text-red-500 font-semibold tracking-wider uppercase text-xs sm:text-sm block">
+                  Service Scope & Deliverables
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-bold text-white">Comprehensive Overview</h2>
+              </div>
+              <div className="text-zinc-300 text-sm sm:text-base leading-relaxed whitespace-pre-line bg-zinc-950/80 border border-zinc-850 p-8 rounded-3xl shadow-xl">
+                {service.content}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* FEATURES GRID SECTION */}
         <section className="py-20 bg-zinc-950 px-4 sm:px-6 lg:px-8 border-b border-zinc-900">

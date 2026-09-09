@@ -119,7 +119,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     {
       title: 'Content & Media',
       items: [
-        { id: 'services', label: 'Services Catalog', icon: Briefcase },
+        { id: 'services', label: 'Services', icon: Briefcase },
         { id: 'portfolio', label: 'Portfolio Works', icon: FolderGit2 },
         { id: 'posts', label: 'Posts & Blogs', icon: FileText },
         { id: 'pages', label: 'Page Management', icon: LayoutGrid },

@@ -13,8 +13,19 @@ export default function PortfolioPage() {
   const [loading, setLoading] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
 
-  // Available categories for filtering
-  const categories = ['All', 'Web Development', 'Mobile App', 'UI/UX Design', 'Digital Marketing', 'Graphic Designing'];
+  // Dynamic categories for filtering
+  const dynamicCategories = Array.from(
+    new Set([
+      'All',
+      'Web Development',
+      'Mobile App',
+      'UI/UX Design',
+      'Digital Marketing',
+      'Graphic Designing',
+      'E-Commerce',
+      ...projects.map(p => p.category).filter(Boolean)
+    ])
+  );
 
   useEffect(() => {
     fetchProjects();
@@ -72,7 +83,7 @@ export default function PortfolioPage() {
             
             {/* Filter Tabs */}
             <div className="flex flex-wrap justify-center gap-3">
-              {categories.map((category) => (
+              {dynamicCategories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}

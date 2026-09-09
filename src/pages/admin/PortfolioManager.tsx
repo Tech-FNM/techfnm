@@ -26,11 +26,10 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast, Toaster } from 'react-hot-toast';
-import SeoSettingsPanel, { SeoSettingsData } from '../../components/admin/SeoSettingsPanel';
 import { setCached, CANONICAL_PROJECTS } from '../../lib/canonicalData';
 import { triggerContentUpdate } from '../../lib/cmsContent';
 
-const PROJECT_CATEGORIES = [
+const DEFAULT_CATEGORIES = [
   'Web Development',
   'Mobile App',
   'UI/UX Design',
@@ -52,7 +51,7 @@ interface ProjectItem {
   author?: string;
   status?: 'published' | 'draft' | 'trash';
   updated_at?: string;
-  seo_settings?: SeoSettingsData;
+  seo_settings?: any;
 }
 
 export default function PortfolioManager() {
@@ -63,6 +62,20 @@ export default function PortfolioManager() {
   const [selectedIds, setSelectedIds] = useState<any[]>([]);
   const [bulkAction, setBulkAction] = useState('');
 
+  // Categories State
+  const [categories, setCategories] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem('techfnm_project_categories');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return Array.from(new Set([...DEFAULT_CATEGORIES, ...parsed]));
+      }
+    } catch {}
+    return DEFAULT_CATEGORIES;
+  });
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+
   // Full Editor State
   const [isFullEditing, setIsFullEditing] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectItem | null>(null);
@@ -71,10 +84,30 @@ export default function PortfolioManager() {
   const [quickEditingId, setQuickEditingId] = useState<any | null>(null);
   const [quickEditData, setQuickEditData] = useState({
     title: '',
-    slug: '',
     category: 'Web Development',
     status: 'published' as 'published' | 'draft'
   });
+
+  const handleCreateCategory = (initialName?: string) => {
+    const name = (initialName || newCategoryName).trim();
+    if (!name) {
+      toast.error('Please enter a category name.');
+      return;
+    }
+    if (!categories.includes(name)) {
+      const updated = [...categories, name];
+      setCategories(updated);
+      try {
+        localStorage.setItem('techfnm_project_categories', JSON.stringify(updated));
+      } catch {}
+    }
+    if (editingProject) {
+      setEditingProject({ ...editingProject, category: name });
+    }
+    setNewCategoryName('');
+    setIsAddingCategory(false);
+    toast.success(`Category "${name}" added and selected!`);
+  };
 
   useEffect(() => {
     fetchProjects();
@@ -98,13 +131,19 @@ export default function PortfolioManager() {
           author: row.author || 'admin',
           status: (row.status as any) || 'published',
           updated_at: row.updated_at || new Date().toISOString(),
-          seo_settings: row.seo_settings || {
-            seoTitle: row.title,
-            metaDescription: row.description
-          }
+          seo_settings: row.seo_settings || {}
         }));
         setProjects(mapped);
         setCached('techfnm_projects_cache', data);
+
+        const extractedCats = data.map((p: any) => p.category).filter(Boolean);
+        if (extractedCats.length > 0) {
+          setCategories(prev => {
+            const merged = Array.from(new Set([...prev, ...extractedCats]));
+            try { localStorage.setItem('techfnm_project_categories', JSON.stringify(merged)); } catch {}
+            return merged;
+          });
+        }
       } else {
         setProjects(
           CANONICAL_PROJECTS.map((p: any) => ({
@@ -228,22 +267,18 @@ export default function PortfolioManager() {
   };
 
   // Open Full Editor
+  // Open Full Editor
   const openFullEditor = (project?: ProjectItem) => {
     if (project) {
       setEditingProject({
-        ...project,
-        seo_settings: project.seo_settings || {
-          seoTitle: project.title,
-          slug: project.slug,
-          metaDescription: project.description
-        }
+        ...project
       });
     } else {
       setEditingProject({
         id: null,
         title: '',
         slug: '',
-        category: 'Web Development',
+        category: categories[0] || 'Web Development',
         description: '',
         image: '',
         client_name: '',
@@ -265,11 +300,9 @@ export default function PortfolioManager() {
       return;
     }
 
-    const cleanSlug = editingProject.slug.trim()
-      ? editingProject.slug.startsWith('/')
-        ? editingProject.slug
-        : `/${editingProject.slug}`
-      : `/portfolio/${editingProject.title.toLowerCase().replace(/\s+/g, '-')}`;
+    const cleanSlug = editingProject.slug?.trim()
+      ? (editingProject.slug.startsWith('/') ? editingProject.slug : `/${editingProject.slug}`)
+      : `/portfolio/${editingProject.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
     const updatedProject: ProjectItem = {
       ...editingProject,
@@ -292,7 +325,6 @@ export default function PortfolioManager() {
         content: updatedProject.content,
         author: updatedProject.author,
         status: updatedProject.status,
-        seo_settings: updatedProject.seo_settings || {},
         updated_at: new Date().toISOString()
       }).eq('id', updatedProject.id);
     } else {
@@ -308,7 +340,6 @@ export default function PortfolioManager() {
         content: updatedProject.content,
         author: updatedProject.author,
         status: updatedProject.status,
-        seo_settings: updatedProject.seo_settings || {},
         updated_at: new Date().toISOString()
       }]).select().single();
 
@@ -337,7 +368,6 @@ export default function PortfolioManager() {
         return {
           ...p,
           title: quickEditData.title,
-          slug: quickEditData.slug.startsWith('/') ? quickEditData.slug : `/${quickEditData.slug}`,
           category: quickEditData.category,
           status: quickEditData.status
         };
@@ -390,7 +420,7 @@ export default function PortfolioManager() {
                 <span>{editingProject.id ? `Edit Project: ${editingProject.title}` : 'Add New Portfolio Work'}</span>
               </h2>
               <p className="text-xs text-zinc-400">
-                Configure case study title, slug, live links, visual deliverables, and advanced SEO settings.
+                Configure case study title, category, live links, and visual deliverables.
               </p>
             </div>
           </div>
@@ -410,39 +440,17 @@ export default function PortfolioManager() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* LEFT 8 COLS */}
           <div className="lg:col-span-8 space-y-6">
-            {/* 1. TITLE & SLUG CARD */}
+            {/* 1. TITLE CARD */}
             <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-4 shadow-xl">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">Project Title</label>
                 <input
                   type="text"
                   value={editingProject.title}
-                  onChange={e => {
-                    const val = e.target.value;
-                    const autoSlug = `/portfolio/${val.toLowerCase().replace(/\s+/g, '-')}`;
-                    setEditingProject({
-                      ...editingProject,
-                      title: val,
-                      slug: editingProject.slug ? editingProject.slug : autoSlug
-                    });
-                  }}
+                  onChange={e => setEditingProject({ ...editingProject, title: e.target.value })}
                   placeholder="e.g. RBS Engineering System"
                   className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-3 text-base text-white font-bold placeholder-zinc-600 outline-none transition-all shadow-inner"
                 />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">Permalink / Slug</label>
-                <div className="flex items-center bg-[#141419] border border-zinc-800 rounded-xl px-3.5 py-2 text-xs">
-                  <span className="text-zinc-500 font-mono">https://techfnm.com</span>
-                  <input
-                    type="text"
-                    value={editingProject.slug}
-                    onChange={e => setEditingProject({ ...editingProject, slug: e.target.value })}
-                    placeholder="/portfolio/rbs-engineering"
-                    className="flex-1 bg-transparent text-red-400 font-mono outline-none px-2 text-xs"
-                  />
-                </div>
               </div>
             </div>
 
@@ -502,17 +510,6 @@ export default function PortfolioManager() {
                 className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl p-4 text-xs text-zinc-200 placeholder-zinc-600 outline-none transition-all resize-y"
               />
             </div>
-
-            {/* 5. YOAST / RANKMATH STYLE SEO SETTINGS PANEL */}
-            <SeoSettingsPanel
-              data={editingProject.seo_settings || {}}
-              onChange={updated => setEditingProject({ ...editingProject, seo_settings: updated })}
-              defaultTitle={editingProject.title}
-              defaultSlug={editingProject.slug}
-              defaultDescription={editingProject.description}
-              defaultImage={editingProject.image}
-              contentType="project"
-            />
           </div>
 
           {/* RIGHT 4 COLS */}
@@ -554,25 +551,75 @@ export default function PortfolioManager() {
               </div>
             </div>
 
-            {/* 2. CATEGORY CARD */}
+            {/* 2. CATEGORY CARD WITH INLINE ADD */}
             <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl">
               <div className="px-4 py-3 bg-[#131319] border-b border-zinc-800/80 flex items-center justify-between">
                 <span className="font-bold text-xs uppercase tracking-wider text-zinc-300">Project Category</span>
                 <Tag size={14} className="text-red-400" />
               </div>
-              <div className="p-4 space-y-3 text-xs">
-                <label className="text-zinc-400 block font-medium">Discipline / Industry</label>
-                <select
-                  value={editingProject.category}
-                  onChange={e => setEditingProject({ ...editingProject, category: e.target.value })}
-                  className="w-full bg-[#141419] border border-zinc-800 rounded-lg px-3 py-2 text-zinc-200 outline-none font-medium"
-                >
-                  {PROJECT_CATEGORIES.map(cat => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
+              <div className="p-4 space-y-3.5 text-xs">
+                <div>
+                  <label className="text-zinc-400 block font-medium mb-1.5">Discipline / Industry</label>
+                  <select
+                    value={editingProject.category}
+                    onChange={e => setEditingProject({ ...editingProject, category: e.target.value })}
+                    className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-lg px-3 py-2 text-zinc-200 outline-none font-medium"
+                  >
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Inline Add Category */}
+                {!isAddingCategory ? (
+                  <button
+                    type="button"
+                    onClick={() => { setIsAddingCategory(true); setNewCategoryName(''); }}
+                    className="inline-flex items-center gap-1.5 text-red-400 hover:text-red-300 font-semibold text-xs cursor-pointer transition-colors pt-1"
+                  >
+                    <Plus size={14} />
+                    <span>+ Add New Category</span>
+                  </button>
+                ) : (
+                  <div className="p-3 bg-[#14141a] border border-zinc-700/80 rounded-xl space-y-2.5">
+                    <label className="text-[11px] text-zinc-300 font-medium block">New Category Name</label>
+                    <input
+                      type="text"
+                      autoFocus
+                      value={newCategoryName}
+                      onChange={e => setNewCategoryName(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleCreateCategory();
+                        } else if (e.key === 'Escape') {
+                          setIsAddingCategory(false);
+                        }
+                      }}
+                      placeholder="e.g. AI & Machine Learning"
+                      className="w-full bg-zinc-950 border border-zinc-700 focus:border-red-500 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-zinc-500 outline-none"
+                    />
+                    <div className="flex items-center justify-end gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingCategory(false)}
+                        className="px-2.5 py-1 rounded-lg border border-zinc-700 text-zinc-400 hover:text-white text-xs transition-colors cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleCreateCategory()}
+                        className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-colors shadow-sm cursor-pointer"
+                      >
+                        Add & Select
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -786,7 +833,7 @@ export default function PortfolioManager() {
                                 onChange={e => setQuickEditData({ ...quickEditData, category: e.target.value })}
                                 className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-white"
                               >
-                                {PROJECT_CATEGORIES.map(c => (
+                                {categories.map(c => (
                                   <option key={c} value={c}>
                                     {c}
                                   </option>
@@ -860,9 +907,11 @@ export default function PortfolioManager() {
                           >
                             {proj.title}
                           </button>
-                          <span className="text-[11px] text-zinc-500 font-mono block truncate max-w-md">
-                            {proj.slug}
-                          </span>
+                          {proj.client_name && (
+                            <span className="text-[11px] text-zinc-500 block truncate max-w-md">
+                              Client: {proj.client_name}
+                            </span>
+                          )}
 
                           <div className="flex items-center gap-2 pt-1 opacity-0 group-hover:opacity-100 transition-opacity text-[11px]">
                             <button
@@ -877,7 +926,6 @@ export default function PortfolioManager() {
                                 setQuickEditingId(proj.id);
                                 setQuickEditData({
                                   title: proj.title,
-                                  slug: proj.slug,
                                   category: proj.category,
                                   status: proj.status === 'trash' ? 'draft' : (proj.status as any)
                                 });
@@ -912,7 +960,7 @@ export default function PortfolioManager() {
                             )}
                             <span className="text-zinc-700">|</span>
                             <a
-                              href={proj.slug}
+                              href={proj.project_url || '/portfolio'}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-zinc-400 hover:text-white flex items-center gap-1"

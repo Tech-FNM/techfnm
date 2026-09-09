@@ -100,7 +100,7 @@ export default function ServicesManager() {
         const mapped: ServiceItem[] = data.map((row: any) => ({
           id: row.id,
           title: row.title || 'Untitled Service',
-          slug: row.slug || `/services/${(row.title || '').toLowerCase().replace(/\s+/g, '-')}`,
+          slug: `/services/${row.id}`,
           description: row.description || '',
           icon: row.icon || 'Code',
           color: row.color || 'bg-red-500/10 text-red-500',
@@ -121,7 +121,7 @@ export default function ServicesManager() {
         setServices(
           CANONICAL_SERVICES.map((s: any) => ({
             ...s,
-            slug: s.slug || `/services/${s.title.toLowerCase().replace(/\s+/g, '-')}`,
+            slug: `/services/${s.id}`,
             author: 'admin',
             status: 'published',
             updated_at: new Date().toISOString()
@@ -277,24 +277,18 @@ export default function ServicesManager() {
       return;
     }
 
-    const cleanSlug = editingService.slug.trim()
-      ? editingService.slug.startsWith('/')
-        ? editingService.slug
-        : `/${editingService.slug}`
-      : `/services/${editingService.title.toLowerCase().replace(/\s+/g, '-')}`;
-
-    const updatedService: ServiceItem = {
-      ...editingService,
-      slug: cleanSlug,
-      updated_at: new Date().toISOString()
-    };
-
     let updatedList: ServiceItem[];
-    if (updatedService.id) {
+    if (editingService.id) {
+      const cleanSlug = `/services/${editingService.id}`;
+      const updatedService: ServiceItem = {
+        ...editingService,
+        slug: cleanSlug,
+        updated_at: new Date().toISOString()
+      };
       updatedList = services.map(s => (s.id === updatedService.id ? updatedService : s));
       await supabase.from('services').update({
         title: updatedService.title,
-        slug: updatedService.slug,
+        slug: cleanSlug,
         description: updatedService.description,
         icon: updatedService.icon,
         color: updatedService.color,
@@ -307,38 +301,52 @@ export default function ServicesManager() {
         seo_settings: updatedService.seo_settings || {},
         updated_at: new Date().toISOString()
       }).eq('id', updatedService.id);
+
+      setServices(updatedList);
+      setCached('techfnm_services_cache', updatedList);
+      triggerContentUpdate();
+      setIsFullEditing(false);
+      setEditingService(null);
+      toast.success(`Service "${updatedService.title}" updated successfully!`);
     } else {
       const { data: newRow } = await supabase.from('services').insert([{
-        title: updatedService.title,
-        slug: updatedService.slug,
-        description: updatedService.description,
-        icon: updatedService.icon,
-        color: updatedService.color,
-        image: updatedService.image,
-        content: updatedService.content,
-        author: updatedService.author,
-        status: updatedService.status,
-        meta_title: updatedService.seo_settings?.seoTitle || updatedService.title,
-        meta_description: updatedService.seo_settings?.metaDescription || updatedService.description,
-        seo_settings: updatedService.seo_settings || {},
+        title: editingService.title,
+        description: editingService.description,
+        icon: editingService.icon,
+        color: editingService.color,
+        image: editingService.image,
+        content: editingService.content,
+        author: editingService.author,
+        status: editingService.status,
+        meta_title: editingService.seo_settings?.seoTitle || editingService.title,
+        meta_description: editingService.seo_settings?.metaDescription || editingService.description,
+        seo_settings: editingService.seo_settings || {},
         updated_at: new Date().toISOString()
       }]).select().single();
 
+      const newId = newRow ? newRow.id : Date.now();
+      const cleanSlug = `/services/${newId}`;
+
+      // Update the generated slug with the id
       if (newRow) {
-        updatedService.id = newRow.id;
-      } else {
-        updatedService.id = Date.now();
+        await supabase.from('services').update({ slug: cleanSlug }).eq('id', newId);
       }
-      updatedList = [updatedService, ...services];
+
+      const createdService: ServiceItem = {
+        ...editingService,
+        id: newId,
+        slug: cleanSlug,
+        updated_at: new Date().toISOString()
+      };
+
+      updatedList = [createdService, ...services];
+      setServices(updatedList);
+      setCached('techfnm_services_cache', updatedList);
+      triggerContentUpdate();
+      setIsFullEditing(false);
+      setEditingService(null);
+      toast.success(`Service "${createdService.title}" created successfully at ${cleanSlug}!`);
     }
-
-    setServices(updatedList);
-    setCached('techfnm_services_cache', updatedList);
-    triggerContentUpdate();
-
-    setIsFullEditing(false);
-    setEditingService(null);
-    toast.success(`Service "${updatedService.title}" saved successfully!`);
   };
 
   // Quick Edit Save
@@ -349,7 +357,7 @@ export default function ServicesManager() {
         return {
           ...s,
           title: quickEditData.title,
-          slug: quickEditData.slug.startsWith('/') ? quickEditData.slug : `/${quickEditData.slug}`,
+          slug: `/services/${s.id}`,
           icon: quickEditData.icon,
           status: quickEditData.status
         };
@@ -399,10 +407,10 @@ export default function ServicesManager() {
             <div>
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <Briefcase size={20} className="text-red-500" />
-                <span>{editingService.id ? `Edit Service: ${editingService.title}` : 'Add New Service Offering'}</span>
+                <span>{editingService.id ? `Edit Service: ${editingService.title}` : 'Add New Service Page'}</span>
               </h2>
               <p className="text-xs text-zinc-400">
-                Configure service title, slug, styling, detailed offerings, and advanced SEO settings.
+                Configure dedicated service page (/services/{editingService.id || 'id'}), deliverables, and SEO settings.
               </p>
             </div>
           </div>
@@ -422,38 +430,52 @@ export default function ServicesManager() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* LEFT 8 COLS */}
           <div className="lg:col-span-8 space-y-6">
-            {/* 1. TITLE & SLUG CARD */}
+            {/* 1. TITLE & SERVICE PAGE URL CARD */}
             <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-4 shadow-xl">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">Service Title</label>
                 <input
                   type="text"
                   value={editingService.title}
-                  onChange={e => {
-                    const val = e.target.value;
-                    const autoSlug = `/services/${val.toLowerCase().replace(/\s+/g, '-')}`;
-                    setEditingService({
-                      ...editingService,
-                      title: val,
-                      slug: editingService.slug ? editingService.slug : autoSlug
-                    });
-                  }}
+                  onChange={e => setEditingService({ ...editingService, title: e.target.value })}
                   placeholder="e.g. Web Development"
                   className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-3 text-base text-white font-bold placeholder-zinc-600 outline-none transition-all shadow-inner"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">Permalink / Slug</label>
-                <div className="flex items-center bg-[#141419] border border-zinc-800 rounded-xl px-3.5 py-2 text-xs">
-                  <span className="text-zinc-500 font-mono">https://techfnm.com</span>
-                  <input
-                    type="text"
-                    value={editingService.slug}
-                    onChange={e => setEditingService({ ...editingService, slug: e.target.value })}
-                    placeholder="/services/web-development"
-                    className="flex-1 bg-transparent text-red-400 font-mono outline-none px-2 text-xs"
-                  />
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
+                    Dedicated Service Page URL
+                  </label>
+                  {editingService.id && (
+                    <a
+                      href={`/services/${editingService.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-red-400 hover:text-red-300 flex items-center gap-1 font-semibold"
+                    >
+                      <span>Open Live Page</span>
+                      <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+                <div className="flex items-center justify-between bg-[#141419] border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs">
+                  <span className="text-zinc-300 font-mono">
+                    https://techfnm.com/services/<span className="text-red-400 font-bold">{editingService.id || 'auto-assigned'}</span>
+                  </span>
+                  {editingService.id && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`https://techfnm.com/services/${editingService.id}`);
+                        toast.success('Service URL copied to clipboard!');
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[11px] font-semibold transition-colors cursor-pointer"
+                    >
+                      Copy URL
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -461,7 +483,7 @@ export default function ServicesManager() {
             {/* 2. SHORT SUMMARY DESCRIPTION */}
             <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-3 shadow-xl">
               <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
-                Card Description (Shown on Homepage & Catalog Grid)
+                Card Description (Shown on Homepage & Services Grid)
               </label>
               <textarea
                 rows={3}
@@ -494,7 +516,7 @@ export default function ServicesManager() {
               data={editingService.seo_settings || {}}
               onChange={updated => setEditingService({ ...editingService, seo_settings: updated })}
               defaultTitle={editingService.title}
-              defaultSlug={editingService.slug}
+              defaultSlug={editingService.id ? `/services/${editingService.id}` : '/services'}
               defaultDescription={editingService.description}
               defaultImage={editingService.image}
               contentType="service"
@@ -789,13 +811,10 @@ export default function ServicesManager() {
                               />
                             </div>
                             <div className="space-y-1">
-                              <label className="text-[11px] text-zinc-400 block font-medium">Slug</label>
-                              <input
-                                type="text"
-                                value={quickEditData.slug}
-                                onChange={e => setQuickEditData({ ...quickEditData, slug: e.target.value })}
-                                className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-white"
-                              />
+                              <label className="text-[11px] text-zinc-400 block font-medium">Service URL</label>
+                              <div className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-red-400 font-mono">
+                                /services/{quickEditingId}
+                              </div>
                             </div>
                             <div className="space-y-1">
                               <label className="text-[11px] text-zinc-400 block font-medium">Status</label>
@@ -852,8 +871,8 @@ export default function ServicesManager() {
                           >
                             {service.title}
                           </button>
-                          <span className="text-[11px] text-zinc-500 font-mono block truncate max-w-md">
-                            {service.slug}
+                          <span className="text-[11px] text-zinc-400 font-mono block truncate max-w-md">
+                            https://techfnm.com/services/{service.id}
                           </span>
 
                           {/* Action links */}
@@ -870,7 +889,7 @@ export default function ServicesManager() {
                                 setQuickEditingId(service.id);
                                 setQuickEditData({
                                   title: service.title,
-                                  slug: service.slug,
+                                  slug: `/services/${service.id}`,
                                   icon: service.icon,
                                   status: service.status === 'trash' ? 'draft' : (service.status as any)
                                 });
@@ -905,7 +924,7 @@ export default function ServicesManager() {
                             )}
                             <span className="text-zinc-700">|</span>
                             <a
-                              href={service.slug}
+                              href={`/services/${service.id}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-zinc-400 hover:text-white flex items-center gap-1"
