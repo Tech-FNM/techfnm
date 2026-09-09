@@ -1,4 +1,5 @@
-import { useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
 import DashboardHome from './DashboardHome';
 import LeadsManager from './LeadsManager';
@@ -12,8 +13,27 @@ import HeaderManager from './HeaderManager';
 import SettingsManager from './SettingsManager';
 
 export default function AdminDashboard() {
+  const { tab: pathTab } = useParams();
   const [searchParams] = useSearchParams();
-  const currentTab = searchParams.get('tab') || 'overview';
+  const navigate = useNavigate();
+  const queryTab = searchParams.get('tab');
+
+  // If someone lands on old ?tab= URL, redirect smoothly to clean /admin/:tab URL
+  useEffect(() => {
+    if (queryTab) {
+      if (queryTab === 'overview' || queryTab === 'dashboard') {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        navigate(`/admin/${queryTab}`, { replace: true });
+      }
+    }
+  }, [queryTab, navigate]);
+
+  // Determine current active section from clean URL path param or fallback query param
+  const currentTab =
+    (pathTab === 'dashboard' || pathTab === 'overview' ? 'overview' : pathTab) ||
+    queryTab ||
+    'overview';
 
   const renderContent = () => {
     switch (currentTab) {
@@ -43,7 +63,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <AdminLayout>
+    <AdminLayout activeTab={currentTab}>
       {renderContent()}
     </AdminLayout>
   );

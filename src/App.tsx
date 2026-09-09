@@ -23,7 +23,10 @@ function App() {
         <Route path="/services/:id" element={<ServiceDetail />} />
         <Route path="/request-service" element={<RequestServicePage />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/dashboard/:tab" element={<AdminDashboard />} />
+        <Route path="/admin/:tab" element={<AdminDashboard />} />
         
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />

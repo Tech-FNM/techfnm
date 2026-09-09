@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   FormInput,
   Briefcase,
@@ -55,7 +55,16 @@ interface ActivityItem {
 }
 
 export default function DashboardHome() {
-  const [, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const goToTab = (tabId: string) => {
+    if (tabId === 'overview' || tabId === 'dashboard') {
+      navigate('/admin/dashboard');
+    } else {
+      navigate(`/admin/${tabId}`);
+    }
+  };
+
   const [stats, setStats] = useState({
     leads: 0,
     services: 0,
@@ -294,7 +303,7 @@ export default function DashboardHome() {
             </button>
 
             <button
-              onClick={() => setSearchParams({ tab: 'leads' })}
+              onClick={() => goToTab('leads')}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-semibold text-xs shadow-lg shadow-red-950/40 transition-all cursor-pointer"
             >
               <FormInput size={15} />
@@ -321,7 +330,7 @@ export default function DashboardHome() {
           return (
             <div
               key={idx}
-              onClick={() => setSearchParams({ tab: card.tab })}
+              onClick={() => goToTab(card.tab)}
               className={`group relative overflow-hidden rounded-2xl bg-[#0f0f13] border ${card.borderColor} p-5 sm:p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl cursor-pointer`}
             >
               <div className={`absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-gradient-to-br ${card.glow} blur-2xl pointer-events-none group-hover:opacity-100 opacity-60 transition-opacity`} />
@@ -374,7 +383,7 @@ export default function DashboardHome() {
             return (
               <button
                 key={i}
-                onClick={() => setSearchParams({ tab: action.tab })}
+                onClick={() => goToTab(action.tab)}
                 className="group p-4 rounded-2xl bg-[#0f0f13] hover:bg-[#15151b] border border-zinc-800/80 hover:border-zinc-700 text-left transition-all duration-150 flex flex-col justify-between space-y-3 cursor-pointer"
               >
                 <div className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 w-fit group-hover:scale-105 transition-transform">
@@ -411,7 +420,7 @@ export default function DashboardHome() {
             </div>
 
             <button
-              onClick={() => setSearchParams({ tab: 'leads' })}
+              onClick={() => goToTab('leads')}
               className="flex items-center gap-1.5 text-xs font-semibold text-red-400 hover:text-red-300 transition-colors self-start sm:self-auto cursor-pointer"
             >
               <span>View All Submissions</span>
@@ -440,7 +449,7 @@ export default function DashboardHome() {
                 return (
                   <div
                     key={lead.id}
-                    onClick={() => setSearchParams({ tab: 'leads' })}
+                    onClick={() => goToTab('leads')}
                     className="group py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-zinc-900/40 px-2 rounded-xl transition-colors cursor-pointer"
                   >
                     <div className="flex items-start gap-3.5 min-w-0">

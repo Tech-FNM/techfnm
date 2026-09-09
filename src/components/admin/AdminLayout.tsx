@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -29,6 +29,7 @@ import { supabase } from '../../lib/supabase';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
+  activeTab?: string;
 }
 
 interface NavItem {
@@ -44,10 +45,15 @@ interface NavSection {
   items: NavItem[];
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
+export default function AdminLayout({ children, activeTab }: AdminLayoutProps) {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const currentTab = searchParams.get('tab') || 'overview';
+  const { tab: pathTab } = useParams();
+  const [searchParams] = useSearchParams();
+  const currentTab =
+    activeTab ||
+    (pathTab === 'dashboard' || pathTab === 'overview' ? 'overview' : pathTab) ||
+    searchParams.get('tab') ||
+    'overview';
 
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -142,7 +148,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       .find(i => i.id === currentTab)?.label || 'Dashboard';
 
   const selectTab = (tabId: string) => {
-    setSearchParams({ tab: tabId });
+    if (tabId === 'overview' || tabId === 'dashboard') {
+      navigate('/admin/dashboard');
+    } else {
+      navigate(`/admin/${tabId}`);
+    }
     setMobileOpen(false);
   };
 
