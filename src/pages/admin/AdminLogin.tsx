@@ -42,6 +42,36 @@ export default function AdminLogin() {
         // continue to next checks
       }
 
+      // 1. Check Supabase profiles database table directly
+      try {
+        const { data: dbProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .ilike('email', email.trim())
+          .maybeSingle();
+
+        if (dbProfile) {
+          const validPass = dbProfile.password
+            ? dbProfile.password === password
+            : (password === 'TechFNM@2026' || password === 'admin123');
+          if (validPass) {
+            localStorage.setItem('techfnm_admin_token', `local_auth_${dbProfile.id}`);
+            localStorage.setItem(
+              'techfnm_current_user',
+              JSON.stringify({
+                name: dbProfile.name || dbProfile.full_name || 'Muhammad Naeem',
+                email: dbProfile.email,
+                role: dbProfile.role || 'Super Admin'
+              })
+            );
+            navigate('/admin/dashboard');
+            return;
+          }
+        }
+      } catch (err) {
+        // continue
+      }
+
       // 2. Check local dashboard users directory (managed via UserManager)
       const rawUsers = localStorage.getItem('techfnm_admin_users');
       if (rawUsers) {
@@ -66,11 +96,11 @@ export default function AdminLogin() {
         }
       }
 
-      // 3. Hardcoded master admin fallback
+      // 3. Master admin fallback
       if (email.trim().toLowerCase() === 'admin@techfnm.com' && (password === 'TechFNM@2026' || password === 'admin123')) {
         localStorage.setItem('techfnm_admin_token', 'local_authorized_root');
         localStorage.setItem('techfnm_current_user', JSON.stringify({
-          name: 'Naeem Ur Rehman',
+          name: 'Muhammad Naeem',
           email: 'admin@techfnm.com',
           role: 'Super Admin'
         }));

@@ -9,10 +9,12 @@ import ServiceDetail from './pages/public/ServiceDetail';
 import RequestServicePage from './pages/public/RequestServicePage';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import CustomCursor from './components/CustomCursor';
 
 function App() {
   return (
     <Router>
+      <CustomCursor />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<AboutPage />} />
@@ -29,7 +31,7 @@ function App() {
         <Route path="/admin/:tab" element={<AdminDashboard />} />
         <Route path="/admin/:tab/:action" element={<AdminDashboard />} />
         <Route path="/admin/:tab/:action/:itemId" element={<AdminDashboard />} />
-        
+
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

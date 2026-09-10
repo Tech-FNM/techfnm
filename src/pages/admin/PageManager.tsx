@@ -37,6 +37,7 @@ import {
   Briefcase,
   FolderGit2,
   ListOrdered,
+  BarChart3,
   Upload
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
@@ -192,62 +193,156 @@ const PAGE_SECTIONS_REGISTRY: Record<string, PageSectionConfig[]> = {
   'page-about': [
     {
       id: 'about_hero',
-      title: 'Hero Section',
-      description: 'About page banner heading, description and call-to-action buttons.',
+      title: 'Hero Section & Trust Bar',
+      description: 'About page top fold with main headline, lead text, CTA buttons, and quick proof metrics.',
       icon: Sparkles,
       fields: [
-        { key: 'hero_badge', label: 'Badge', type: 'text', placeholder: 'e.g. About Us' },
-        { key: 'hero_title', label: 'Main Heading (H1)', type: 'text', placeholder: 'e.g. Your Digital Growth Partner' },
-        { key: 'hero_desc', label: 'Paragraph Description', type: 'textarea', placeholder: 'Brief overview of company vision...' },
-        { key: 'hero_cta1_text', label: 'Primary Button Text', type: 'text', placeholder: 'e.g. Getting Started' },
+        { key: 'hero_badge', label: 'Badge / Tagline', type: 'text', placeholder: 'e.g. ABOUT TECHFNM' },
+        { key: 'hero_title', label: 'Main Headline (H1)', type: 'text', placeholder: 'e.g. Digital Agency Where Strategy, Design, and Performance Work Together' },
+        { key: 'hero_desc', label: 'Lead Paragraph', type: 'textarea', placeholder: 'We engineer high-performance web applications, mobile platforms, and digital engines...' },
+        { key: 'hero_cta1_text', label: 'Primary Button Text', type: 'text', placeholder: 'e.g. Start Your Project' },
         { key: 'hero_cta1_link', label: 'Primary Button Link', type: 'url', placeholder: 'e.g. /request-service' },
-        { key: 'hero_cta2_text', label: 'Secondary Button Text', type: 'text', placeholder: 'e.g. Our Services' },
-        { key: 'hero_cta2_link', label: 'Secondary Button Link', type: 'url', placeholder: 'e.g. /services' },
+        { key: 'hero_cta2_text', label: 'Secondary Button Text', type: 'text', placeholder: 'e.g. Explore Our Work' },
+        { key: 'hero_cta2_link', label: 'Secondary Button Link', type: 'url', placeholder: 'e.g. /portfolio' },
+        { key: 'hero_stat1_num', label: 'Trust Metric 1 Value', type: 'text', placeholder: 'e.g. 3,000+' },
+        { key: 'hero_stat1_lbl', label: 'Trust Metric 1 Label', type: 'text', placeholder: 'e.g. Businesses Served' },
+        { key: 'hero_stat2_num', label: 'Trust Metric 2 Value', type: 'text', placeholder: 'e.g. 4.9/5' },
+        { key: 'hero_stat2_lbl', label: 'Trust Metric 2 Label', type: 'text', placeholder: 'e.g. Client Satisfaction Rating' },
+        { key: 'hero_stat3_num', label: 'Trust Metric 3 Value', type: 'text', placeholder: 'e.g. 2023' },
+        { key: 'hero_stat3_lbl', label: 'Trust Metric 3 Label', type: 'text', placeholder: 'e.g. Founded & Scaling' },
+        { key: 'hero_image', label: 'Hero Visual Image URL', type: 'image', placeholder: 'https://images.unsplash.com/...' },
+      ]
+    },
+    {
+      id: 'about_metrics',
+      title: 'High-Impact Metric Grid (5 Stats)',
+      description: '5 milestone statistics displayed in the dark glass ribbon.',
+      icon: BarChart3,
+      fields: [
+        { key: 'stat1_val', label: 'Stat 1 Value', type: 'text', placeholder: 'e.g. 3,000+' },
+        { key: 'stat1_lbl', label: 'Stat 1 Label', type: 'text', placeholder: 'e.g. Businesses Served' },
+        { key: 'stat2_val', label: 'Stat 2 Value', type: 'text', placeholder: 'e.g. 50+' },
+        { key: 'stat2_lbl', label: 'Stat 2 Label', type: 'text', placeholder: 'e.g. Industries Worked With' },
+        { key: 'stat3_val', label: 'Stat 3 Value', type: 'text', placeholder: 'e.g. 2023' },
+        { key: 'stat3_lbl', label: 'Stat 3 Label', type: 'text', placeholder: 'e.g. Established Since' },
+        { key: 'stat4_val', label: 'Stat 4 Value', type: 'text', placeholder: 'e.g. 4.9' },
+        { key: 'stat4_lbl', label: 'Stat 4 Label', type: 'text', placeholder: 'e.g. Client Rating' },
+        { key: 'stat5_val', label: 'Stat 5 Value', type: 'text', placeholder: 'e.g. 95%' },
+        { key: 'stat5_lbl', label: 'Stat 5 Label', type: 'text', placeholder: 'e.g. Client Retention Rate' },
       ]
     },
     {
       id: 'about_story',
-      title: 'Our Story & Statistics',
-      description: 'Founding story, animated sphere stats, and milestone figures.',
-      icon: AlignLeft,
+      title: 'Who We Are & Culture',
+      description: 'Founding story, brand mission, and 3 strategic core pillars.',
+      icon: User,
       fields: [
-        { key: 'story_badge', label: 'Badge', type: 'text', placeholder: 'e.g. Our Story' },
-        { key: 'story_heading', label: 'Heading', type: 'text', placeholder: 'e.g. Architecting Next-Gen Software Since 2023' },
-        { key: 'story_text', label: 'Narrative Story Text', type: 'textarea', placeholder: 'The history and foundation story...' },
-        { key: 'stat1_val', label: 'Stat 1 Number', type: 'text', placeholder: 'e.g. 2023' },
-        { key: 'stat1_lbl', label: 'Stat 1 Label', type: 'text', placeholder: 'e.g. Founded' },
-        { key: 'stat2_val', label: 'Stat 2 Number', type: 'text', placeholder: 'e.g. 100%' },
-        { key: 'stat2_lbl', label: 'Stat 2 Label', type: 'text', placeholder: 'e.g. Remote' },
-        { key: 'stat3_val', label: 'Stat 3 Number', type: 'text', placeholder: 'e.g. 50+' },
-        { key: 'stat3_lbl', label: 'Stat 3 Label', type: 'text', placeholder: 'e.g. Projects' },
+        { key: 'story_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. WHO WE ARE' },
+        { key: 'story_heading', label: 'Section Heading', type: 'text', placeholder: 'e.g. The People Behind Every Pixel and Profitable Click' },
+        { key: 'story_p1', label: 'Story Paragraph 1', type: 'textarea', placeholder: 'We are a specialized digital agency where strategy, design, and engineering converge...' },
+        { key: 'story_p2', label: 'Story Paragraph 2', type: 'textarea', placeholder: 'Unlike traditional agencies that hand clients off to junior coordinators...' },
+        { key: 'pill1_title', label: 'Pillar 1 Title', type: 'text', placeholder: 'e.g. Strategy-First' },
+        { key: 'pill1_desc', label: 'Pillar 1 Description', type: 'textarea', placeholder: 'e.g. We do not touch a pixel before thoroughly analyzing your revenue model and growth targets.' },
+        { key: 'pill2_title', label: 'Pillar 2 Title', type: 'text', placeholder: 'e.g. Conversion-Focused' },
+        { key: 'pill2_desc', label: 'Pillar 2 Description', type: 'textarea', placeholder: 'e.g. Every design element and line of code is structured to turn casual visitors into paying clients.' },
+        { key: 'pill3_title', label: 'Pillar 3 Title', type: 'text', placeholder: 'e.g. Long-Term Partner' },
+        { key: 'pill3_desc', label: 'Pillar 3 Description', type: 'textarea', placeholder: 'e.g. We act as your extended technology arm, consistently optimizing as your business scales.' },
+        { key: 'story_image', label: 'Story Feature Image URL', type: 'image', placeholder: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80' },
+        { key: 'story_exp_years', label: 'Experience Years Badge', type: 'text', placeholder: 'e.g. 5+' },
+        { key: 'story_exp_text', label: 'Experience Badge Label', type: 'text', placeholder: 'e.g. Years Delivering Digital Excellence' },
       ]
     },
     {
       id: 'about_mission',
       title: 'Mission & Vision',
-      description: 'Dual cards highlighting core purpose and future aspirations.',
+      description: 'Dual interactive cards highlighting our purpose and global trajectory.',
       icon: Layers,
       fields: [
+        { key: 'mission_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. PURPOSE & DIRECTION' },
         { key: 'mission_title', label: 'Mission Title', type: 'text', placeholder: 'e.g. Our Mission' },
-        { key: 'mission_text', label: 'Mission Statement', type: 'textarea', placeholder: 'To empower global businesses with robust, high-conversion tools...' },
+        { key: 'mission_text', label: 'Mission Statement', type: 'textarea', placeholder: 'To eliminate the guesswork in digital growth by providing high-performance software...' },
         { key: 'vision_title', label: 'Vision Title', type: 'text', placeholder: 'e.g. Our Vision' },
-        { key: 'vision_text', label: 'Vision Statement', type: 'textarea', placeholder: 'To become the premier engineering partner for modern enterprises...' },
+        { key: 'vision_text', label: 'Vision Statement', type: 'textarea', placeholder: 'To become the premier engineering partner for modern enterprises worldwide...' },
       ]
     },
     {
-      id: 'about_values',
-      title: 'Why Choose Us / Values',
-      description: 'Key principles and pillars that distinguish TechFNM.',
+      id: 'about_process',
+      title: 'Our 4-Step Growth Process',
+      description: 'The exact step-by-step engineering roadmap that turns ideas into profitable assets.',
+      icon: ListOrdered,
+      fields: [
+        { key: 'process_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. THE PROCESS' },
+        { key: 'process_heading', label: 'Section Heading', type: 'text', placeholder: 'e.g. How We Turn Your Idea Into Real, Measurable Growth' },
+        { key: 'process_desc', label: 'Process Description', type: 'textarea', placeholder: 'A battle-tested 4-step framework engineered for zero wasted budget and maximum speed to market.' },
+        { key: 'step1_title', label: 'Step 1 Title', type: 'text', placeholder: 'e.g. Deep Discovery & Technical Audit' },
+        { key: 'step1_desc', label: 'Step 1 Description', type: 'textarea', placeholder: 'We dissect your business model, competitors, and revenue goals to uncover high-impact opportunities.' },
+        { key: 'step2_title', label: 'Step 2 Title', type: 'text', placeholder: 'e.g. Strategic Roadmap & Architecture' },
+        { key: 'step2_desc', label: 'Step 2 Description', type: 'textarea', placeholder: 'We architect modern wireframes, database schemas, and conversion pathways before writing a single line of code.' },
+        { key: 'step3_title', label: 'Step 3 Title', type: 'text', placeholder: 'e.g. Precision Engineering & Agile Build' },
+        { key: 'step3_desc', label: 'Step 3 Description', type: 'textarea', placeholder: 'Senior engineers build your solution using modern frameworks with zero bloat and clean, scalable code.' },
+        { key: 'step4_title', label: 'Step 4 Title', type: 'text', placeholder: 'e.g. Launch, Scale & Continuous Optimization' },
+        { key: 'step4_desc', label: 'Step 4 Description', type: 'textarea', placeholder: 'We execute zero-downtime deployment, SEO sitemap indexing, and telemetry tracking for compounding ROI.' },
+      ]
+    },
+    {
+      id: 'about_industries',
+      title: 'Industries We Serve',
+      description: 'Domain expertise header and description for the industry vertical cards.',
+      icon: Briefcase,
+      fields: [
+        { key: 'ind_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. INDUSTRIES WE SERVE' },
+        { key: 'ind_heading', label: 'Section Heading', type: 'text', placeholder: 'e.g. Tailored Solutions for Every High-Growth Industry' },
+        { key: 'ind_desc', label: 'Section Description', type: 'textarea', placeholder: 'We bring deep domain-specific knowledge to your project, understanding exactly what converts in your market.' },
+      ]
+    },
+    {
+      id: 'about_why_us',
+      title: 'Why Businesses Choose Us',
+      description: 'Key agency differentiators and verified founder/client quote card.',
       icon: CheckCircle2,
       fields: [
-        { key: 'values_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. Core Pillars' },
-        { key: 'values_heading', label: 'Main Heading', type: 'text', placeholder: 'e.g. Why Industry Leaders Choose TechFNM' },
-        { key: 'val1_title', label: 'Pillar 1 Title', type: 'text', placeholder: 'e.g. Speed & Execution' },
-        { key: 'val1_desc', label: 'Pillar 1 Description', type: 'textarea', placeholder: 'Agile sprints with zero bloat...' },
-        { key: 'val2_title', label: 'Pillar 2 Title', type: 'text', placeholder: 'e.g. Modern Architecture' },
-        { key: 'val2_desc', label: 'Pillar 2 Description', type: 'textarea', placeholder: 'Built with React, Next.js, and cloud backends...' },
-        { key: 'val3_title', label: 'Pillar 3 Title', type: 'text', placeholder: 'e.g. Direct Founder Access' },
-        { key: 'val3_desc', label: 'Pillar 3 Description', type: 'textarea', placeholder: 'Zero middlemen, senior engineers on call...' },
+        { key: 'why_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. WHY TECHFNM' },
+        { key: 'why_heading', label: 'Main Heading', type: 'text', placeholder: 'e.g. Why Ambitious Brands Partner With TechFNM' },
+        { key: 'diff1_title', label: 'Differentiator 1 Title', type: 'text', placeholder: 'e.g. Direct Founder & Engineer Access' },
+        { key: 'diff1_desc', label: 'Differentiator 1 Description', type: 'textarea', placeholder: 'No account managers or junior liaisons. You speak directly to the technical architects building your product.' },
+        { key: 'diff2_title', label: 'Differentiator 2 Title', type: 'text', placeholder: 'e.g. Transparent Milestones & No BS' },
+        { key: 'diff2_desc', label: 'Differentiator 2 Description', type: 'textarea', placeholder: 'Clear bi-weekly deliverables, real-time code visibility, and accurate timelines with zero excuses.' },
+        { key: 'diff3_title', label: 'Differentiator 3 Title', type: 'text', placeholder: 'e.g. Modern Architecture & Fast Stacks' },
+        { key: 'diff3_desc', label: 'Differentiator 3 Description', type: 'textarea', placeholder: 'We build with React, Next.js, and cloud backends—giving you unmatched speed, security, and scalability.' },
+        { key: 'diff4_title', label: 'Differentiator 4 Title', type: 'text', placeholder: 'e.g. 100% Code & Asset Ownership' },
+        { key: 'diff4_desc', label: 'Differentiator 4 Description', type: 'textarea', placeholder: 'You retain complete ownership of all repositories, domains, designs, and credentials from day one.' },
+        { key: 'diff_quote_text', label: 'Featured Client Quote', type: 'textarea', placeholder: 'TechFNM completely transformed our digital presence. Inbound leads increased by over 300% in 90 days.' },
+        { key: 'diff_quote_author', label: 'Quote Author Name', type: 'text', placeholder: 'e.g. Alex Morgan' },
+        { key: 'diff_quote_company', label: 'Quote Author Title & Company', type: 'text', placeholder: 'e.g. CEO, Apex Ventures' },
+      ]
+    },
+    {
+      id: 'about_founder',
+      title: 'Leadership & Founder Spotlight',
+      description: 'Personal note from leadership highlighting technical integrity and commitment.',
+      icon: User,
+      fields: [
+        { key: 'founder_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. LEADERSHIP' },
+        { key: 'founder_heading', label: 'Section Heading', type: 'text', placeholder: 'e.g. A Message From Our Leadership' },
+        { key: 'founder_name', label: 'Leader Name', type: 'text', placeholder: 'e.g. Naeem Haider' },
+        { key: 'founder_role', label: 'Leader Title', type: 'text', placeholder: 'e.g. Founder & Lead Technical Architect' },
+        { key: 'founder_quote', label: 'Founder Statement / Letter', type: 'textarea', placeholder: 'We started TechFNM with a simple belief: businesses deserve digital partners who understand real engineering...' },
+        { key: 'founder_image', label: 'Leader Portrait URL', type: 'image', placeholder: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80' },
+      ]
+    },
+    {
+      id: 'about_cta',
+      title: 'Closing Project CTA Banner',
+      description: 'Bottom consultation card prompting visitors to schedule a strategy call.',
+      icon: Phone,
+      fields: [
+        { key: 'cta_badge', label: 'Banner Badge', type: 'text', placeholder: 'e.g. LET\'S BUILD SOMETHING EXTRAORDINARY' },
+        { key: 'cta_heading', label: 'Banner Heading', type: 'text', placeholder: 'e.g. Ready to Scale Your Business With a Proven Digital Partner?' },
+        { key: 'cta_desc', label: 'Banner Description', type: 'textarea', placeholder: 'Book a complimentary 30-minute discovery consultation. We\'ll analyze your digital footprint and present a custom growth blueprint.' },
+        { key: 'cta_btn1_text', label: 'Primary Button Text', type: 'text', placeholder: 'e.g. Start Your Project' },
+        { key: 'cta_btn1_link', label: 'Primary Button Link', type: 'url', placeholder: 'e.g. /request-service' },
+        { key: 'cta_btn2_text', label: 'Secondary Button Text', type: 'text', placeholder: 'e.g. Contact Our Team' },
+        { key: 'cta_btn2_link', label: 'Secondary Button Link', type: 'url', placeholder: 'e.g. /contact' },
       ]
     }
   ],
@@ -548,34 +643,96 @@ const DEFAULT_PAGES: PageItem[] = [
     template: 'Default Template',
     featuredImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
     sectionsData: {
-      hero_badge: 'About Us',
-      hero_title: 'Your Digital Growth Partner',
-      hero_desc: 'Expert web development, mobile app solutions, and result-driven SEO services to grow your business online.',
-      hero_cta1_text: 'Getting Started',
+      hero_badge: 'ABOUT TECHFNM',
+      hero_title: 'Digital Agency Where Strategy, Design, and Performance Work Together',
+      hero_desc: 'We don\'t just build websites or run ads — we build digital engines that turn clicks into clients, visitors into buyers, and ideas into market leaders.',
+      hero_cta1_text: 'Start Your Project',
       hero_cta1_link: '/request-service',
-      hero_cta2_text: 'Our Services',
-      hero_cta2_link: '/services',
-      story_badge: 'Our Story',
-      story_heading: 'Architecting Next-Gen Software Since 2023',
-      story_text: 'Founded with a clear mission to bridge innovative design with bulletproof engineering, TechFNM has evolved into a powerhouse digital partner for visionary brands worldwide.',
-      stat1_val: '2023',
-      stat1_lbl: 'Founded',
-      stat2_val: '100%',
-      stat2_lbl: 'Remote',
-      stat3_val: '50+',
-      stat3_lbl: 'Projects',
+      hero_cta2_text: 'Explore Our Work',
+      hero_cta2_link: '/portfolio',
+      hero_stat1_num: '3,000+',
+      hero_stat1_lbl: 'Businesses Served Globally',
+      hero_stat2_num: '4.9/5',
+      hero_stat2_lbl: 'Client Rating',
+      hero_stat3_num: 'Since 2023',
+      hero_stat3_lbl: 'Continuous Innovation',
+      hero_image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80',
+
+      stat1_val: '3,000+',
+      stat1_lbl: 'Businesses Served Globally',
+      stat2_val: '50+',
+      stat2_lbl: 'Industries Transformed',
+      stat3_val: '2023',
+      stat3_lbl: 'Established & Scaling',
+      stat4_val: '4.9',
+      stat4_lbl: 'Client Satisfaction Rating',
+      stat5_val: '95%',
+      stat5_lbl: 'Client Retention & Growth',
+
+      story_badge: 'WHO WE ARE',
+      story_heading: 'The People Behind Every Pixel and Profitable Click',
+      story_p1: 'TechFNM is a specialized digital transformation agency where analytical strategy, luxury design, and full-stack engineering work in total harmony. We eliminate the guesswork from digital growth.',
+      story_p2: 'Unlike traditional agencies that pass clients between endless account managers, at TechFNM you collaborate directly with senior designers and engineers who care deeply about your business metrics.',
+      pill1_title: 'Strategy-First',
+      pill1_desc: 'We don\'t touch a pixel before thoroughly understanding your revenue model and growth targets.',
+      pill2_title: 'Conversion-Focused',
+      pill2_desc: 'Every design choice and code architecture is engineered to convert casual visitors into high-value clients.',
+      pill3_title: 'Long-Term Partner',
+      pill3_desc: 'We act as your dedicated engineering arm, refining and scaling your digital assets continuously.',
+      story_image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
+      story_exp_years: '5+',
+      story_exp_text: 'Years Delivering Digital Excellence',
+
+      mission_badge: 'PURPOSE & TRAJECTORY',
       mission_title: 'Our Mission',
-      mission_text: 'To empower global businesses with robust, high-conversion digital tools and modern cloud software.',
+      mission_text: 'To eliminate the guesswork in digital growth by providing modern enterprises with high-conversion software, custom web solutions, and measurable revenue acceleration.',
       vision_title: 'Our Vision',
-      vision_text: 'To become the premier engineering partner for modern digital enterprises across the globe.',
-      values_badge: 'Core Pillars',
-      values_heading: 'Why Industry Leaders Choose TechFNM',
-      val1_title: 'Speed & Execution',
-      val1_desc: 'Agile sprints with zero corporate red tape.',
-      val2_title: 'Modern Architecture',
-      val2_desc: 'Built with React, Next.js, and cloud backends.',
-      val3_title: 'Direct Founder Access',
-      val3_desc: 'Zero middlemen, senior engineers always on call.'
+      vision_text: 'To be the premier engineering partner for modern digital enterprises worldwide, recognized for unrivaled technical craftsmanship and transparent execution.',
+
+      process_badge: 'THE PROCESS',
+      process_heading: 'How We Turn Your Idea Into Real, Measurable Growth',
+      process_desc: 'A battle-tested 4-step framework engineered for zero wasted budget and maximum speed to market.',
+      step1_title: '1. Deep Discovery & Technical Audit',
+      step1_desc: 'We dissect your business model, competitors, and revenue goals to uncover high-impact growth opportunities.',
+      step2_title: '2. Strategic Roadmap & Architecture',
+      step2_desc: 'We architect interactive wireframes, database models, and conversion pathways before writing a single line of code.',
+      step3_title: '3. Precision Engineering & Agile Build',
+      step3_desc: 'Senior full-stack developers build your solution using modern frameworks with zero bloat and clean, maintainable code.',
+      step4_title: '4. Launch, Scale & Continuous Optimization',
+      step4_desc: 'We execute zero-downtime deployment, SEO indexing, and telemetry tracking for compounding month-over-month ROI.',
+
+      ind_badge: 'INDUSTRIES WE SERVE',
+      ind_heading: 'Tailored Solutions for Every High-Growth Industry',
+      ind_desc: 'We bring deep domain-specific knowledge to your project, understanding exactly what converts in your market.',
+
+      why_badge: 'WHY TECHFNM',
+      why_heading: 'Why Ambitious Brands Partner With TechFNM',
+      diff1_title: 'Direct Founder & Engineer Access',
+      diff1_desc: 'No account managers or junior liaisons. You speak directly to the technical architects building your product.',
+      diff2_title: 'Transparent Milestones & No BS',
+      diff2_desc: 'Clear bi-weekly deliverables, real-time code visibility, and accurate timelines with zero excuses.',
+      diff3_title: 'Modern Architecture & Fast Stacks',
+      diff3_desc: 'We build with React, Next.js, and cloud backends—giving you unmatched speed, security, and scalability.',
+      diff4_title: '100% Code & Asset Ownership',
+      diff4_desc: 'You retain complete ownership of all repositories, domains, designs, and credentials from day one.',
+      diff_quote_text: 'TechFNM completely transformed our digital presence. Inbound qualified leads increased by over 300% in 90 days with seamless technical execution.',
+      diff_quote_author: 'Alex Morgan',
+      diff_quote_company: 'Managing Partner, Apex Ventures',
+
+      founder_badge: 'LEADERSHIP',
+      founder_heading: 'A Message From Our Leadership',
+      founder_name: 'Naeem Haider',
+      founder_role: 'Founder & Lead Technical Architect',
+      founder_quote: 'We started TechFNM with a simple belief: businesses deserve digital partners who understand real engineering and business economics, not just pretty colors. We build tools that generate actual profit.',
+      founder_image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
+
+      cta_badge: 'LET\'S BUILD SOMETHING EXTRAORDINARY',
+      cta_heading: 'Ready to Scale Your Business With a Proven Digital Partner?',
+      cta_desc: 'Book a complimentary 30-minute discovery consultation. We\'ll analyze your digital footprint and present a custom growth blueprint.',
+      cta_btn1_text: 'Start Your Project',
+      cta_btn1_link: '/request-service',
+      cta_btn2_text: 'Contact Our Team',
+      cta_btn2_link: '/contact'
     }
   },
   {
@@ -1187,8 +1344,8 @@ export default function PageManager() {
                 )}
                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold border uppercase ${
                   editingPage.status === 'published'
-                    ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900/40'
-                    : 'bg-amber-950/30 text-amber-400 border-amber-900/40'
+                    ? 'bg-red-950/40 text-red-400 border-red-900/40'
+                    : 'bg-zinc-900 text-zinc-400 border-zinc-800'
                 }`}>
                   {editingPage.status}
                 </span>
@@ -1265,10 +1422,10 @@ export default function PageManager() {
                 />
                 {editingPage.slug && (
                   <a
-                    href={editingPage.slug}
+                    href={`https://techfnm.com${editingPage.slug === '/' ? '' : editingPage.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 ml-auto"
+                    className="text-xs text-red-400 hover:text-red-300 hover:underline flex items-center gap-1 ml-auto"
                   >
                     <span>View Page</span>
                     <ExternalLink size={11} />
@@ -1390,10 +1547,10 @@ export default function PageManager() {
                                 >
                                   <div className="flex items-center justify-between">
                                     <label className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-                                      {field.type === 'image' && <ImageIcon size={12} className="text-amber-400" />}
-                                      {field.type === 'url' && <LinkIcon size={12} className="text-blue-400" />}
+                                      {field.type === 'image' && <ImageIcon size={12} className="text-zinc-400" />}
+                                      {field.type === 'url' && <LinkIcon size={12} className="text-red-400" />}
                                       {field.type === 'text' && <Type size={12} className="text-red-400" />}
-                                      {field.type === 'textarea' && <AlignLeft size={12} className="text-purple-400" />}
+                                      {field.type === 'textarea' && <AlignLeft size={12} className="text-zinc-400" />}
                                       <span>{field.label}</span>
                                     </label>
                                     <span className="text-[10px] font-mono text-zinc-600">{field.key}</span>
@@ -1490,7 +1647,7 @@ export default function PageManager() {
             <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl">
               <div className="px-4 py-3 bg-[#131319] border-b border-zinc-800/80 flex items-center justify-between">
                 <span className="font-bold text-xs uppercase tracking-wider text-zinc-300">Publish</span>
-                <span className={`w-2 h-2 rounded-full ${editingPage.status === 'published' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                <span className={`w-2 h-2 rounded-full ${editingPage.status === 'published' ? 'bg-red-500 animate-pulse' : 'bg-zinc-600'}`} />
               </div>
 
               <div className="p-4 space-y-3.5 text-xs">
@@ -1902,7 +2059,7 @@ export default function PageManager() {
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => openFullEditor(page)}
-                                className="font-bold text-sm text-[#58a6ff] hover:text-[#79c0ff] hover:underline text-left cursor-pointer"
+                                className="font-bold text-sm text-white hover:text-red-400 hover:underline text-left cursor-pointer"
                               >
                                 {page.title}
                               </button>
@@ -1912,7 +2069,7 @@ export default function PageManager() {
                                 </span>
                               )}
                               {page.status === 'draft' && (
-                                <span className="text-[11px] text-amber-400/90 font-medium">
+                                <span className="text-[11px] text-zinc-400 font-medium">
                                   — Draft
                                 </span>
                               )}
@@ -1923,7 +2080,7 @@ export default function PageManager() {
                                 <>
                                   <button
                                     onClick={() => handleRestorePage(page)}
-                                    className="text-emerald-400 hover:underline cursor-pointer"
+                                    className="text-white hover:underline cursor-pointer"
                                   >
                                     Restore
                                   </button>
@@ -1939,14 +2096,14 @@ export default function PageManager() {
                                 <>
                                   <button
                                     onClick={() => openFullEditor(page)}
-                                    className="text-[#58a6ff] hover:underline cursor-pointer font-medium"
+                                    className="text-zinc-400 hover:text-red-400 hover:underline cursor-pointer font-medium"
                                   >
                                     Edit (Sections A-Z)
                                   </button>
                                   <span>|</span>
                                   <button
                                     onClick={() => startQuickEdit(page)}
-                                    className="text-[#58a6ff] hover:underline cursor-pointer"
+                                    className="text-zinc-400 hover:text-red-400 hover:underline cursor-pointer"
                                   >
                                     Quick Edit
                                   </button>
@@ -1962,7 +2119,7 @@ export default function PageManager() {
                                     href={page.slug}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-[#58a6ff] hover:underline flex items-center gap-0.5 cursor-pointer"
+                                    className="text-zinc-400 hover:text-red-400 hover:underline flex items-center gap-0.5 cursor-pointer"
                                   >
                                     <span>View</span>
                                     <ExternalLink size={9} />
@@ -1974,7 +2131,7 @@ export default function PageManager() {
                         </td>
 
                         <td className="px-4 py-3.5 align-top text-zinc-400 font-medium">
-                          <span className="text-[#58a6ff] hover:underline cursor-pointer">
+                          <span className="text-zinc-300 hover:text-white cursor-pointer">
                             {page.author}
                           </span>
                         </td>

@@ -48,34 +48,96 @@ export const CANONICAL_PAGES_DATA: Record<string, Record<string, any>> = {
     "testimonials_heading": "What Founders Say About Us"
   },
   "page-about": {
-    "hero_desc": "Expert web development, mobile app solutions, and result-driven SEO services to grow your business online.",
-    "stat1_lbl": "Founded",
-    "stat1_val": "2023",
-    "stat2_lbl": "Remote",
-    "stat2_val": "100%",
-    "stat3_lbl": "Projects",
-    "stat3_val": "50+",
-    "val1_desc": "Agile sprints with zero corporate red tape.",
-    "val2_desc": "Built with React, Next.js, and cloud backends.",
-    "val3_desc": "Zero middlemen, senior engineers always on call.",
-    "hero_badge": "About U",
-    "hero_title": "Your Digital Growth Partner",
-    "story_text": "Founded with a clear mission to bridge innovative design with bulletproof engineering, TechFNM has evolved into a powerhouse digital partner for visionary brands worldwide.",
-    "val1_title": "Speed & Execution",
-    "val2_title": "Modern Architecture",
-    "val3_title": "Direct Founder Access",
-    "story_badge": "Our Story",
-    "vision_text": "To become the premier engineering partner for modern digital enterprises across the globe.",
-    "mission_text": "To empower global businesses with robust, high-conversion digital tools and modern cloud software.",
-    "values_badge": "Core Pillars",
-    "vision_title": "Our Vision",
-    "mission_title": "Our Mission",
-    "story_heading": "Architecting Next-Gen Software Since 2023",
+    "hero_badge": "ABOUT TECHFNM",
+    "hero_title": "Digital Agency Where Strategy, Design, and Performance Work Together",
+    "hero_desc": "We don't just build websites or run ads — we build digital engines that turn clicks into clients, visitors into buyers, and ideas into market leaders.",
+    "hero_cta1_text": "Start Your Project",
     "hero_cta1_link": "/request-service",
-    "hero_cta1_text": "Getting Started",
-    "hero_cta2_link": "/services",
-    "hero_cta2_text": "Our Services",
-    "values_heading": "Why Industry Leaders Choose TechFNM"
+    "hero_cta2_text": "Explore Our Work",
+    "hero_cta2_link": "/portfolio",
+    "hero_stat1_num": "3,000+",
+    "hero_stat1_lbl": "Businesses Served Globally",
+    "hero_stat2_num": "4.9/5",
+    "hero_stat2_lbl": "Client Rating",
+    "hero_stat3_num": "Since 2023",
+    "hero_stat3_lbl": "Continuous Innovation",
+    "hero_image": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
+
+    "stat1_val": "3,000+",
+    "stat1_lbl": "Businesses Served Globally",
+    "stat2_val": "50+",
+    "stat2_lbl": "Industries Transformed",
+    "stat3_val": "2023",
+    "stat3_lbl": "Established & Scaling",
+    "stat4_val": "4.9",
+    "stat4_lbl": "Client Satisfaction Rating",
+    "stat5_val": "95%",
+    "stat5_lbl": "Client Retention & Growth",
+
+    "story_badge": "WHO WE ARE",
+    "story_heading": "The People Behind Every Pixel and Profitable Click",
+    "story_p1": "TechFNM is a specialized digital transformation agency where analytical strategy, luxury design, and full-stack engineering work in total harmony. We eliminate the guesswork from digital growth.",
+    "story_p2": "Unlike traditional agencies that pass clients between endless account managers, at TechFNM you collaborate directly with senior designers and engineers who care deeply about your business metrics.",
+    "pill1_title": "Strategy-First",
+    "pill1_desc": "We don't touch a pixel before thoroughly understanding your revenue model and growth targets.",
+    "pill2_title": "Conversion-Focused",
+    "pill2_desc": "Every design choice and code architecture is engineered to convert casual visitors into high-value clients.",
+    "pill3_title": "Long-Term Partner",
+    "pill3_desc": "We act as your dedicated engineering arm, refining and scaling your digital assets continuously.",
+    "story_image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+    "story_exp_years": "5+",
+    "story_exp_text": "Years Delivering Digital Excellence",
+
+    "mission_badge": "PURPOSE & TRAJECTORY",
+    "mission_title": "Our Mission",
+    "mission_text": "To eliminate the guesswork in digital growth by providing modern enterprises with high-conversion software, custom web solutions, and measurable revenue acceleration.",
+    "vision_title": "Our Vision",
+    "vision_text": "To be the premier engineering partner for modern digital enterprises worldwide, recognized for unrivaled technical craftsmanship and transparent execution.",
+
+    "process_badge": "THE PROCESS",
+    "process_heading": "How We Turn Your Idea Into Real, Measurable Growth",
+    "process_desc": "A battle-tested 4-step framework engineered for zero wasted budget and maximum speed to market.",
+    "step1_title": "1. Deep Discovery & Technical Audit",
+    "step1_desc": "We dissect your business model, competitors, and revenue goals to uncover high-impact growth opportunities.",
+    "step2_title": "2. Strategic Roadmap & Architecture",
+    "step2_desc": "We architect interactive wireframes, database models, and conversion pathways before writing a single line of code.",
+    "step3_title": "3. Precision Engineering & Agile Build",
+    "step3_desc": "Senior full-stack developers build your solution using modern frameworks with zero bloat and clean, maintainable code.",
+    "step4_title": "4. Launch, Scale & Continuous Optimization",
+    "step4_desc": "We execute zero-downtime deployment, SEO indexing, and telemetry tracking for compounding month-over-month ROI.",
+
+    "ind_badge": "INDUSTRIES WE SERVE",
+    "ind_heading": "Tailored Solutions for Every High-Growth Industry",
+    "ind_desc": "We bring deep domain-specific knowledge to your project, understanding exactly what converts in your market.",
+
+    "why_badge": "WHY TECHFNM",
+    "why_heading": "Why Ambitious Brands Partner With TechFNM",
+    "diff1_title": "Direct Founder & Engineer Access",
+    "diff1_desc": "No account managers or junior liaisons. You speak directly to the technical architects building your product.",
+    "diff2_title": "Transparent Milestones & No BS",
+    "diff2_desc": "Clear bi-weekly deliverables, real-time code visibility, and accurate timelines with zero excuses.",
+    "diff3_title": "Modern Architecture & Fast Stacks",
+    "diff3_desc": "We build with React, Next.js, and cloud backends—giving you unmatched speed, security, and scalability.",
+    "diff4_title": "100% Code & Asset Ownership",
+    "diff4_desc": "You retain complete ownership of all repositories, domains, designs, and credentials from day one.",
+    "diff_quote_text": "TechFNM completely transformed our digital presence. Inbound qualified leads increased by over 300% in 90 days with seamless technical execution.",
+    "diff_quote_author": "Alex Morgan",
+    "diff_quote_company": "Managing Partner, Apex Ventures",
+
+    "founder_badge": "LEADERSHIP",
+    "founder_heading": "A Message From Our Leadership",
+    "founder_name": "Naeem Haider",
+    "founder_role": "Founder & Lead Technical Architect",
+    "founder_quote": "We started TechFNM with a simple belief: businesses deserve digital partners who understand real engineering and business economics, not just pretty colors. We build tools that generate actual profit.",
+    "founder_image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80",
+
+    "cta_badge": "LET'S BUILD SOMETHING EXTRAORDINARY",
+    "cta_heading": "Ready to Scale Your Business With a Proven Digital Partner?",
+    "cta_desc": "Book a complimentary 30-minute discovery consultation. We'll analyze your digital footprint and present a custom growth blueprint.",
+    "cta_btn1_text": "Start Your Project",
+    "cta_btn1_link": "/request-service",
+    "cta_btn2_text": "Contact Our Team",
+    "cta_btn2_link": "/contact"
   },
   "page-services": {
     "cta_desc": "Let's turn your vision into a production-grade software asset.",
@@ -194,9 +256,9 @@ export const CANONICAL_SERVICES: any[] = [
     "description": "Drive targeted traffic and boost your brand visibility with our data-driven marketing strategies designed for measurable, high growth.",
     "icon": "Share2",
     "color": "bg-white-900/20 text-white-400",
-    "slug": null,
+    "slug": "digital-marketing",
     "content": null,
-    "meta_title": null,
+    "meta_title": "Digital Marketing",
     "meta_description": null
   },
   {
@@ -205,9 +267,9 @@ export const CANONICAL_SERVICES: any[] = [
     "description": "We craft compelling, SEO-friendly content that captures your brand's voice and turns casual readers into loyal, paying customers.",
     "icon": "PenTool",
     "color": "bg-white-900/20 text-white-400",
-    "slug": null,
+    "slug": "content-writing",
     "content": null,
-    "meta_title": null,
+    "meta_title": "Content Writing",
     "meta_description": null
   },
   {
@@ -216,9 +278,9 @@ export const CANONICAL_SERVICES: any[] = [
     "description": "Launch a powerful online store with seamless navigation and secure payment gateways to maximize your global sales and revenue.",
     "icon": "ShoppingCart",
     "color": "bg-white-900/20 text-white-400",
-    "slug": null,
+    "slug": "ecommerce",
     "content": null,
-    "meta_title": null,
+    "meta_title": "Ecommerce",
     "meta_description": null
   },
   {
@@ -227,20 +289,20 @@ export const CANONICAL_SERVICES: any[] = [
     "description": "Build a thriving community and increase engagement across platforms with data-driven campaigns that deliver real, measurable results.",
     "icon": "Globe",
     "color": "bg-white-900/20 text-white-400",
-    "slug": null,
+    "slug": "social-media",
     "content": null,
-    "meta_title": null,
+    "meta_title": "Social Media",
     "meta_description": null
   },
   {
     "id": 5,
-    "title": "Web Development",
+    "title": "Web Development Services",
     "description": "Get a high-performance, responsive website built with the latest tech to ensure a smooth user experience on any device.",
     "icon": "Code",
     "color": "bg-white-900/20 text-white-400",
-    "slug": null,
+    "slug": "web-development",
     "content": null,
-    "meta_title": null,
+    "meta_title": "Web Development Services | TechFNM",
     "meta_description": null
   },
   {
@@ -249,9 +311,9 @@ export const CANONICAL_SERVICES: any[] = [
     "description": "Build fast, scalable mobile and web apps tailored to your business needs — delivering smooth performance across all platforms worldwide.",
     "icon": "Smartphone",
     "color": "bg-white-900/20 text-white-400",
-    "slug": null,
+    "slug": "app-development",
     "content": null,
-    "meta_title": null,
+    "meta_title": "App Development",
     "meta_description": null
   }
 ];
@@ -346,9 +408,9 @@ export function getCached<T>(key: string, fallback: T): T {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(fallback)) {
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed as unknown as T;
       } else if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
-        return parsed;
+        return parsed as T;
       }
     }
   } catch (e) {

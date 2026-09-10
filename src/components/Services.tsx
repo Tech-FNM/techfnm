@@ -51,8 +51,22 @@ export default function Services() {
       })
       .subscribe();
 
+    const handleLiveSync = () => {
+      const cached = getCached('techfnm_services_cache', CANONICAL_SERVICES);
+      if (cached && cached.length > 0) {
+        setServices(cached);
+      } else {
+        fetchServices();
+      }
+    };
+
+    window.addEventListener('storage', handleLiveSync);
+    window.addEventListener('techfnm_content_updated', handleLiveSync);
+
     return () => {
       supabase.removeChannel(channel);
+      window.removeEventListener('storage', handleLiveSync);
+      window.removeEventListener('techfnm_content_updated', handleLiveSync);
     };
   }, []);
 
@@ -74,7 +88,11 @@ export default function Services() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {services.map((service, index) => {
             const Icon = iconMap[service.icon] || Code;
-            const hasImage = service.image && service.image.length > 0;
+            const rawSlug = service.slug || service.seo_settings?.slug;
+            const cleanSlug = rawSlug && isNaN(Number(rawSlug))
+              ? String(rawSlug).replace(/^\/services\//, '').replace(/^\//, '')
+              : (service.title ? service.title.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '') : String(service.id));
+            const serviceLink = `/services/${cleanSlug}`;
             
             return (
               <motion.div
@@ -89,7 +107,7 @@ export default function Services() {
                   <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 ${service.color || 'bg-red-500/10 text-red-500'} group-hover:scale-110 transition-transform`}>
                     <Icon size={28} />
                   </div>
-                  <Link to={`/services/${service.id}`} className="block">
+                  <Link to={serviceLink} className="block">
                     <h3 className="text-xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors">{service.title}</h3>
                   </Link>
                   <p className="text-gray-400 leading-relaxed text-sm">
@@ -98,7 +116,7 @@ export default function Services() {
                 </div>
                 <div className="pt-6">
                   <Link
-                    to={`/services/${service.id}`}
+                    to={serviceLink}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-red-500 hover:text-red-400 transition-colors group/link"
                   >
                     <span>View Service Page</span>

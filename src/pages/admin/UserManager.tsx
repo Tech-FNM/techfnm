@@ -14,28 +14,12 @@ interface AdminUser {
 
 const DEFAULT_USERS: AdminUser[] = [
   {
-    id: 'user-1',
-    name: 'Naeem Ur Rehman',
-    email: 'naeem@techfnm.com',
-    role: 'Super Admin',
-    password: 'TechFNM@2026',
-    created_at: new Date('2024-01-01').toISOString()
-  },
-  {
-    id: 'user-2',
-    name: 'Support Agent',
-    email: 'techfnm@gmail.com',
-    role: 'Administrator',
-    password: 'TechFNM@2026',
-    created_at: new Date('2024-02-15').toISOString()
-  },
-  {
     id: 'user-3',
-    name: 'Main Admin',
+    name: 'Muhammad Naeem',
     email: 'admin@techfnm.com',
     role: 'Super Admin',
     password: 'TechFNM@2026',
-    created_at: new Date('2023-11-01').toISOString()
+    created_at: new Date('2024-01-01').toISOString()
   }
 ];
 
@@ -61,46 +45,41 @@ export default function UserManager() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      // 1. Try LocalStorage
+      // 1. Fetch directly from Supabase profiles table as the ground truth
+      const { data: remoteProfiles, error } = await supabase.from('profiles').select('*');
+      if (remoteProfiles && remoteProfiles.length > 0) {
+        const mapped: AdminUser[] = remoteProfiles.map(remote => ({
+          id: remote.id,
+          name: remote.name || remote.full_name || remote.email?.split('@')[0] || 'Admin',
+          email: remote.email,
+          role: remote.role || 'Administrator',
+          password: remote.password || 'TechFNM@2026',
+          created_at: remote.created_at || new Date().toISOString()
+        }));
+        setUsers(mapped);
+        localStorage.setItem('techfnm_admin_users', JSON.stringify(mapped));
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fallback to localStorage if Supabase is offline or empty
       const local = localStorage.getItem('techfnm_admin_users');
-      let initialList: AdminUser[] = [];
       if (local) {
         try {
-          initialList = JSON.parse(local);
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setUsers(parsed);
+            setLoading(false);
+            return;
+          }
         } catch {
-          initialList = DEFAULT_USERS;
+          // ignore
         }
-      } else {
-        initialList = DEFAULT_USERS;
-        localStorage.setItem('techfnm_admin_users', JSON.stringify(DEFAULT_USERS));
       }
 
-      // 2. Try Supabase profiles
-      try {
-        const { data, error } = await supabase.from('profiles').select('*');
-        if (data && data.length > 0) {
-          // Merge profiles
-          const merged = [...initialList];
-          data.forEach(remote => {
-            if (!merged.some(u => u.email.toLowerCase() === remote.email?.toLowerCase())) {
-              merged.push({
-                id: remote.id,
-                name: remote.full_name || remote.name || remote.email.split('@')[0],
-                email: remote.email,
-                role: remote.role || 'Administrator',
-                password: 'TechFNM@2026',
-                created_at: remote.created_at || new Date().toISOString()
-              });
-            }
-          });
-          initialList = merged;
-          localStorage.setItem('techfnm_admin_users', JSON.stringify(merged));
-        }
-      } catch (err) {
-        // silent fallback
-      }
-
-      setUsers(initialList);
+      // 3. Fallback to single active Super Admin
+      setUsers(DEFAULT_USERS);
+      localStorage.setItem('techfnm_admin_users', JSON.stringify(DEFAULT_USERS));
     } catch (e) {
       setUsers(DEFAULT_USERS);
     } finally {
@@ -209,6 +188,10 @@ export default function UserManager() {
 
     try {
       await supabase.from('profiles').delete().eq('id', String(id));
+      const targetUser = users.find(u => u.id === id);
+      if (targetUser?.email) {
+        await supabase.from('profiles').delete().eq('email', targetUser.email);
+      }
     } catch (err) {
       console.error('Database delete error:', err);
     }

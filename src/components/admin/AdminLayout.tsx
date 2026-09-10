@@ -12,6 +12,7 @@ import {
   FormInput,
   ExternalLink,
   PanelTop,
+  PanelBottom,
   Menu,
   X,
   ChevronDown,
@@ -62,9 +63,9 @@ export default function AdminLayout({ children, activeTab }: AdminLayoutProps) {
   const [currentUser, setCurrentUser] = useState<any>(() => {
     try {
       const raw = localStorage.getItem('techfnm_current_user');
-      return raw ? JSON.parse(raw) : { name: 'Naeem Ur Rehman', role: 'Super Admin', email: 'naeem@techfnm.com' };
+      return raw ? JSON.parse(raw) : { name: 'Muhammad Naeem', role: 'Super Admin', email: 'admin@techfnm.com' };
     } catch {
-      return { name: 'Naeem Ur Rehman', role: 'Super Admin', email: 'naeem@techfnm.com' };
+      return { name: 'Muhammad Naeem', role: 'Super Admin', email: 'admin@techfnm.com' };
     }
   });
   const quickCreateRef = useRef<HTMLDivElement>(null);
@@ -75,6 +76,34 @@ export default function AdminLayout({ children, activeTab }: AdminLayoutProps) {
     if (!token) {
       navigate('/admin/login');
     }
+
+    // Sync logged in user profile from Supabase
+    const syncCurrentUser = async () => {
+      try {
+        const raw = localStorage.getItem('techfnm_current_user');
+        const stored = raw ? JSON.parse(raw) : null;
+        if (stored?.email) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .ilike('email', stored.email)
+            .maybeSingle();
+
+          if (profile) {
+            const updated = {
+              name: profile.name || profile.full_name || stored.name,
+              role: profile.role || stored.role,
+              email: profile.email
+            };
+            setCurrentUser(updated);
+            localStorage.setItem('techfnm_current_user', JSON.stringify(updated));
+          }
+        }
+      } catch (err) {
+        // silent fallback
+      }
+    };
+    syncCurrentUser();
   }, [navigate]);
 
   useEffect(() => {
@@ -136,6 +165,7 @@ export default function AdminLayout({ children, activeTab }: AdminLayoutProps) {
       title: 'System & Branding',
       items: [
         { id: 'header', label: 'Header & Navigation', icon: PanelTop },
+        { id: 'footer', label: 'Footer Management', icon: PanelBottom },
         { id: 'users', label: 'User Management', icon: Users },
         { id: 'settings', label: 'Global Settings', icon: Settings },
       ]
@@ -401,8 +431,8 @@ export default function AdminLayout({ children, activeTab }: AdminLayoutProps) {
             </a>
 
             {/* System Status Pill */}
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/20 border border-emerald-900/30 text-emerald-400 text-xs font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-red-950/20 border border-red-900/40 text-red-400 text-xs font-medium">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               <span>Live System</span>
             </div>
 

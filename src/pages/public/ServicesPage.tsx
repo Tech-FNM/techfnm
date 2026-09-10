@@ -34,10 +34,42 @@ export default function ServicesPage() {
 
   useEffect(() => {
     fetchServices();
+
+    // 1. Realtime Supabase changes
+    const channel = supabase
+      .channel(`public_services_page_${Date.now()}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'services' }, () => {
+        fetchServices();
+      })
+      .subscribe();
+
+    // 2. Intra/cross tab live event
+    const handleLiveSync = () => {
+      const cached = getCached('techfnm_services_cache', CANONICAL_SERVICES);
+      if (cached && cached.length > 0) {
+        setServices(cached);
+      } else {
+        fetchServices();
+      }
+    };
+
+    window.addEventListener('storage', handleLiveSync);
+    window.addEventListener('techfnm_content_updated', handleLiveSync);
+
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener('storage', handleLiveSync);
+      window.removeEventListener('techfnm_content_updated', handleLiveSync);
+    };
   }, []);
 
   const fetchServices = async () => {
     try {
+      const cached = getCached('techfnm_services_cache', CANONICAL_SERVICES);
+      if (cached && cached.length > 0) {
+        setServices(cached);
+      }
+
       const { data, error } = await supabase.from('services').select('*').order('id', { ascending: true });
       if (data && data.length > 0) {
         setServices(data);
@@ -57,7 +89,7 @@ export default function ServicesPage() {
 
       <main className="flex-grow">
         {/* HERO SECTION */}
-        <section className="relative min-h-[55vh] bg-black flex items-center justify-center overflow-hidden border-b border-zinc-900 px-4 sm:px-6 lg:px-8">
+        <section className="relative min-h-[55vh] bg-black flex items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8">
           {/* Background Shapes */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
             <div className="absolute -top-20 -left-20 w-96 h-96 bg-red-900/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob"></div>
@@ -79,7 +111,7 @@ export default function ServicesPage() {
         </section>
 
         {/* SERVICES GRID SECTION */}
-        <section className="py-20 bg-zinc-950 px-4 sm:px-6 lg:px-8 border-b border-zinc-900">
+        <section className="py-20 bg-black px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             {loading ? (
               <div className="text-center py-20 text-zinc-500 font-mono tracking-wider">
@@ -89,6 +121,12 @@ export default function ServicesPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {services.map((service, index) => {
                   const Icon = iconMap[service.icon] || Code;
+                  const rawSlug = service.slug || service.seo_settings?.slug;
+                  const cleanSlug = rawSlug && isNaN(Number(rawSlug))
+                    ? String(rawSlug).replace(/^\/services\//, '').replace(/^\//, '')
+                    : (service.title ? service.title.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '') : String(service.id));
+                  const serviceLink = `/services/${cleanSlug}`;
+
                   return (
                     <motion.div
                       key={service.id}
@@ -96,19 +134,23 @@ export default function ServicesPage() {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: index * 0.1, duration: 0.4 }}
-                      className="bg-zinc-900/20 rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-zinc-850 group hover:border-red-650/30 overflow-hidden relative backdrop-blur-sm"
+                      className="bg-zinc-900/20 rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-zinc-850 group hover:border-red-650/30 overflow-hidden relative backdrop-blur-sm flex flex-col justify-between"
                     >
-                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${service.color || 'bg-red-500/10 text-red-500'} group-hover:scale-110 transition-transform shadow-lg shadow-black/20`}>
-                        <Icon size={28} />
+                      <div>
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${service.color || 'bg-red-500/10 text-red-500'} group-hover:scale-110 transition-transform shadow-lg shadow-black/20`}>
+                          <Icon size={28} />
+                        </div>
+                        <Link to={serviceLink} className="block">
+                          <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors">
+                            {service.title}
+                          </h2>
+                        </Link>
+                        <p className="text-zinc-450 text-sm sm:text-base leading-relaxed mb-6">
+                          {service.description}
+                        </p>
                       </div>
-                      <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 group-hover:text-red-500 transition-colors">
-                        {service.title}
-                      </h2>
-                      <p className="text-zinc-450 text-sm sm:text-base leading-relaxed mb-6">
-                        {service.description}
-                      </p>
                       <Link
-                        to={`/services/${service.id}`}
+                        to={serviceLink}
                         className="inline-flex items-center gap-1.5 text-red-500 hover:text-red-400 text-sm font-bold transition-colors group/link"
                       >
                         <span>Learn More</span>
