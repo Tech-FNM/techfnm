@@ -21,9 +21,22 @@ import {
   Lock,
   ChevronRight,
   TrendingUp,
-  RefreshCw
+  RefreshCw,
+  Star,
+  Trash2,
+  X
 } from 'lucide-react';
+import { toast, Toaster } from 'react-hot-toast';
 import { supabase } from '../../lib/supabase';
+import {
+  syncGmbReviews,
+  fetchLiveGmbReviews,
+  addManualGmbReview,
+  deleteGmbReview,
+  getGmbSyncMetadata,
+  GMB_PROFILE_URL,
+  GmbReview
+} from '../../lib/gmbSync';
 
 function getTimeGreeting(): string {
   const hour = new Date().getHours();
@@ -76,6 +89,19 @@ export default function DashboardHome() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // GMB Review Sync States
+  const [syncingGmb, setSyncingGmb] = useState(false);
+  const [gmbReviews, setGmbReviews] = useState<GmbReview[]>([]);
+  const [lastSyncedStr, setLastSyncedStr] = useState<string>('Recently');
+  const [isAddReviewOpen, setIsAddReviewOpen] = useState(false);
+  const [newReview, setNewReview] = useState({
+    name: '',
+    role: 'Verified Google Review • Client',
+    content: '',
+    image: '',
+    rating: 5
+  });
+
   const fetchStats = async () => {
     try {
       setLoading(true);
@@ -109,7 +135,68 @@ export default function DashboardHome() {
 
   useEffect(() => {
     fetchStats();
+    fetchLiveGmbReviews().then((revs) => {
+      setGmbReviews(revs);
+      const meta = getGmbSyncMetadata();
+      if (meta.lastSynced) {
+        setLastSyncedStr(timeAgo(meta.lastSynced));
+      }
+    });
   }, []);
+
+  const handleGmbSync = async () => {
+    setSyncingGmb(true);
+    try {
+      const res = await syncGmbReviews();
+      if (res.success) {
+        toast.success(`Google Reviews Synced! ${res.count} reviews live with 5.0 rating ⭐`, {
+          duration: 4000
+        });
+        const updated = await fetchLiveGmbReviews();
+        setGmbReviews(updated);
+        setLastSyncedStr('Just now');
+      } else {
+        toast.error(res.error || 'Sync could not complete');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to sync GMB');
+    } finally {
+      setSyncingGmb(false);
+    }
+  };
+
+  const handleAddReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReview.name.trim() || !newReview.content.trim()) {
+      toast.error('Please provide both reviewer name and feedback text.');
+      return;
+    }
+    try {
+      await addManualGmbReview(newReview);
+      toast.success(`Google review from "${newReview.name}" added live!`);
+      const updated = await fetchLiveGmbReviews();
+      setGmbReviews(updated);
+      setIsAddReviewOpen(false);
+      setNewReview({
+        name: '',
+        role: 'Verified Google Review • Client',
+        content: '',
+        image: '',
+        rating: 5
+      });
+    } catch (err: any) {
+      toast.error(err.message || 'Error saving review');
+    }
+  };
+
+  const handleDeleteReview = async (id: number, name: string) => {
+    if (window.confirm(`Are you sure you want to remove the review from "${name}"?`)) {
+      await deleteGmbReview(id);
+      toast.success(`Review from "${name}" removed.`);
+      const updated = await fetchLiveGmbReviews();
+      setGmbReviews(updated);
+    }
+  };
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -294,6 +381,21 @@ export default function DashboardHome() {
           {/* Quick CTA Actions in Hero */}
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <button
+              onClick={handleGmbSync}
+              disabled={syncingGmb}
+              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-200 hover:text-white border border-zinc-700/80 hover:border-zinc-500 font-semibold text-xs shadow-md transition-all cursor-pointer"
+              title="1-Click Sync with Google My Business"
+            >
+              <svg className={`w-3.5 h-3.5 shrink-0 ${syncingGmb ? 'animate-spin' : ''}`} viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+                <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.04 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+              </svg>
+              <span>{syncingGmb ? 'Syncing GMB...' : 'Sync GMB Reviews'}</span>
+            </button>
+
+            <button
               onClick={handleRefresh}
               disabled={refreshing}
               className="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white border border-zinc-800 transition-all cursor-pointer"
@@ -402,6 +504,227 @@ export default function DashboardHome() {
           })}
         </div>
       </div>
+
+      {/* GOOGLE MY BUSINESS (GMB) SYNC & REVIEWS HUB */}
+      <div className="rounded-3xl bg-[#0f0f13] border border-zinc-800/80 p-6 sm:p-7 space-y-6 shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/5 blur-[90px] pointer-events-none rounded-full" />
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-5 relative z-10">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-zinc-900 border border-zinc-700/60 flex items-center justify-center shrink-0 shadow-md">
+              <svg className="w-6 h-6" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+                <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.04 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+              </svg>
+            </div>
+
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-base sm:text-lg font-bold text-white">Google My Business Sync Hub</h3>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/40 text-emerald-400 border border-emerald-900/50 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  5.0 ★ Live Sync
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Manage verified reviews from Tech FNM Google Business Profile • Synced {lastSyncedStr}
+              </p>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2.5 relative z-10">
+            <button
+              onClick={handleGmbSync}
+              disabled={syncingGmb}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-semibold text-xs shadow-lg shadow-red-950/40 transition-all cursor-pointer"
+            >
+              <RefreshCw size={14} className={syncingGmb ? 'animate-spin' : ''} />
+              <span>{syncingGmb ? 'Syncing Latest...' : '1-Click Sync Now'}</span>
+            </button>
+
+            <button
+              onClick={() => setIsAddReviewOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 hover:text-white border border-zinc-700 font-semibold text-xs transition-all cursor-pointer"
+            >
+              <Plus size={14} />
+              <span>Add Review</span>
+            </button>
+
+            <a
+              href={GMB_PROFILE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 text-xs transition-all"
+              title="Open Tech FNM on Google Maps"
+            >
+              <ExternalLink size={13} />
+              <span>GMB Profile</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Synced Reviews Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
+          {gmbReviews.map((rev) => (
+            <div
+              key={rev.id}
+              className="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 hover:border-zinc-700 transition-all flex flex-col justify-between group relative"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <img
+                      src={rev.image}
+                      alt={rev.name}
+                      className="w-9 h-9 rounded-full object-cover border border-zinc-700 shrink-0"
+                      onError={(e: any) => {
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(rev.name)}&background=e5432e&color=fff`;
+                      }}
+                    />
+                    <div className="min-w-0">
+                      <h4 className="text-xs font-bold text-white truncate">{rev.name}</h4>
+                      <p className="text-[10px] text-zinc-400 truncate">{rev.role}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <div className="flex text-amber-400">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={11} className="fill-amber-400 text-amber-400" />
+                      ))}
+                    </div>
+                    {gmbReviews.length > 1 && (
+                      <button
+                        onClick={() => handleDeleteReview(rev.id, rev.name)}
+                        className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-red-950/40 text-zinc-500 hover:text-red-400 transition-opacity ml-1 cursor-pointer"
+                        title="Remove Review"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <p className="text-xs text-zinc-300 leading-relaxed italic line-clamp-3">
+                  "{rev.content}"
+                </p>
+              </div>
+
+              <div className="mt-3 pt-3 border-t border-zinc-900 flex items-center justify-between text-[10px] text-zinc-500">
+                <span className="flex items-center gap-1 text-emerald-400">
+                  <CheckCircle2 size={11} />
+                  Verified Google Review
+                </span>
+                <span>Rating: 5.0 / 5.0</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer info note */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-zinc-400 pt-2 border-t border-zinc-800/40 relative z-10">
+          <span className="flex items-center gap-1.5">
+            <Sparkles size={13} className="text-amber-400" />
+            <span>Synced automatically with Supabase <code>testimonials</code> table & cached for high performance.</span>
+          </span>
+          <span className="text-[11px] text-zinc-500">Total Synced: {gmbReviews.length} Reviews</span>
+        </div>
+      </div>
+
+      {/* MODAL: ADD NEW GOOGLE REVIEW */}
+      {isAddReviewOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#121217] border border-zinc-800 rounded-3xl max-w-lg w-full p-6 sm:p-7 space-y-5 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-red-950/50 border border-red-800/50 flex items-center justify-center text-red-400">
+                  <Plus size={16} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Add New Google Review</h3>
+                  <p className="text-xs text-zinc-400">Save a new client review from Google Maps to your website</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAddReviewOpen(false)}
+                className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddReviewSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-zinc-300 font-semibold mb-1.5">Client / Reviewer Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. John Doe / Company Name"
+                  value={newReview.name}
+                  onChange={(e) => setNewReview({ ...newReview, name: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white focus:border-red-500 focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 font-semibold mb-1.5">Reviewer Role / Badge</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Verified Google Review • Business Client"
+                  value={newReview.role}
+                  onChange={(e) => setNewReview({ ...newReview, role: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white focus:border-red-500 focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 font-semibold mb-1.5">Review Feedback / Quote *</label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Copy and paste the feedback directly from Google..."
+                  value={newReview.content}
+                  onChange={(e) => setNewReview({ ...newReview, content: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white focus:border-red-500 focus:outline-none transition-colors leading-relaxed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 font-semibold mb-1.5">Avatar Image URL (Optional)</label>
+                <input
+                  type="url"
+                  placeholder="https://lh3.googleusercontent.com/... (Leave blank for auto avatar)"
+                  value={newReview.image}
+                  onChange={(e) => setNewReview({ ...newReview, image: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white focus:border-red-500 focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setIsAddReviewOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-300 font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold shadow-lg shadow-red-950/50 cursor-pointer"
+                >
+                  Save & Publish Live
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Render Toast notifications */}
+      <Toaster position="top-right" toastOptions={{ style: { background: '#18181b', color: '#fff', border: '1px solid #27272a' } }} />
 
       {/* TWO-COLUMN OPERATIONAL SECTION */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

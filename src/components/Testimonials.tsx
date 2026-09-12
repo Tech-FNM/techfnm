@@ -56,6 +56,14 @@ export default function Testimonials() {
       }
     };
     fetchTestimonials();
+
+    const handleUpdate = (e: any) => {
+      if (e.detail && Array.isArray(e.detail) && e.detail.length > 0) {
+        setTestimonials(e.detail);
+      }
+    };
+    window.addEventListener('techfnm_testimonials_updated', handleUpdate);
+    return () => window.removeEventListener('techfnm_testimonials_updated', handleUpdate);
   }, []);
 
   return (
