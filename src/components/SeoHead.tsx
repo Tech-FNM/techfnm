@@ -20,7 +20,18 @@ export default function SeoHead({
   seoSettings: directSeo
 }: SeoHeadProps) {
   const [dbSeo, setDbSeo] = useState<any>({});
-  const [indexingEnabled, setIndexingEnabled] = useState(true);
+  const [indexingEnabled, setIndexingEnabled] = useState<boolean>(() => {
+    try {
+      const local = localStorage.getItem('techfnm_site_settings');
+      if (local) {
+        const parsed = JSON.parse(local);
+        if (typeof parsed.seoIndexingEnabled === 'boolean') {
+          return parsed.seoIndexingEnabled;
+        }
+      }
+    } catch {}
+    return false; // Default strictly to noindex
+  });
 
   useEffect(() => {
     if (pageId) {
@@ -50,17 +61,40 @@ export default function SeoHead({
         const { data } = await supabase
           .from('site_settings')
           .select('*')
-          .eq('key', 'seo_indexing_enabled')
+          .eq('id', 'global_settings')
           .maybeSingle();
-        if (data) {
-          setIndexingEnabled(data.value === 'true');
+
+        if (data && data.content && typeof data.content.seo_indexing_enabled === 'boolean') {
+          setIndexingEnabled(data.content.seo_indexing_enabled);
         }
       } catch (err) {
         // ignore
       }
     };
     fetchIndexing();
+
+    const handleSettingsUpdate = (e: any) => {
+      if (e.detail && typeof e.detail.seoIndexingEnabled === 'boolean') {
+        setIndexingEnabled(e.detail.seoIndexingEnabled);
+      }
+    };
+    window.addEventListener('techfnm_settings_updated', handleSettingsUpdate);
+    return () => window.removeEventListener('techfnm_settings_updated', handleSettingsUpdate);
   }, []);
+
+  // Guarantee that the raw HTML document head robots meta tag is synchronized
+  useEffect(() => {
+    const robotVal = indexingEnabled ? 'index, follow' : 'noindex, nofollow';
+    let metaRobots = document.querySelector('meta[name="robots"]');
+    if (metaRobots) {
+      metaRobots.setAttribute('content', robotVal);
+    } else {
+      metaRobots = document.createElement('meta');
+      metaRobots.setAttribute('name', 'robots');
+      metaRobots.setAttribute('content', robotVal);
+      document.head.appendChild(metaRobots);
+    }
+  }, [indexingEnabled]);
 
   const activeSeo = directSeo || dbSeo || {};
 

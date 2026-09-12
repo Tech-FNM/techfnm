@@ -867,6 +867,16 @@ export default function DashboardHome() {
                   Ready
                 </span>
               </div>
+              <div className="flex justify-between items-center py-1 border-t border-zinc-800/60 pt-2">
+                <span className="text-zinc-400">Search Indexing</span>
+                <button
+                  onClick={() => goToTab('settings')}
+                  className="font-semibold text-[11px] text-red-400 bg-red-950/40 hover:bg-red-900/50 px-2 py-0.5 rounded-md border border-red-900/40 transition-colors cursor-pointer"
+                  title="Click to manage in Global Settings"
+                >
+                  NOINDEX (Blocked)
+                </button>
+              </div>
             </div>
           </div>
 

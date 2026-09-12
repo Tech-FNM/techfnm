@@ -13,9 +13,10 @@ export default function SettingsManager() {
     instagramUrl: 'https://instagram.com/techfnm',
     linkedinUrl: 'https://linkedin.com/company/techfnm',
     githubUrl: 'https://github.com/Tech-FNM',
-    seoIndexingEnabled: true,
+    seoIndexingEnabled: false, // Default to false (noindex)
   });
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -30,23 +31,29 @@ export default function SettingsManager() {
           setSettings((prev: any) => ({ ...prev, ...JSON.parse(local) }));
         } catch {}
       }
-      const { data } = await supabase.from('site_settings').select('*');
-      if (data && data.length > 0) {
-        const resolved: any = {};
-        data.forEach(item => {
-          if (item.key === 'logo_text') resolved.logoText = item.value;
-          if (item.key === 'contact_number') resolved.contactNumber = item.value;
-          if (item.key === 'facebook_url') resolved.facebookUrl = item.value;
-          if (item.key === 'youtube_url') resolved.youtubeUrl = item.value;
-          if (item.key === 'instagram_url') resolved.instagramUrl = item.value;
-          if (item.key === 'linkedin_url') resolved.linkedinUrl = item.value;
-          if (item.key === 'github_url') resolved.githubUrl = item.value;
-          if (item.key === 'seo_indexing_enabled') resolved.seoIndexingEnabled = item.value === 'true';
-        });
-        setSettings({ ...settings, ...resolved });
+
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('*')
+        .eq('id', 'global_settings')
+        .maybeSingle();
+
+      if (!error && data && data.content) {
+        const c = data.content;
+        setSettings((prev: any) => ({
+          ...prev,
+          logoText: c.logo_text || prev.logoText,
+          contactNumber: c.contact_number || prev.contactNumber,
+          facebookUrl: c.facebook_url || prev.facebookUrl,
+          youtubeUrl: c.youtube_url || prev.youtubeUrl,
+          instagramUrl: c.instagram_url || prev.instagramUrl,
+          linkedinUrl: c.linkedin_url || prev.linkedinUrl,
+          githubUrl: c.github_url || prev.githubUrl,
+          seoIndexingEnabled: typeof c.seo_indexing_enabled === 'boolean' ? c.seo_indexing_enabled : false,
+        }));
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching settings:', err);
     } finally {
       setLoading(false);
     }
@@ -54,31 +61,49 @@ export default function SettingsManager() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       localStorage.setItem('techfnm_site_settings', JSON.stringify(settings));
+      window.dispatchEvent(new CustomEvent('techfnm_settings_updated', { detail: settings }));
       triggerContentUpdate();
 
-      const updates = [
-        { key: 'logo_text', value: settings.logoText },
-        { key: 'contact_number', value: settings.contactNumber },
-        { key: 'facebook_url', value: settings.facebookUrl },
-        { key: 'youtube_url', value: settings.youtubeUrl },
-        { key: 'instagram_url', value: settings.instagramUrl },
-        { key: 'linkedin_url', value: settings.linkedinUrl },
-        { key: 'github_url', value: settings.githubUrl },
-        { key: 'seo_indexing_enabled', value: settings.seoIndexingEnabled ? 'true' : 'false' },
-      ];
+      const payload = {
+        id: 'global_settings',
+        content: {
+          logo_text: settings.logoText,
+          contact_number: settings.contactNumber,
+          facebook_url: settings.facebookUrl,
+          youtube_url: settings.youtubeUrl,
+          instagram_url: settings.instagramUrl,
+          linkedin_url: settings.linkedinUrl,
+          github_url: settings.githubUrl,
+          seo_indexing_enabled: settings.seoIndexingEnabled,
+        },
+        updated_at: new Date().toISOString()
+      };
 
-      for (const item of updates) {
-        await supabase
-          .from('site_settings')
-          .update({ value: item.value })
-          .eq('key', item.key);
+      const { error } = await supabase.from('site_settings').upsert([payload]);
+      if (error) {
+        console.warn('Supabase save warning:', error);
       }
 
-      toast.success('Site configurations applied successfully!');
+      // Update document head meta tag immediately
+      const robotsMeta = document.querySelector('meta[name="robots"]');
+      const robotVal = settings.seoIndexingEnabled ? 'index, follow' : 'noindex, nofollow';
+      if (robotsMeta) {
+        robotsMeta.setAttribute('content', robotVal);
+      }
+
+      toast.success(
+        settings.seoIndexingEnabled
+          ? 'Site Indexing ENABLED (Search engines can index)'
+          : 'Website successfully set to NOINDEX (Search engines blocked)',
+        { duration: 4000 }
+      );
     } catch (err: any) {
       toast.error(err.message || 'Error updating settings');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -191,31 +216,70 @@ export default function SettingsManager() {
               <Shield size={16} className="text-red-500" />
             </div>
 
-            <div className="flex items-start justify-between gap-6 bg-zinc-950 p-6 rounded-2xl border border-zinc-850">
-              <div className="space-y-1">
-                <span className="font-bold text-white text-sm block">Indexing Visibility</span>
-                <p className="text-xs text-zinc-500 leading-relaxed max-w-xs">
-                  Toggle this setting to either allow search engines (Google, Bing) to index the website or add "noindex" tags.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setSettings({ ...settings, seoIndexingEnabled: !settings.seoIndexingEnabled })}
-                className={`p-3 rounded-xl border transition-all ${
-                  settings.seoIndexingEnabled
-                    ? 'bg-red-600 border-red-600 text-white shadow-lg'
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-500'
+            <div className="space-y-4">
+              {/* Current Status Callout */}
+              <div
+                className={`p-4 rounded-2xl border flex items-center gap-3 ${
+                  !settings.seoIndexingEnabled
+                    ? 'bg-red-950/40 border-red-800/60 text-red-300'
+                    : 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300'
                 }`}
               >
-                {settings.seoIndexingEnabled ? <Eye size={18} /> : <EyeOff size={18} />}
-              </button>
+                <div
+                  className={`w-3 h-3 rounded-full shrink-0 ${
+                    !settings.seoIndexingEnabled ? 'bg-red-500 animate-pulse' : 'bg-emerald-400'
+                  }`}
+                />
+                <div className="min-w-0">
+                  <span className="font-bold text-xs uppercase tracking-wider block">
+                    {!settings.seoIndexingEnabled ? 'NOINDEX ACTIVE (Search Engines Blocked)' : 'INDEXING ACTIVE (Visible to Google)'}
+                  </span>
+                  <p className="text-[11px] opacity-90 mt-0.5">
+                    {!settings.seoIndexingEnabled
+                      ? 'The entire website outputs <meta name="robots" content="noindex, nofollow" /> and robots.txt disallow.'
+                      : 'Search engines are allowed to crawl, index, and rank pages.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-6 bg-zinc-950 p-6 rounded-2xl border border-zinc-850">
+                <div className="space-y-1">
+                  <span className="font-bold text-white text-sm block">Toggle Search Visibility</span>
+                  <p className="text-xs text-zinc-400 leading-relaxed max-w-xs">
+                    {!settings.seoIndexingEnabled
+                      ? 'Currently blocked from search results. Click toggle to enable indexing.'
+                      : 'Currently indexing. Click toggle to block search engines with noindex.'}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSettings({ ...settings, seoIndexingEnabled: !settings.seoIndexingEnabled })}
+                  className={`px-4 py-2.5 rounded-xl border flex items-center gap-2 font-bold text-xs transition-all cursor-pointer shadow-lg ${
+                    settings.seoIndexingEnabled
+                      ? 'bg-emerald-600 border-emerald-500 text-white shadow-emerald-950/40'
+                      : 'bg-red-600 border-red-500 text-white shadow-red-950/40'
+                  }`}
+                >
+                  {settings.seoIndexingEnabled ? (
+                    <>
+                      <Eye size={16} />
+                      <span>Indexing ON</span>
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff size={16} />
+                      <span>NOINDEX (OFF)</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
-            <div className="flex gap-2.5 text-zinc-500 text-xs leading-relaxed bg-zinc-950/60 p-4 rounded-xl border border-zinc-850/40">
-              <HelpCircle size={16} className="text-zinc-650 shrink-0 mt-0.5" />
+            <div className="flex gap-2.5 text-zinc-400 text-xs leading-relaxed bg-zinc-950/60 p-4 rounded-xl border border-zinc-850/40">
+              <HelpCircle size={16} className="text-zinc-500 shrink-0 mt-0.5" />
               <p>
-                When disabled, the site will output `<meta name="robots" content="noindex, nofollow" />` in the page meta tags, preventing bots from capturing links.
+                When NOINDEX is selected, bots such as Googlebot, Bingbot, and crawlers are instructed not to index or display the website in search engine results.
               </p>
             </div>
           </div>
@@ -223,10 +287,11 @@ export default function SettingsManager() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-red-950/20 text-sm"
+            disabled={saving}
+            className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 disabled:bg-zinc-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-red-950/20 text-sm cursor-pointer"
           >
-            <Save size={16} />
-            <span>Save Settings</span>
+            <Save size={16} className={saving ? 'animate-spin' : ''} />
+            <span>{saving ? 'Saving Settings...' : 'Save Settings'}</span>
           </button>
 
         </div>
