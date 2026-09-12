@@ -83,11 +83,17 @@ export default function PostManager() {
       const { data } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
       if (data && data.length > 0) {
         setPosts(data);
+        localStorage.setItem('techfnm_blogs_cache', JSON.stringify(data));
       } else {
-        setPosts([
-          { id: 1, title: 'How We Build Scalable Apps', slug: 'how-we-build-scalable-apps', image: 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800', content: '<p>Standard development workflows involve agile pipelines...</p>', status: 'published', author: 'admin', category: 'Development', tags: 'tech, apps', comments_count: 1, created_at: new Date('2026-08-22T17:28:00').toISOString() },
-          { id: 2, title: 'SEO Best Practices for NextJS', slug: 'seo-best-practices-nextjs', image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800', content: '<p>NextJS requires server-side rendering configurations...</p>', status: 'draft', author: 'admin', category: 'SEO', tags: 'google, ranking', comments_count: 0, created_at: new Date('2026-08-22T17:01:00').toISOString() }
-        ]);
+        const cached = localStorage.getItem('techfnm_blogs_cache');
+        if (cached) {
+          setPosts(JSON.parse(cached));
+        } else {
+          setPosts([
+            { id: 1, title: 'How We Build Scalable Apps', slug: 'how-we-build-scalable-apps', image: 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800', content: '<p>Standard development workflows involve agile pipelines...</p>', status: 'published', author: 'admin', category: 'Development', tags: 'tech, apps', comments_count: 1, created_at: new Date('2026-08-22T17:28:00').toISOString() },
+            { id: 2, title: 'SEO Best Practices for NextJS', slug: 'seo-best-practices-nextjs', image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800', content: '<p>NextJS requires server-side rendering configurations...</p>', status: 'draft', author: 'admin', category: 'SEO', tags: 'google, ranking', comments_count: 0, created_at: new Date('2026-08-22T17:01:00').toISOString() }
+          ]);
+        }
       }
     } catch (err) { console.error(err); } finally { setLoading(false); }
   };
@@ -119,30 +125,37 @@ export default function PostManager() {
     setIsEditing(true);
   };
 
-  const closeEditor = () => {
+  const handleBack = () => {
     setIsEditing(false);
     setSelectedPost(null);
     if (action) {
       navigate('/admin/posts');
     }
   };
+  const closeEditor = handleBack;
 
   useEffect(() => {
     if (posts.length === 0) return;
     if (action === 'edit' && itemId) {
       const target = posts.find(p => String(p.id) === itemId || p.slug === itemId);
       if (target) {
-        if (!selectedPost || String(selectedPost.id) !== String(target.id)) {
-          handleEdit(target);
-        }
+        setSelectedPost(target);
+        setTitle(target.title || '');
+        setSlug(target.slug || '');
+        setImage(target.image || '');
+        setSeoSettings(target.seo_settings || {
+          seoTitle: target.meta_title || target.title,
+          metaDescription: target.meta_description || ''
+        });
+        setIsEditing(true);
       }
     } else if (action === 'new') {
-      if (!isEditing || selectedPost !== null) {
-        handleNew();
-      }
-    } else if (!action && isEditing) {
-      setIsEditing(false);
       setSelectedPost(null);
+      setTitle('');
+      setSlug('');
+      setImage('');
+      setSeoSettings({});
+      setIsEditing(true);
     }
   }, [action, itemId, posts.length]);
 
@@ -157,7 +170,7 @@ export default function PostManager() {
         content: editorContent,
         status: selectedPost?.status || 'published',
         author: 'admin',
-        category: selectedPost?.category || 'Uncategorized',
+        category: selectedPost?.category || 'General',
         tags: selectedPost?.tags || '—',
         comments_count: selectedPost?.comments_count || 0,
         meta_title: seoSettings.seoTitle || title,
@@ -168,16 +181,22 @@ export default function PostManager() {
       if (selectedPost) {
         const { error } = await supabase.from('blogs').update(payload).eq('id', selectedPost.id);
         const updated = { ...selectedPost, ...payload };
-        if (error) setPosts(posts.map(p => p.id === selectedPost.id ? updated : p));
-        else fetchPosts();
+        const updatedPosts = posts.map(p => p.id === selectedPost.id ? updated : p);
+        setPosts(updatedPosts);
+        localStorage.setItem('techfnm_blogs_cache', JSON.stringify(updatedPosts));
+        window.dispatchEvent(new Event('techfnm_blogs_updated'));
+        if (!error) fetchPosts();
         setSelectedPost(updated);
         toast.success('Post updated successfully');
       } else {
         const newId = Date.now();
         const { data: newRow, error } = await supabase.from('blogs').insert([payload]).select().single();
         const created = newRow || { id: newId, ...payload, created_at: new Date().toISOString() };
-        if (error) setPosts([created, ...posts]);
-        else fetchPosts();
+        const updatedPosts = [created, ...posts];
+        setPosts(updatedPosts);
+        localStorage.setItem('techfnm_blogs_cache', JSON.stringify(updatedPosts));
+        window.dispatchEvent(new Event('techfnm_blogs_updated'));
+        if (!error) fetchPosts();
         setSelectedPost(created);
         if (action === 'new') {
           navigate(`/admin/posts/edit/${created.id}`, { replace: true });
@@ -191,8 +210,11 @@ export default function PostManager() {
     if (!window.confirm('Are you sure you want to delete this post?')) return;
     try {
       const { error } = await supabase.from('blogs').delete().eq('id', id);
-      if (error) setPosts(posts.filter(p => p.id !== id));
-      else fetchPosts();
+      const updatedPosts = posts.filter(p => p.id !== id);
+      setPosts(updatedPosts);
+      localStorage.setItem('techfnm_blogs_cache', JSON.stringify(updatedPosts));
+      window.dispatchEvent(new Event('techfnm_blogs_updated'));
+      if (!error) fetchPosts();
       toast.success('Post deleted successfully');
     } catch (err: any) { toast.error(err.message || 'Error deleting post'); }
   };

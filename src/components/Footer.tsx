@@ -1,18 +1,19 @@
-import { Mail, MapPin, Phone, Facebook, Youtube, Instagram, Linkedin, Github, CheckCircle2, Loader2 } from 'lucide-react';
+import { Mail, MapPin, Phone, Facebook, Youtube, Instagram, Linkedin, Github, CheckCircle2, Loader2, ArrowUpRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [settings, setSettings] = useState({
-    description: 'We specialize in custom web development, mobile apps, and SEO solutions. We develop digital future.',
+    description: 'We are a creative digital agency dedicated to delivering innovative solutions that drive real business growth.',
     facebookUrl: 'https://www.facebook.com/techfnm',
     youtubeUrl: 'https://www.youtube.com/@techhfnm',
     instagramUrl: 'https://www.instagram.com/techfnm',
     linkedinUrl: 'https://www.linkedin.com/company/techfnm',
     githubUrl: 'https://github.com/Tech-FNM',
-    address: 'Pakistan',
+    address: 'Karachi, Pakistan',
     phone: '0313-9023118',
     email: 'techhfnm@gmail.com',
   });
@@ -23,7 +24,7 @@ export default function Footer() {
 
   const fetchSettings = async () => {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('site_settings')
         .select('content')
         .eq('id', 'footer_settings')
@@ -46,12 +47,12 @@ export default function Footer() {
       const response = await fetch("https://formsubmit.co/ajax/techhfnm@gmail.com", {
         method: "POST",
         headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({
-            email: email,
-            _subject: "New Newsletter Subscription!"
+          email: email,
+          _subject: "New Newsletter Subscription from Fexora Footer!"
         })
       });
 
@@ -67,113 +68,173 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-zinc-950 text-white pt-16 pb-8 border-t border-zinc-900">
+    <footer className="bg-black text-white pt-20 pb-12 border-t border-white/10 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-          {/* About */}
-          <div>
-            <div className="mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-16 border-b border-white/10">
+          {/* Column 1: Brand & Bio (4 cols) */}
+          <div className="lg:col-span-4">
+            <div className="mb-6 flex items-center gap-2">
               <img 
                 src="/image/agency-assets/projects/0.569918561129375.png" 
                 alt="TechFNM Logo" 
-                className="h-10 md:h-12 w-auto object-contain"
+                className="h-10 w-auto object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
                   target.nextElementSibling?.classList.remove('hidden');
                 }}
               />
-              <h3 className="hidden text-2xl font-bold">Tech<span className="text-red-600">FNM</span></h3>
+              <div className="text-2xl font-bold text-white tracking-tight">
+                Tech<span className="text-[#e5432e] ml-1">FNM</span>
+              </div>
             </div>
-            <p className="text-gray-400 mb-6 leading-relaxed">
+
+            <p className="text-zinc-400 mb-6 text-sm sm:text-base leading-relaxed">
               {settings.description}
             </p>
-            <div className="flex space-x-4">
-              {settings.facebookUrl && <a href={settings.facebookUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
-                <Facebook size={20} />
-              </a>}
-              {settings.youtubeUrl && <a href={settings.youtubeUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
-                <Youtube size={20} />
-              </a>}
-              {settings.instagramUrl && <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
-                <Instagram size={20} />
-              </a>}
-              {settings.linkedinUrl && <a href={settings.linkedinUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
-                <Linkedin size={20} />
-              </a>}
-              {settings.githubUrl && <a href={settings.githubUrl} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 p-2 rounded-full border border-red-500 hover:bg-red-600 transition-colors">
-                <Github size={20} />
-              </a>}
+
+            {/* Social Pill Icons */}
+            <div className="flex flex-wrap gap-2.5">
+              {settings.facebookUrl && (
+                <a
+                  href={settings.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300"
+                >
+                  <Facebook size={17} />
+                </a>
+              )}
+              {settings.instagramUrl && (
+                <a
+                  href={settings.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300"
+                >
+                  <Instagram size={17} />
+                </a>
+              )}
+              {settings.linkedinUrl && (
+                <a
+                  href={settings.linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300"
+                >
+                  <Linkedin size={17} />
+                </a>
+              )}
+              {settings.youtubeUrl && (
+                <a
+                  href={settings.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube"
+                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300"
+                >
+                  <Youtube size={17} />
+                </a>
+              )}
+              {settings.githubUrl && (
+                <a
+                  href={settings.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub"
+                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300"
+                >
+                  <Github size={17} />
+                </a>
+              )}
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-xl font-bold mb-6 border-b-2 border-red-500 inline-block pb-2">Quick Links</h3>
-            <ul className="space-y-3">
-              <li><a href="#home" className="text-gray-400 hover:text-red-500 transition-colors flex items-center"><span className="mr-2">›</span> Home</a></li>
-              <li><a href="#about" className="text-gray-400 hover:text-red-500 transition-colors flex items-center"><span className="mr-2">›</span> About Us</a></li>
-              <li><a href="#services" className="text-gray-400 hover:text-red-500 transition-colors flex items-center"><span className="mr-2">›</span> Services</a></li>
-              <li><a href="#portfolio" className="text-gray-400 hover:text-red-500 transition-colors flex items-center"><span className="mr-2">›</span> Portfolio</a></li>
-              <li><a href="#contact" className="text-gray-400 hover:text-red-500 transition-colors flex items-center"><span className="mr-2">›</span> Contact</a></li>
-              <li><a href="#faqs" className="text-gray-400 hover:text-red-500 transition-colors flex items-center"><span className="mr-2">›</span> FAQs</a></li>
+          {/* Column 2: Quick Links (2.5 cols) */}
+          <div className="lg:col-span-2">
+            <h3 className="text-base font-bold text-white mb-5 uppercase tracking-wider text-xs">
+              Quick Links
+            </h3>
+            <ul className="space-y-2.5 text-sm">
+              <li><Link to="/" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Home</Link></li>
+              <li><Link to="/about" className="text-zinc-400 hover:text-[#e5432e] transition-colors">About Us</Link></li>
+              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Services</Link></li>
+              <li><Link to="/portfolio" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Portfolio</Link></li>
+              <li><Link to="/blog" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Blog & Insights</Link></li>
+              <li><Link to="/faq" className="text-zinc-400 hover:text-[#e5432e] transition-colors">FAQs</Link></li>
+              <li><Link to="/contact" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Contact Us</Link></li>
             </ul>
           </div>
 
-          {/* Contact Info */}
-          <div>
-            <h3 className="text-xl font-bold mb-6 border-b-2 border-red-500 inline-block pb-2">Contact Info</h3>
-            <ul className="space-y-4">
-              <li className="flex items-start">
-                <MapPin className="text-red-500 mr-3 mt-1 flex-shrink-0" size={20} />
-                <span className="text-gray-400">{settings.address}</span>
-              </li>
-              <li className="flex items-center">
-                <Phone className="text-red-500 mr-3 flex-shrink-0" size={20} />
-                <a href={`tel:${settings.phone}`} className="text-gray-400 hover:text-white transition-colors">{settings.phone}</a>
-              </li>
-              <li className="flex items-center">
-                <Mail className="text-red-500 mr-3 flex-shrink-0" size={20} />
-                <a href={`mailto:${settings.email}`} className="text-gray-400 hover:text-white transition-colors">{settings.email}</a>
-              </li>
+          {/* Column 3: Our Services (2.5 cols) */}
+          <div className="lg:col-span-3">
+            <h3 className="text-base font-bold text-white mb-5 uppercase tracking-wider text-xs">
+              Our Services
+            </h3>
+            <ul className="space-y-2.5 text-sm">
+              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Web Design & Development</Link></li>
+              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Mobile App Engineering</Link></li>
+              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Search Engine Optimization</Link></li>
+              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Social Media Marketing</Link></li>
+              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Brand Identity & Strategy</Link></li>
             </ul>
           </div>
 
-          {/* Subscribe */}
-          <div>
-            <h3 className="text-xl font-bold mb-6 border-b-2 border-red-500 inline-block pb-2">Subscribe</h3>
-            <p className="text-gray-400 mb-4">
-              Subscribe to our newsletter. Stay informed about technology news and events with our newsletter.
+          {/* Column 4: Newsletter Subscription (3 cols) */}
+          <div className="lg:col-span-3">
+            <h3 className="text-base font-bold text-white mb-5 uppercase tracking-wider text-xs">
+              Subscribe Newsletter
+            </h3>
+            <p className="text-zinc-400 text-sm mb-4 leading-relaxed">
+              Subscribe to our newsletter to get the latest digital trends delivered to your inbox.
             </p>
-            <form onSubmit={handleSubscribe} className="flex flex-col space-y-3 relative">
+
+            <form onSubmit={handleSubscribe} className="space-y-3">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your Email Address"
+                placeholder="Enter your email address"
                 required
                 disabled={status === 'submitting' || status === 'success'}
-                className="bg-zinc-900 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 border border-zinc-800 disabled:opacity-50"
+                className="w-full bg-[#121214] text-white px-4 py-3 rounded-xl focus:outline-none focus:border-[#e5432e] border border-white/10 text-sm placeholder-zinc-500 transition-colors"
               />
               <button
                 type="submit"
                 disabled={status === 'submitting' || status === 'success'}
-                className="bg-red-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full group inline-flex items-center justify-center gap-2 bg-[#e5432e] hover:bg-[#cc3622] text-white px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-300 shadow-md shadow-[#e5432e]/20"
               >
-                {status === 'submitting' ? <Loader2 size={18} className="animate-spin" /> : null}
-                {status === 'success' ? <><CheckCircle2 size={18} /> Subscribed!</> : 'Subscribe Now'}
+                {status === 'submitting' ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : status === 'success' ? (
+                  <>
+                    <CheckCircle2 size={16} />
+                    <span>Subscribed!</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Subscribe Now</span>
+                    <ArrowUpRight size={15} />
+                  </>
+                )}
               </button>
-              {status === 'error' && (
-                <p className="text-red-500 text-sm mt-2">Something went wrong. Please try again.</p>
-              )}
             </form>
           </div>
         </div>
 
-        <div className="border-t border-zinc-900 pt-8 text-center">
-          <p className="text-gray-500">
-            &copy; {new Date().getFullYear()} <span className="text-white font-medium">TechFNM</span>. All Rights Reserved.
+        {/* Bottom Bar */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
+          <p>
+            Copyright &copy; {new Date().getFullYear()} <span className="text-white font-medium">TechFNM</span>. All rights reserved.
           </p>
+          <div className="flex items-center gap-6">
+            <Link to="/about" className="hover:text-zinc-300 transition-colors">Privacy Policy</Link>
+            <Link to="/about" className="hover:text-zinc-300 transition-colors">Terms of Service</Link>
+            <Link to="/contact" className="hover:text-zinc-300 transition-colors">Support</Link>
+          </div>
         </div>
       </div>
     </footer>

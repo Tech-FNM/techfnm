@@ -46,6 +46,8 @@ export default function AdminDashboard() {
         return <UserManager />;
       case 'posts':
         return <PostManager />;
+      case 'homepage':
+        return <PageManager forcedPageId="page-home" />;
       case 'pages':
         return <PageManager />;
       case 'media':

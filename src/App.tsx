@@ -7,6 +7,8 @@ import PortfolioPage from './pages/public/PortfolioPage';
 import ServicesPage from './pages/public/ServicesPage';
 import ServiceDetail from './pages/public/ServiceDetail';
 import RequestServicePage from './pages/public/RequestServicePage';
+import BlogPage from './pages/public/BlogPage';
+import BlogDetail from './pages/public/BlogDetail';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import CustomCursor from './components/CustomCursor';
@@ -24,6 +26,8 @@ function App() {
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/services/:id" element={<ServiceDetail />} />
         <Route path="/request-service" element={<RequestServicePage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogDetail />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />

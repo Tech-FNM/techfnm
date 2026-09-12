@@ -1,64 +1,75 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
 import { supabase } from '../lib/supabase';
+import { usePageContent } from '../lib/cmsContent';
+
+const DEFAULT_LOGOS = [
+  { name: 'Google Cloud', logo: 'https://demo.awaikenthemes.com/fexora/wp-content/uploads/2026/05/company-supports-logo-1-prime.svg' },
+  { name: 'Shopify Plus', logo: 'https://demo.awaikenthemes.com/fexora/wp-content/uploads/2026/05/company-supports-logo-2-prime.svg' },
+  { name: 'Webflow', logo: 'https://demo.awaikenthemes.com/fexora/wp-content/uploads/2026/05/company-supports-logo-3-prime.svg' },
+  { name: 'Stripe', logo: 'https://demo.awaikenthemes.com/fexora/wp-content/uploads/2026/05/company-supports-logo-4-prime.svg' },
+  { name: 'Amazon AWS', logo: 'https://demo.awaikenthemes.com/fexora/wp-content/uploads/2026/05/company-supports-logo-5-prime.svg' },
+  { name: 'Meta Marketing', logo: 'https://demo.awaikenthemes.com/fexora/wp-content/uploads/2026/05/company-supports-logo-6-prime.svg' },
+];
 
 export default function Clients() {
-  const [clients, setClients] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>(DEFAULT_LOGOS);
+  const pageData = usePageContent('page-home', {
+    clients_badge: 'Trusted By 200+ Global Brands & Visionary Startups'
+  });
 
   useEffect(() => {
     const fetchClients = async () => {
-      const { data } = await supabase.from('clients').select('*');
-      if (data) setClients(data);
+      try {
+        const { data } = await supabase.from('clients').select('*');
+        if (data && data.length > 0) {
+          const valid = data.filter((c: any) => c.logo || c.name);
+          if (valid.length > 0) setClients(valid);
+        }
+      } catch {}
     };
     fetchClients();
   }, []);
 
-  if (clients.length === 0) return null;
+  const badgeText = pageData.clients_badge || 'Trusted By 200+ Global Brands & Visionary Startups';
+
+  // Duplicate list to create a seamless infinite marquee loop
+  const marqueeItems = [...clients, ...clients, ...clients, ...clients];
 
   return (
-    <section id="clients" className="py-16 bg-zinc-950 border-t border-zinc-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">Partners & Sponsors</span>
-          <h2 className="mt-2 text-3xl font-bold text-white">Our Clients</h2>
-        </div>
+    <section className="py-12 bg-black border-y border-white/[0.08] overflow-hidden relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 text-center">
+        <p className="text-xs sm:text-sm font-semibold tracking-widest text-zinc-500 uppercase">
+          {badgeText}
+        </p>
+      </div>
 
-        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 lg:gap-20">
-          {clients.map((client, index) => (
-            <motion.div
-              key={client.id}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 0.5, y: 0 }}
-              whileHover={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="flex items-center justify-center w-24 md:w-32 lg:w-40"
+      {/* Marquee Ticker Track with Gradient Fades */}
+      <div className="relative w-full overflow-hidden flex items-center">
+        <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
+
+        <div className="flex shrink-0 animate-[marquee_25s_linear_infinite] hover:[animation-play-state:paused] items-center gap-12 sm:gap-20">
+          {marqueeItems.map((item, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300 filter grayscale hover:grayscale-0 flex-shrink-0"
             >
-            {(() => {
-                const content = client.logo ? (
-                  <img
-                    src={client.logo}
-                    alt={client.name}
-                    className="h-12 md:h-16 w-full object-contain hover:scale-105 transition-transform duration-300"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="text-center w-full">
-                    <span className="text-zinc-500 font-bold text-sm md:text-base opacity-50 block truncate w-full">{client.name}</span>
-                  </div>
-                );
-
-                const websiteUrl = client.website && !client.website.startsWith('http') 
-                  ? `https://${client.website}` 
-                  : client.website;
-
-                return websiteUrl ? (
-                  <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="block w-full">
-                    {content}
-                  </a>
-                ) : content;
-              })()}
-            </motion.div>
+              {item.logo ? (
+                <img
+                  src={item.logo}
+                  alt={item.name || 'Client Logo'}
+                  className="h-8 sm:h-10 w-auto max-w-[140px] object-contain"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <span className={`${item.logo ? 'hidden' : 'block'} text-lg font-bold tracking-wider text-zinc-400`}>
+                {item.name}
+              </span>
+            </div>
           ))}
         </div>
       </div>

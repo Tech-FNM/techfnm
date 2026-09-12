@@ -154,6 +154,7 @@ export default function AdminLayout({ children, activeTab }: AdminLayoutProps) {
     {
       title: 'Content & Media',
       items: [
+        { id: 'homepage', label: 'Homepage (Fexora)', icon: Sparkles },
         { id: 'services', label: 'Services', icon: Briefcase },
         { id: 'portfolio', label: 'Portfolio Works', icon: FolderGit2 },
         { id: 'posts', label: 'Posts & Blogs', icon: FileText },
