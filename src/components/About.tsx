@@ -164,19 +164,6 @@ export default function About() {
                 </motion.p>
               </AnimatePresence>
             </div>
-
-            {/* Action CTA Button */}
-            <div>
-              <Link
-                to={content.about_btn_link || '/about'}
-                className="group inline-flex items-center gap-3 bg-[#e5432e] hover:bg-[#cc3622] text-white px-7 py-3.5 rounded-full text-sm sm:text-base font-semibold transition-all duration-300 transform hover:scale-[1.02] shadow-lg shadow-[#e5432e]/20"
-              >
-                <span>{content.about_btn_text || 'More About Us'}</span>
-                <span className="w-7 h-7 rounded-full bg-white text-[#e5432e] flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                  <ArrowUpRight size={15} />
-                </span>
-              </Link>
-            </div>
           </motion.div>
         </div>
       </div>

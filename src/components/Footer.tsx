@@ -73,20 +73,22 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-16 border-b border-white/10">
           {/* Column 1: Brand & Bio (4 cols) */}
           <div className="lg:col-span-4">
-            <div className="mb-6 flex items-center gap-2">
-              <img 
-                src="/image/agency-assets/projects/0.569918561129375.png" 
-                alt="TechFNM Logo" 
-                className="h-10 w-auto object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  target.nextElementSibling?.classList.remove('hidden');
-                }}
-              />
-              <div className="text-2xl font-bold text-white tracking-tight">
-                Tech<span className="text-[#e5432e] ml-1">FNM</span>
-              </div>
+            <div className="mb-6 flex items-center">
+              <Link to="/">
+                <img 
+                  src="/image/agency-assets/projects/0.569918561129375.png" 
+                  alt="TechFNM Logo" 
+                  className="h-10 w-auto object-contain"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <div className="hidden text-2xl font-bold text-white tracking-tight">
+                  Tech<span className="text-[#e5432e] ml-1">FNM</span>
+                </div>
+              </Link>
             </div>
 
             <p className="text-zinc-400 mb-6 text-sm sm:text-base leading-relaxed">

@@ -32,8 +32,6 @@ export default function Clients() {
 
   const badgeText = pageData.clients_badge || 'Trusted By 200+ Global Brands & Visionary Startups';
 
-  // Duplicate list to create a seamless infinite marquee loop
-  const marqueeItems = [...clients, ...clients, ...clients, ...clients];
 
   return (
     <section className="py-12 bg-black border-y border-white/[0.08] overflow-hidden relative">
@@ -48,29 +46,56 @@ export default function Clients() {
         <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
 
-        <div className="flex shrink-0 animate-[marquee_25s_linear_infinite] hover:[animation-play-state:paused] items-center gap-12 sm:gap-20">
-          {marqueeItems.map((item, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300 filter grayscale hover:grayscale-0 flex-shrink-0"
-            >
-              {item.logo ? (
-                <img
-                  src={item.logo}
-                  alt={item.name || 'Client Logo'}
-                  className="h-8 sm:h-10 w-auto max-w-[140px] object-contain"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    target.nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-              ) : null}
-              <span className={`${item.logo ? 'hidden' : 'block'} text-lg font-bold tracking-wider text-zinc-400`}>
-                {item.name}
-              </span>
-            </div>
-          ))}
+        <div className="flex w-max animate-marquee hover:[animation-play-state:paused] items-center">
+          <div className="flex shrink-0 items-center gap-12 sm:gap-20 pr-12 sm:pr-20">
+            {clients.map((item, index) => (
+              <div
+                key={`c1-${index}`}
+                className="flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300 filter grayscale hover:grayscale-0 flex-shrink-0"
+              >
+                {item.logo ? (
+                  <img
+                    src={item.logo}
+                    alt={item.name || 'Client Logo'}
+                    className="h-8 sm:h-10 w-auto max-w-[140px] object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <span className={`${item.logo ? 'hidden' : 'block'} text-lg font-bold tracking-wider text-zinc-400`}>
+                  {item.name}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex shrink-0 items-center gap-12 sm:gap-20 pr-12 sm:pr-20" aria-hidden="true">
+            {clients.map((item, index) => (
+              <div
+                key={`c2-${index}`}
+                className="flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300 filter grayscale hover:grayscale-0 flex-shrink-0"
+              >
+                {item.logo ? (
+                  <img
+                    src={item.logo}
+                    alt={item.name || 'Client Logo'}
+                    className="h-8 sm:h-10 w-auto max-w-[140px] object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <span className={`${item.logo ? 'hidden' : 'block'} text-lg font-bold tracking-wider text-zinc-400`}>
+                  {item.name}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

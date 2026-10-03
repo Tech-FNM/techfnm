@@ -115,17 +115,17 @@ export default function Hero() {
         >
           <Link
             to={cta1Link}
-            className="group inline-flex items-center gap-3 bg-[#e5432e] hover:bg-[#cc3622] text-white px-7 py-3.5 sm:py-4 rounded-full text-base font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl shadow-[#e5432e]/20"
+            className="group inline-flex items-center justify-center gap-3 bg-[#e5432e] hover:bg-[#cc3622] text-white px-7 py-4 rounded-full text-base font-semibold leading-none transition-all duration-300 transform hover:scale-105 shadow-xl shadow-[#e5432e]/20"
           >
             <span>{cta1Text}</span>
-            <span className="w-8 h-8 rounded-full bg-white text-[#e5432e] flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              <ArrowUpRight size={17} />
+            <span className="w-7 h-7 rounded-full bg-white text-[#e5432e] flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <ArrowUpRight size={16} />
             </span>
           </Link>
 
           <a
             href={cta2Link}
-            className="inline-flex items-center gap-2 bg-[#1B1B1B] hover:bg-[#252528] text-white px-7 py-3.5 sm:py-4 rounded-full text-base font-medium border border-white/10 hover:border-white/25 transition-all duration-300"
+            className="inline-flex items-center justify-center gap-2 bg-[#1B1B1B] hover:bg-[#252528] text-white px-7 py-4 rounded-full text-base font-semibold leading-none border border-white/10 hover:border-white/25 transition-all duration-300"
           >
             <span>{cta2Text}</span>
           </a>
