@@ -23,44 +23,34 @@ export interface BlogPost {
 
 const FALLBACK_BLOGS: BlogPost[] = [
   {
-    id: 'f1',
-    title: 'Stress-Free UK Airport Transfers: Why Pre-Booking Your Journey Makes Sense',
-    slug: 'stress-free-uk-airport-transfers',
-    category: 'General',
-    image: 'https://rpnaqrmquddupmxvvcjg.supabase.co/storage/v1/object/public/agency-assets/blogs/0.6338765301290266.png',
-    content: 'Travelling to or from the airport should be simple, comfortable and reliable. Whether you are heading away for a holiday, travelling for business, or picking up family from the airport, arranging your transport in advance can make the entire journey much easier...',
-    author: 'admin',
-    created_at: new Date('2026-08-18T01:33:13Z').toISOString()
-  },
-  {
-    id: 'f2',
-    title: '5 Digital Marketing Strategies to Grow Your Business Online',
-    slug: '5-digital-marketing-strategies',
-    category: 'Digital Strategy',
-    image: 'https://demo.awaikenthemes.com/fexora/wp-content/uploads/2026/05/post-1.jpg',
-    content: 'Digital marketing continues to evolve at breakneck speeds. Explore the top five growth strategies ambitious brands are using today to accelerate conversions and organic reach...',
-    author: 'admin',
-    created_at: new Date('2026-08-20T10:00:00Z').toISOString()
-  },
-  {
-    id: 'f3',
-    title: 'The Power of Brand in Building a Strong Business Identity',
-    slug: 'the-power-of-brand',
-    category: 'Branding',
-    image: 'https://demo.awaikenthemes.com/fexora/wp-content/uploads/2026/05/post-2.jpg',
-    content: 'A powerful brand identity builds immediate trust and commands market authority. Discover how purposeful typography, colors, and messaging transform customer loyalty...',
-    author: 'admin',
-    created_at: new Date('2026-08-21T12:30:00Z').toISOString()
-  },
-  {
-    id: 'f4',
-    title: 'Why Mobile Friendly Websites Are Essential for SEO & Conversions',
-    slug: 'mobile-friendly-websites',
+    id: 'b1',
+    title: 'How We Build Scalable Cloud-Native Applications in 2026',
+    slug: 'how-we-build-scalable-cloud-native-applications',
     category: 'Web Engineering',
-    image: 'https://demo.awaikenthemes.com/fexora/wp-content/uploads/2026/05/post-3.jpg',
-    content: 'Over 65% of all web traffic originates from mobile devices. Learn why mobile-first design, speed optimization, and responsive architectures are non-negotiable for 2026...',
-    author: 'admin',
-    created_at: new Date('2026-08-22T14:15:00Z').toISOString()
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+    content: 'Building resilient, cloud-native applications in today’s landscape demands modular architectures, automated deployment pipelines, and zero-downtime reliability. At Tech FNM, we implement cutting-edge frameworks paired with robust cloud backends to deliver lightning-fast digital solutions that scale effortlessly with your business.',
+    author: 'Tech FNM Team',
+    created_at: new Date('2026-10-11T12:00:00Z').toISOString()
+  },
+  {
+    id: 'b2',
+    title: 'AI-Powered Digital Transformation: Accelerating Business Growth',
+    slug: 'ai-powered-digital-transformation',
+    category: 'Artificial Intelligence',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80',
+    content: 'Artificial intelligence is no longer an experimental luxury—it is the driving catalyst behind high-growth modern businesses. Through machine learning models, natural language processing, and automated operational pipelines, Tech FNM helps ambitious companies unlock unprecedented efficiency and competitive advantage.',
+    author: 'Tech FNM Team',
+    created_at: new Date('2026-10-10T15:30:00Z').toISOString()
+  },
+  {
+    id: 'b3',
+    title: 'Data-Driven SEO & High-Performance Marketing Strategies',
+    slug: 'data-driven-seo-performance-marketing',
+    category: 'Digital Marketing',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
+    content: 'Driving organic search dominance requires more than basic keywords. Modern search engines reward technical performance, semantic relevance, and engaging digital experiences. At Tech FNM, our growth marketing methodologies align technical architecture with strategic content optimization to maximize inbound traffic and conversion rates.',
+    author: 'Tech FNM Team',
+    created_at: new Date('2026-10-09T09:15:00Z').toISOString()
   }
 ];
 
@@ -70,7 +60,10 @@ export default function BlogPage() {
       const cached = localStorage.getItem('techfnm_blogs_cache');
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const liveOnly = parsed.filter((p: any) => p.slug !== 'stress-free-uk-airport-transfers' && p.id !== 'f1');
+          if (liveOnly.length > 0) return liveOnly;
+        }
       }
     } catch {}
     return FALLBACK_BLOGS;
@@ -87,11 +80,7 @@ export default function BlogPage() {
         .order('created_at', { ascending: false });
 
       if (data && data.length > 0) {
-        // If DB has posts, merge with fallbacks to ensure rich experience
-        const realSlugs = new Set(data.map((p: any) => p.slug || p.id));
-        const nonDuplicateFallbacks = FALLBACK_BLOGS.filter(fb => !realSlugs.has(fb.slug));
-        const combined = [...data, ...nonDuplicateFallbacks];
-        setBlogs(combined);
+        setBlogs(data);
         localStorage.setItem('techfnm_blogs_cache', JSON.stringify(data));
       }
     } catch (err) {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { usePageContent } from '../lib/cmsContent';
 
@@ -17,21 +17,35 @@ export default function Clients() {
     clients_badge: 'Trusted By 200+ Global Brands & Visionary Startups'
   });
 
+  const fetchClients = async () => {
+    try {
+      const { data } = await supabase.from('clients').select('*');
+      if (data && data.length > 0) {
+        const valid = data.filter((c: any) => c.logo || c.name);
+        if (valid.length > 0) setClients(valid);
+      }
+    } catch {}
+  };
+
   useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        const { data } = await supabase.from('clients').select('*');
-        if (data && data.length > 0) {
-          const valid = data.filter((c: any) => c.logo || c.name);
-          if (valid.length > 0) setClients(valid);
-        }
-      } catch {}
-    };
     fetchClients();
+
+    const handleUpdate = () => fetchClients();
+    window.addEventListener('techfnm_content_updated', handleUpdate);
+    return () => window.removeEventListener('techfnm_content_updated', handleUpdate);
   }, []);
 
-  const badgeText = pageData.clients_badge || 'Trusted By 200+ Global Brands & Visionary Startups';
+  // Guarantee enough repeated items so each half track completely exceeds wide screen viewports (min 16 items)
+  const repeatedClients = useMemo(() => {
+    if (!clients || clients.length === 0) return [];
+    let list = [...clients];
+    while (list.length < 16) {
+      list = [...list, ...clients];
+    }
+    return list;
+  }, [clients]);
 
+  const badgeText = pageData.clients_badge || 'Trusted By 200+ Global Brands & Visionary Startups';
 
   return (
     <section className="py-12 bg-black border-y border-white/[0.08] overflow-hidden relative">
@@ -47,8 +61,9 @@ export default function Clients() {
         <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
 
         <div className="flex w-max animate-marquee hover:[animation-play-state:paused] items-center">
+          {/* Half 1 */}
           <div className="flex shrink-0 items-center gap-12 sm:gap-20 pr-12 sm:pr-20">
-            {clients.map((item, index) => (
+            {repeatedClients.map((item, index) => (
               <div
                 key={`c1-${index}`}
                 className="flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300 filter grayscale hover:grayscale-0 flex-shrink-0"
@@ -72,8 +87,9 @@ export default function Clients() {
             ))}
           </div>
 
+          {/* Half 2 (Exact Duplicate for Infinite 0% to -50% Seamless Loop) */}
           <div className="flex shrink-0 items-center gap-12 sm:gap-20 pr-12 sm:pr-20" aria-hidden="true">
-            {clients.map((item, index) => (
+            {repeatedClients.map((item, index) => (
               <div
                 key={`c2-${index}`}
                 className="flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300 filter grayscale hover:grayscale-0 flex-shrink-0"

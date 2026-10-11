@@ -9,54 +9,48 @@ import { BlogPost } from './BlogPage';
 
 const FALLBACK_POSTS: BlogPost[] = [
   {
-    id: 'f1',
-    title: 'Stress-Free UK Airport Transfers: Why Pre-Booking Your Journey Makes Sense',
-    slug: 'stress-free-uk-airport-transfers',
-    category: 'General',
-    image: 'https://rpnaqrmquddupmxvvcjg.supabase.co/storage/v1/object/public/agency-assets/blogs/0.6338765301290266.png',
-    content: `<p>Travelling to or from the airport should be simple, comfortable and reliable. Whether you are heading away for a holiday, travelling for business, or picking up family from the airport, arranging your transport in advance can make the entire journey much easier.</p>
-    <p>With TravelLuxx, passengers can arrange a professional airport transfer designed around their travel plans, helping them avoid the uncertainty and stress that can come with finding transport at the last minute.</p>
-    <h3>Why Pre-Book an Airport Transfer?</h3>
-    <p>One of the biggest advantages of booking your airport transfer in advance is peace of mind. Instead of searching for a taxi after landing or worrying about whether a vehicle will be available, your journey can be arranged before you travel.</p>
-    <ul>
-      <li>Plan your journey around your flight schedule</li>
-      <li>Know your pickup and drop-off details in advance</li>
-      <li>Avoid unnecessary waiting at the airport</li>
-      <li>Choose a vehicle suitable for your passengers and luggage</li>
-      <li>Enjoy a more organised door-to-door journey</li>
-    </ul>
-    <p>For travellers with early morning flights, large amounts of luggage or family members travelling together, planning ahead can be particularly useful.</p>
-    <h3>Comfortable Travel from Door to Door</h3>
-    <p>Airport travel does not always start or end at the terminal. You may need a transfer from your home, hotel, office or another location. A private airport transfer provides a convenient door-to-door option, allowing you to travel directly to your destination without changing vehicles or carrying luggage between different forms of transport.</p>
-    <h3>A Better Option for Business Travellers</h3>
-    <p>Business travel often depends on punctuality and good planning. Arriving late for a meeting or waiting for transport after a long flight can create unnecessary stress. Booking an airport transfer in advance gives business travellers a more organised way to manage their journey.</p>`,
-    author: 'admin',
-    created_at: new Date('2026-08-18T01:33:13Z').toISOString()
+    id: 'b1',
+    title: 'How We Build Scalable Cloud-Native Applications in 2026',
+    slug: 'how-we-build-scalable-cloud-native-applications',
+    category: 'Web Engineering',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+    content: `<p>Building resilient, cloud-native applications in today’s landscape demands modular architectures, automated deployment pipelines, and zero-downtime reliability. At Tech FNM, we implement cutting-edge frameworks paired with robust cloud backends to deliver lightning-fast digital solutions that scale effortlessly with your business.</p>
+    <h3>1. Decoupled & Microservice Architectures</h3>
+    <p>By separating backend business logic from frontend presentation layers, modern applications achieve superior fault isolation, high availability, and horizontal scalability under heavy traffic loads.</p>
+    <h3>2. Real-Time Data Synchronization</h3>
+    <p>Utilizing reactive state management and distributed edge databases ensures users receive instant updates without page refreshes, providing an app-like experience on the web.</p>
+    <h3>3. Security by Design</h3>
+    <p>Row-level security policies, encrypted environment secrets, and strict API validation ensure enterprise data remains fortified against evolving security threats.</p>`,
+    author: 'Tech FNM Team',
+    created_at: new Date('2026-10-11T12:00:00Z').toISOString()
   },
   {
-    id: 'f2',
-    title: '5 Digital Marketing Strategies to Grow Your Business Online',
-    slug: '5-digital-marketing-strategies',
-    category: 'Digital Strategy',
-    image: 'https://demo.awaikenthemes.com/fexora/wp-content/uploads/2026/05/post-1.jpg',
-    content: `<p>In modern digital commerce, simply having a website is no longer enough. Businesses need high-converting funnels, algorithmic optimization, and distinct visual branding to capture audience attention.</p>
-    <h3>1. Organic Search Engine Optimization (SEO)</h3>
-    <p>Long-term digital authority starts with search. Ranking for intent-driven keywords ensures a compounding flow of qualified leads who are actively searching for your services.</p>
-    <h3>2. High-Performance Paid Ad Funnels</h3>
-    <p>Laser-targeted PPC campaigns on Google Ads and Meta Ads enable rapid testing of messaging, pricing models, and market positioning.</p>`,
-    author: 'admin',
-    created_at: new Date('2026-08-20T10:00:00Z').toISOString()
+    id: 'b2',
+    title: 'AI-Powered Digital Transformation: Accelerating Business Growth',
+    slug: 'ai-powered-digital-transformation',
+    category: 'Artificial Intelligence',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80',
+    content: `<p>Artificial intelligence is no longer an experimental luxury—it is the driving catalyst behind high-growth modern businesses. Through machine learning models, natural language processing, and automated operational pipelines, Tech FNM helps ambitious companies unlock unprecedented efficiency and competitive advantage.</p>
+    <h3>Strategic AI Implementation</h3>
+    <p>We believe AI implementations must deliver measurable ROI. Rather than adopting novelty tools, our team integrates targeted automated pipelines that eliminate bottlenecks and enhance decision-making.</p>
+    <h3>Intelligent Customer Workflows</h3>
+    <p>From conversational agents that qualify leads 24/7 to predictive analytics models that anticipate customer needs, AI transforms interactions into revenue opportunities.</p>`,
+    author: 'Tech FNM Team',
+    created_at: new Date('2026-10-10T15:30:00Z').toISOString()
   },
   {
-    id: 'f3',
-    title: 'The Power of Brand in Building a Strong Business Identity',
-    slug: 'the-power-of-brand',
-    category: 'Branding',
-    image: 'https://demo.awaikenthemes.com/fexora/wp-content/uploads/2026/05/post-2.jpg',
-    content: `<p>A cohesive brand identity is the difference between a commoditized service provider and an industry authority that can command premium pricing.</p>
-    <p>Every touchpoint—from your favicon and typography to your color palette and email signatures—communicates professionalism and credibility to prospective clients.</p>`,
-    author: 'admin',
-    created_at: new Date('2026-08-21T12:30:00Z').toISOString()
+    id: 'b3',
+    title: 'Data-Driven SEO & High-Performance Marketing Strategies',
+    slug: 'data-driven-seo-performance-marketing',
+    category: 'Digital Marketing',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
+    content: `<p>Driving organic search dominance requires more than basic keywords. Modern search engines reward technical performance, semantic relevance, and engaging digital experiences. At Tech FNM, our growth marketing methodologies align technical architecture with strategic content optimization to maximize inbound traffic and conversion rates.</p>
+    <h3>1. Technical Architecture & Core Web Vitals</h3>
+    <p>Search algorithms heavily prioritize sub-second load times, minimal layout shifts, and mobile responsiveness. Fast sites convert higher and rank better.</p>
+    <h3>2. High-Intent Content Optimization</h3>
+    <p>Targeting buyer intent queries positions your services in front of decision-makers when they are actively seeking enterprise solutions.</p>`,
+    author: 'Tech FNM Team',
+    created_at: new Date('2026-10-09T09:15:00Z').toISOString()
   }
 ];
 
@@ -77,12 +71,20 @@ export default function BlogDetail() {
     try {
       setLoading(true);
 
-      // Check cache first
+      // Check cache first (ignore legacy dummy posts)
       let allPosts: BlogPost[] = [];
       try {
         const cached = localStorage.getItem('techfnm_blogs_cache');
         if (cached) {
-          allPosts = JSON.parse(cached);
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed)) {
+            allPosts = parsed.filter(
+              (p: any) =>
+                p.slug !== 'stress-free-uk-airport-transfers' &&
+                p.id !== 'f1' &&
+                !String(p.title || '').toLowerCase().includes('uk airport transfers')
+            );
+          }
         }
       } catch {}
 
@@ -98,14 +100,15 @@ export default function BlogDetail() {
       // Fetch from Supabase
       const { data } = await supabase
         .from('blogs')
-        .select('*');
+        .select('*')
+        .order('created_at', { ascending: false });
 
       if (data && data.length > 0) {
         const found = data.find((p: any) => p.slug === slug || String(p.id) === slug);
         if (found) {
           setPost(found);
           const others = data.filter((p: any) => (p.slug || String(p.id)) !== (found.slug || String(found.id))).slice(0, 3);
-          setRelatedPosts(others.length > 0 ? others : FALLBACK_POSTS.slice(1, 3));
+          setRelatedPosts(others.length > 0 ? others : FALLBACK_POSTS.filter(p => p.slug !== found.slug).slice(0, 3));
           setLoading(false);
           return;
         }
@@ -114,14 +117,15 @@ export default function BlogDetail() {
       if (foundInCache) {
         setPost(foundInCache);
         const others = allPosts.filter(p => p.slug !== foundInCache.slug).slice(0, 3);
-        setRelatedPosts(others);
+        setRelatedPosts(others.length > 0 ? others : FALLBACK_POSTS.slice(0, 3));
       } else {
         const fb = FALLBACK_POSTS.find(p => p.slug === slug || String(p.id) === slug);
         if (fb) {
           setPost(fb);
           setRelatedPosts(FALLBACK_POSTS.filter(p => p.slug !== fb.slug).slice(0, 3));
-        } else {
+        } else if (FALLBACK_POSTS.length > 0) {
           setPost(FALLBACK_POSTS[0]);
+          setRelatedPosts(FALLBACK_POSTS.slice(1, 3));
         }
       }
     } catch (err) {
