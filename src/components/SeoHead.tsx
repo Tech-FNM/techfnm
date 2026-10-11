@@ -30,7 +30,7 @@ export default function SeoHead({
         }
       }
     } catch {}
-    return false; // Default strictly to noindex
+    return true; // Default to index enabled
   });
 
   useEffect(() => {
@@ -82,17 +82,17 @@ export default function SeoHead({
     return () => window.removeEventListener('techfnm_settings_updated', handleSettingsUpdate);
   }, []);
 
-  // Guarantee that the raw HTML document head robots meta tag is synchronized
+  // Ensure there is strictly only ONE robots meta tag in the entire document head
   useEffect(() => {
     const robotVal = indexingEnabled ? 'index, follow' : 'noindex, nofollow';
-    let metaRobots = document.querySelector('meta[name="robots"]');
-    if (metaRobots) {
-      metaRobots.setAttribute('content', robotVal);
-    } else {
-      metaRobots = document.createElement('meta');
-      metaRobots.setAttribute('name', 'robots');
-      metaRobots.setAttribute('content', robotVal);
-      document.head.appendChild(metaRobots);
+    const allRobots = document.querySelectorAll('meta[name="robots"]');
+    if (allRobots.length > 1) {
+      allRobots.forEach((tag, idx) => {
+        if (idx > 0) tag.remove();
+        else tag.setAttribute('content', robotVal);
+      });
+    } else if (allRobots.length === 1) {
+      allRobots[0].setAttribute('content', robotVal);
     }
   }, [indexingEnabled]);
 
@@ -101,8 +101,7 @@ export default function SeoHead({
   const defaultTitle = 'TechFNM | Production Software, Modern Web & Digital Growth';
   const defaultDescription =
     'TechFNM builds modern web applications, scalable cloud software, and high-conversion digital assets.';
-  const defaultImage =
-    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800';
+  const defaultImage = 'https://techfnm.com/og-preview.png';
 
   const finalTitle = activeSeo.seoTitle || title || defaultTitle;
   const finalDescription = activeSeo.metaDescription || description || defaultDescription;
@@ -138,17 +137,24 @@ export default function SeoHead({
       <meta name="description" content={finalDescription} />
       <meta name="robots" content={indexingEnabled ? 'index, follow' : 'noindex, nofollow'} />
 
-      {/* OpenGraph */}
+      {/* OpenGraph & Social Image Preview */}
       <meta property="og:title" content={socialTitle} />
       <meta property="og:description" content={socialDescription} />
       <meta property="og:image" content={finalImage} />
+      <meta property="og:image:secure_url" content={finalImage} />
+      <meta property="og:image:type" content="image/png" />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={socialTitle} />
+      <meta property="og:url" content={url || (typeof window !== 'undefined' ? window.location.href : 'https://techfnm.com/')} />
       <meta property="og:type" content={activeSeo.schemaPageType || 'website'} />
 
-      {/* Twitter Card */}
+      {/* Twitter Card & Image Preview */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={twitterTitle} />
       <meta name="twitter:description" content={twitterDescription} />
       <meta name="twitter:image" content={finalImage} />
+      <meta name="twitter:image:alt" content={twitterTitle} />
 
       {/* FAQ Schema JSON-LD */}
       {faqSchema && (
