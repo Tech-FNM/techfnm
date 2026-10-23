@@ -3,8 +3,10 @@ import { supabase } from './supabase';
 import { CANONICAL_PAGES_DATA, getCached, setCached } from './canonicalData';
 
 export function getPageData(pageId: string): Record<string, any> {
-  const canonical = CANONICAL_PAGES_DATA[pageId] || {};
-  const cachedPage = getCached<Record<string, any>>(`techfnm_page_cache_${pageId}`, {});
+  // Content the server already rendered into the HTML (api/render.js) wins over older caches
+  const serverData = (typeof window !== 'undefined' && (window as any).__CMS_PAGES__?.[pageId]) || {};
+  const canonical = { ...(CANONICAL_PAGES_DATA[pageId] || {}), ...serverData };
+  const cachedPage = { ...getCached<Record<string, any>>(`techfnm_page_cache_${pageId}`, {}), ...serverData };
 
   try {
     const raw = localStorage.getItem('techfnm_site_pages_v2');
@@ -15,7 +17,8 @@ export function getPageData(pageId: string): Record<string, any> {
         return {
           ...canonical,
           ...cachedPage,
-          ...page.sectionsData
+          ...page.sectionsData,
+          ...serverData
         };
       }
     }
