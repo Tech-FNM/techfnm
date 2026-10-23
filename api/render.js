@@ -363,6 +363,7 @@ ${cats.length > 1 ? `<p>Tags: ${cats.slice(1).map(esc).join(', ')}</p>` : ''}
     author,
     category: data.category,
     imageAlt: alt,
+    lcpImage: data.image || '/og-preview.png',
     faqs,
     crumbs: [['Blog', `${SITE_URL}/blog`], [data.title, canonical]],
   };
@@ -404,6 +405,7 @@ ${p.description ? `<p>${esc(p.description)}</p>` : ''}${p.content ? safeHtml(p.c
 ${p.project_url ? `<p><a href="${esc(p.project_url)}" rel="noopener">Visit project</a></p>` : ''}
 <p><a href="/portfolio">Back to portfolio</a> · <a href="/contact">Start a similar project</a></p>`,
     canonical,
+    lcpImage: img,
     crumbs: [['Portfolio', `${SITE_URL}/portfolio`], [p.title, canonical]],
   };
 }
@@ -552,6 +554,10 @@ export default async function handler(req, res) {
   if (page.imageAlt) {
     html = setMeta(html, 'property', 'og:image:alt', page.imageAlt);
     html = setMeta(html, 'name', 'twitter:image:alt', page.imageAlt);
+  }
+  // Blog/portfolio featured image is the LCP element: start downloading it before the JS runs
+  if (page.lcpImage) {
+    html = html.replace('</head>', `<link rel="preload" as="image" href="${esc(page.lcpImage)}" fetchpriority="high" />\n</head>`);
   }
   if (page.type === 'article' && page.published) {
     html = setMeta(html, 'property', 'article:published_time', new Date(page.published).toISOString());
