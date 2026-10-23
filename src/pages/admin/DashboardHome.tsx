@@ -87,6 +87,20 @@ export default function DashboardHome() {
   });
   const [recentLeads, setRecentLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [indexingEnabled, setIndexingEnabled] = useState<boolean | null>(null);
+
+  // Read the real indexing setting instead of showing a hardcoded "NOINDEX" label
+  useEffect(() => {
+    supabase
+      .from('site_settings')
+      .select('content')
+      .eq('id', 'global_settings')
+      .maybeSingle()
+      .then(({ data }) => {
+        const v = data?.content?.seo_indexing_enabled;
+        setIndexingEnabled(typeof v === 'boolean' ? v : true);
+      });
+  }, []);
   const [refreshing, setRefreshing] = useState(false);
 
   // GMB Review Sync States
@@ -871,10 +885,14 @@ export default function DashboardHome() {
                 <span className="text-zinc-400">Search Indexing</span>
                 <button
                   onClick={() => goToTab('settings')}
-                  className="font-semibold text-[11px] text-red-400 bg-red-950/40 hover:bg-red-900/50 px-2 py-0.5 rounded-md border border-red-900/40 transition-colors cursor-pointer"
+                  className={`font-semibold text-[11px] px-2 py-0.5 rounded-md border transition-colors cursor-pointer ${
+                    indexingEnabled === false
+                      ? 'text-red-400 bg-red-950/40 hover:bg-red-900/50 border-red-900/40'
+                      : 'text-emerald-400 bg-emerald-950/30 hover:bg-emerald-900/40 border-emerald-900/30'
+                  }`}
                   title="Click to manage in Global Settings"
                 >
-                  NOINDEX (Blocked)
+                  {indexingEnabled === null ? 'Checking…' : indexingEnabled ? 'INDEX (Active)' : 'NOINDEX (Blocked)'}
                 </button>
               </div>
             </div>
