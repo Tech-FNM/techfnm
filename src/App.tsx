@@ -2,18 +2,18 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import CustomCursor from './components/CustomCursor';
-const AboutPage = lazy(() => import('./pages/public/AboutPage'));
-const ContactPage = lazy(() => import('./pages/public/ContactPage'));
-const FAQPage = lazy(() => import('./pages/public/FAQPage'));
-const PortfolioPage = lazy(() => import('./pages/public/PortfolioPage'));
-const ServicesPage = lazy(() => import('./pages/public/ServicesPage'));
-const ServiceDetail = lazy(() => import('./pages/public/ServiceDetail'));
-const RequestServicePage = lazy(() => import('./pages/public/RequestServicePage'));
-const BlogPage = lazy(() => import('./pages/public/BlogPage'));
-const BlogDetail = lazy(() => import('./pages/public/BlogDetail'));
+import AboutPage from './pages/public/AboutPage';
+import ContactPage from './pages/public/ContactPage';
+import FAQPage from './pages/public/FAQPage';
+import PortfolioPage from './pages/public/PortfolioPage';
+import ServicesPage from './pages/public/ServicesPage';
+import ServiceDetail from './pages/public/ServiceDetail';
+import RequestServicePage from './pages/public/RequestServicePage';
+import BlogPage from './pages/public/BlogPage';
+import BlogDetail from './pages/public/BlogDetail';
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const NotFound = lazy(() => import('./pages/public/NotFound'));
+import NotFound from './pages/public/NotFound';
 
 function App() {
   return (
