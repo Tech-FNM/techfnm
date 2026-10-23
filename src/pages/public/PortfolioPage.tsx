@@ -5,6 +5,8 @@ import { supabase } from '../../lib/supabase';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
+import { Link } from 'react-router-dom';
+import { projectSlug } from '../../lib/revalidate';
 import { CANONICAL_PROJECTS, getCached, setCached } from '../../lib/canonicalData';
 
 export default function PortfolioPage() {
@@ -125,8 +127,10 @@ export default function PortfolioPage() {
                     >
                       <div className="relative aspect-[4/3] w-full overflow-hidden">
                         <img loading="lazy" decoding="async"
-                          src={project.image || 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800'}
-                          alt={project.title}
+                          src={project.image || '/og-preview.png'}
+                          alt={project.seo_settings?.imageAlt || `${project.title} ${project.category || ''} project by TechFNM`}
+                          width={800}
+                          height={600}
                           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
                           referrerPolicy="no-referrer"
                         />
@@ -143,7 +147,9 @@ export default function PortfolioPage() {
                           {project.category}
                         </span>
                         <h2 className="text-lg sm:text-xl font-bold text-white leading-tight">
-                          {project.title}
+                          <Link to={`/portfolio/${projectSlug(project)}`} onClick={(e) => e.stopPropagation()} className="hover:text-red-400">
+                            {project.title}
+                          </Link>
                         </h2>
                         {project.description && (
                           <p className="text-zinc-400 text-sm leading-relaxed line-clamp-2">
