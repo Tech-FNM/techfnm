@@ -402,6 +402,17 @@ export const CANONICAL_SERVICES: any[] = [
     "content": null,
     "meta_title": "App Development",
     "meta_description": null
+  },
+  {
+    "id": 7,
+    "title": "SEO Services",
+    "description": "Rank higher on Google with result-driven SEO services in Pakistan: technical SEO, keyword research, on-page optimisation, local SEO and link building.",
+    "icon": "Search",
+    "color": "bg-white-900/20 text-white-400",
+    "slug": "seo-services",
+    "content": "## SEO Services in Pakistan That Bring Real Traffic\n\nTechFNM is an SEO agency in Pakistan that helps businesses rank on Google, get more qualified traffic and turn visitors into leads. We work with local businesses in Karachi, Lahore and Islamabad, and with international clients who want affordable, results-driven SEO.\n\n### What our SEO services include\n\n- **SEO audit:** a full technical and content audit with a clear, prioritised fix list.\n- **Keyword research:** the terms your customers actually search, mapped to the right pages.\n- **On-page SEO:** titles, meta descriptions, headings, internal links and content optimisation.\n- **Technical SEO:** site speed, Core Web Vitals, indexing, sitemaps, schema markup and crawlability.\n- **Local SEO:** Google Business Profile optimisation and local citations to win the map pack.\n- **Content & link building:** SEO content writing and white-hat backlinks that build authority.\n- **Monthly reporting:** rankings, traffic and leads, explained in plain language.\n\n### Why choose TechFNM for SEO in Pakistan\n\n- Transparent pricing with no long lock-in contracts\n- White-hat methods that follow Google guidelines\n- One team for SEO, content and web development, so fixes ship fast\n- Clients in Pakistan, the UK, the US and the Middle East\n\n### How we work\n\n1. Free consultation and SEO audit\n2. Keyword strategy and roadmap\n3. On-page and technical fixes\n4. Content and link building\n5. Monthly reporting and optimisation\n\nReady to grow your organic traffic? [Request a free SEO audit](/request-service) or [contact us](/contact).",
+    "meta_title": "SEO Services in Pakistan | Affordable SEO Agency | TechFNM",
+    "meta_description": "Looking for SEO services in Pakistan? TechFNM offers technical SEO, keyword research, on-page and local SEO, and link building that grow traffic and leads."
   }
 ];
 
