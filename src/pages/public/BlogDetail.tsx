@@ -194,7 +194,13 @@ export default function BlogDetail() {
 
   return (
     <div className="min-h-screen bg-black font-sans text-white scroll-smooth overflow-x-hidden w-full flex flex-col justify-between">
-      <SeoHead pageId="blog-detail" />
+      <SeoHead
+        title={(post as any).meta_title || post.title}
+        description={(post as any).meta_description || (post as any).excerpt || String(post.content || '').replace(/[#*_>`\[\]()!-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 155)}
+        image={post.image}
+        url={`https://techfnm.com/blog/${post.slug}`}
+        seoSettings={(post as any).seo_settings}
+      />
       <Header />
 
       <main className="flex-grow pt-28 sm:pt-32 pb-24">
