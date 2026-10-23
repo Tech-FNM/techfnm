@@ -75,7 +75,7 @@ export default function Footer() {
           <div className="lg:col-span-4">
             <div className="mb-6 flex items-center">
               <Link to="/">
-                <img 
+                <img loading="lazy" decoding="async" 
                   src="/image/agency-assets/projects/0.569918561129375.png" 
                   alt="TechFNM Logo" 
                   className="h-10 w-auto object-contain"

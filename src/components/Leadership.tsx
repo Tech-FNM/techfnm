@@ -106,7 +106,7 @@ export default function Leadership() {
               className="relative"
             >
               <div className="aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl relative border border-zinc-800">
-                <img
+                <img loading="lazy" decoding="async"
                   src={leader.image}
                   alt={leader.name}
                   className="w-full h-full object-cover object-top"
