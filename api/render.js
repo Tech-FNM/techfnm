@@ -151,8 +151,12 @@ async function resolvePage(pathname, sb) {
         body: plain(s.content || s.description, 1200),
         canonical: `${SITE_URL}/services/${cleanSlug(s.slug || s.id)}`,
         links,
+        schema: 'service',
+        name: s.title,
+        faqs: seo.schemaFaqs || [],
       };
     }
+    return { notFound: true, links };
   }
 
   // Blog detail
@@ -172,14 +176,21 @@ async function resolvePage(pathname, sb) {
           canonical: `${SITE_URL}/blog/${data.slug}`,
           type: 'article',
           links,
+          schema: 'article',
+          name: data.title,
+          published: data.created_at,
+          modified: data.updated_at || data.created_at,
+          author: data.author,
         };
       }
+      return { notFound: true, links };
     } catch {}
   }
 
   // Static pages (admin SEO settings from site_pages override defaults)
   const key = pathname.replace(/\/$/, '') || '/';
-  const base = STATIC_PAGES[key] || STATIC_PAGES['/'];
+  if (!STATIC_PAGES[key]) return { notFound: true, links };
+  const base = STATIC_PAGES[key];
   let seo = {};
   if (sb) {
     try {
@@ -193,9 +204,67 @@ async function resolvePage(pathname, sb) {
     image: seo.socialImage,
     h1: seo.h1 || base.h1,
     body: base.description,
-    canonical: `${SITE_URL}${STATIC_PAGES[key] ? (key === '/' ? '/' : key) : '/'}`,
+    canonical: `${SITE_URL}${key}`,
     links,
+    isHome: key === '/',
   };
+}
+
+function buildSchema(page, title, description, image) {
+  const out = [];
+  const crumbs = [{ name: 'Home', item: `${SITE_URL}/` }];
+  if (page.schema === 'service') {
+    crumbs.push({ name: 'Services', item: `${SITE_URL}/services` }, { name: page.name, item: page.canonical });
+    out.push({
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: page.name,
+      description,
+      url: page.canonical,
+      image,
+      serviceType: page.name,
+      areaServed: [{ '@type': 'Country', name: 'Pakistan' }, 'Worldwide'],
+      provider: { '@type': 'Organization', '@id': `${SITE_URL}/#organization`, name: 'Tech FNM', url: `${SITE_URL}/` },
+    });
+    const faqs = (page.faqs || []).filter((f) => f && f.question && f.answer);
+    if (faqs.length) {
+      out.push({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })),
+      });
+    }
+  } else if (page.schema === 'article') {
+    crumbs.push({ name: 'Blog', item: `${SITE_URL}/blog` }, { name: page.name, item: page.canonical });
+    out.push({
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: String(page.name || title).slice(0, 110),
+      description,
+      image: [image],
+      url: page.canonical,
+      mainEntityOfPage: page.canonical,
+      datePublished: page.published || undefined,
+      dateModified: page.modified || page.published || undefined,
+      author: { '@type': page.author ? 'Person' : 'Organization', name: page.author || 'Tech FNM' },
+      publisher: {
+        '@type': 'Organization',
+        '@id': `${SITE_URL}/#organization`,
+        name: 'Tech FNM',
+        logo: { '@type': 'ImageObject', url: `${SITE_URL}/image/agency-assets/projects/0.3295514356725505.png` },
+      },
+    });
+  } else if (!page.isHome && !page.noindex) {
+    crumbs.push({ name: page.h1, item: page.canonical });
+  }
+  if (crumbs.length > 1) {
+    out.push({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: c.item })),
+    });
+  }
+  return out;
 }
 
 function setMeta(html, attr, name, content) {
@@ -207,7 +276,19 @@ function setMeta(html, attr, name, content) {
 export default async function handler(req, res) {
   const pathname = (req.url || '/').split('?')[0];
   let html = await getTemplate(req);
-  const page = await resolvePage(pathname, getSupabase());
+  let page = await resolvePage(pathname, getSupabase());
+  const status = page.notFound ? 404 : 200;
+  if (page.notFound) {
+    page = {
+      title: 'Page Not Found | TechFNM',
+      description: 'The page you are looking for does not exist.',
+      h1: 'Page not found',
+      body: 'The page you are looking for does not exist or has been moved.',
+      canonical: `${SITE_URL}/`,
+      links: page.links,
+      noindex: true,
+    };
+  }
 
   let title = page.title || STATIC_PAGES['/'].title;
   if (!/techfnm/i.test(title)) title = `${title} | TechFNM`;
@@ -231,6 +312,18 @@ export default async function handler(req, res) {
     `<link rel="canonical" href="${esc(page.canonical)}" data-rh="true" />`
   );
 
+  // Homepage-only static schema (LocalBusiness/Organization/FAQ) must not repeat on every page
+  if (!page.isHome) {
+    html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, '');
+  }
+  if (page.noindex) {
+    html = html.replace(/<meta\s+name="robots"[^>]*>/i, '<meta name="robots" content="noindex, follow" data-rh="true" />');
+  }
+  const ld = buildSchema(page, title, description, image);
+  if (ld.length) {
+    html = html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>\n</head>`);
+  }
+
   const nav = [
     ['/', 'Home'], ['/services', 'Services'], ['/portfolio', 'Portfolio'], ['/blog', 'Blog'],
     ['/about', 'About'], ['/faq', 'FAQ'], ['/contact', 'Contact'],
@@ -245,5 +338,5 @@ ${page.links.length ? `<h2>Our Services</h2><ul>${page.links.map((l) => `<li><a 
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300, stale-while-revalidate=86400');
-  res.status(200).send(html);
+  res.status(status).send(html);
 }
