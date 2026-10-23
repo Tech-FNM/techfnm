@@ -22,6 +22,7 @@ const FALLBACK_SERVICES = [
   'social-media',
   'web-development',
   'app-development',
+  'seo-services',
 ];
 
 // Fallback blog slugs (in case Supabase is unavailable)

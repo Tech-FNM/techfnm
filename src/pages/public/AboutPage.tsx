@@ -313,7 +313,7 @@ export default function AboutPage() {
                         'https://lh3.googleusercontent.com/a/ACg8ocKs2DdJeBpkGCIYeU9nhyi8ZwqilMDD-tpaxKM0g26WQJ8htg=w120-h120-p-rp-mo-br100',
                         'https://lh3.googleusercontent.com/a/ACg8ocJ8LZrpGJ423x17SElxqvKDzVTHVuvDO-X_aiAjP8K_ccwC4g=w120-h120-p-rp-mo-br100'
                       ].map((img, i) => (
-                        <img
+                        <img loading="lazy" decoding="async"
                           key={i}
                           src={img}
                           alt="Google Reviewer"
@@ -349,7 +349,7 @@ export default function AboutPage() {
               <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-50 hover:opacity-100 transition-opacity">
                 {brandLogos.map((brand, idx) => (
                   <div key={idx} className="flex items-center gap-2">
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={brand.logo}
                       alt={brand.name}
                       className="h-7 w-auto max-w-[130px] object-contain filter grayscale hover:grayscale-0 transition-all"
@@ -550,7 +550,7 @@ export default function AboutPage() {
               transition={{ duration: 0.7 }}
               className="relative rounded-3xl overflow-hidden border border-white/10 bg-zinc-950 aspect-[16/9] max-h-[550px] shadow-2xl group"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80"
                 alt="TechFNM Story"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-75"
@@ -701,7 +701,7 @@ export default function AboutPage() {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="lg:col-span-5 rounded-3xl overflow-hidden border border-white/10 relative min-h-[350px] group shadow-xl"
               >
-                <img
+                <img loading="lazy" decoding="async"
                   src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80"
                   alt="Creative Architecture"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-90"
@@ -750,7 +750,7 @@ export default function AboutPage() {
                       'https://lh3.googleusercontent.com/a/ACg8ocKs2DdJeBpkGCIYeU9nhyi8ZwqilMDD-tpaxKM0g26WQJ8htg=w120-h120-p-rp-mo-br100',
                       'https://lh3.googleusercontent.com/a/ACg8ocJ8LZrpGJ423x17SElxqvKDzVTHVuvDO-X_aiAjP8K_ccwC4g=w120-h120-p-rp-mo-br100'
                     ].map((img, i) => (
-                      <img
+                      <img loading="lazy" decoding="async"
                         key={i}
                         src={img}
                         alt="Google Reviewer"
@@ -1020,7 +1020,7 @@ export default function AboutPage() {
                     'https://lh3.googleusercontent.com/a/ACg8ocKs2DdJeBpkGCIYeU9nhyi8ZwqilMDD-tpaxKM0g26WQJ8htg=w120-h120-p-rp-mo-br100',
                     'https://lh3.googleusercontent.com/a/ACg8ocJ8LZrpGJ423x17SElxqvKDzVTHVuvDO-X_aiAjP8K_ccwC4g=w120-h120-p-rp-mo-br100'
                   ].map((img, i) => (
-                    <img
+                    <img loading="lazy" decoding="async"
                       key={i}
                       src={img}
                       alt="Google Reviewer"
@@ -1094,7 +1094,7 @@ export default function AboutPage() {
 
                     <div className="flex items-center justify-between pt-4 border-t border-white/5">
                       <div className="flex items-center gap-4">
-                        <img
+                        <img loading="lazy" decoding="async"
                           src={testimonials[currentTestimonial].avatar}
                           alt={testimonials[currentTestimonial].name}
                           className="w-12 h-12 rounded-full object-cover border border-white/10"

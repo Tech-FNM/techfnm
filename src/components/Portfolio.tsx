@@ -142,7 +142,7 @@ export default function Portfolio() {
               >
                 {/* Image Container with Hover Zoom */}
                 <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-zinc-900">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={project.image || 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800'}
                     alt={project.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter brightness-95"

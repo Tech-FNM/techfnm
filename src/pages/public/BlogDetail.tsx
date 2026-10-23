@@ -194,7 +194,13 @@ export default function BlogDetail() {
 
   return (
     <div className="min-h-screen bg-black font-sans text-white scroll-smooth overflow-x-hidden w-full flex flex-col justify-between">
-      <SeoHead pageId="blog-detail" />
+      <SeoHead
+        title={(post as any).meta_title || post.title}
+        description={(post as any).meta_description || (post as any).excerpt || String(post.content || '').replace(/[#*_>`\[\]()!-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 155)}
+        image={post.image}
+        url={`https://techfnm.com/blog/${post.slug}`}
+        seoSettings={(post as any).seo_settings}
+      />
       <Header />
 
       <main className="flex-grow pt-28 sm:pt-32 pb-24">
@@ -275,7 +281,7 @@ export default function BlogDetail() {
         {/* HERO IMAGE */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
           <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-zinc-900 shadow-2xl">
-            <img
+            <img loading="lazy" decoding="async"
               src={post.image || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80'}
               alt={post.title}
               className="w-full h-auto max-h-[520px] object-cover filter brightness-95"
@@ -351,7 +357,7 @@ export default function BlogDetail() {
                 >
                   <Link to={`/blog/${related.slug || related.id}`} className="block">
                     <div className="relative h-48 w-full overflow-hidden bg-zinc-900">
-                      <img
+                      <img loading="lazy" decoding="async"
                         src={related.image || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80'}
                         alt={related.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"

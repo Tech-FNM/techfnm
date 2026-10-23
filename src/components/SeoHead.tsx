@@ -96,16 +96,19 @@ export default function SeoHead({
     }
   }, [indexingEnabled]);
 
-  const activeSeo = directSeo || dbSeo || {};
+  // Per-item SEO (service/blog) must win over page-level SEO stored in site_pages.
+  // Previously `directSeo || dbSeo` + `activeSeo.metaDescription || description` meant the
+  // page-level description silently overrode every item's own description.
+  const activeSeo = { ...(dbSeo || {}), ...(directSeo || {}) };
 
   const defaultTitle = 'TechFNM | Production Software, Modern Web & Digital Growth';
   const defaultDescription =
     'TechFNM builds modern web applications, scalable cloud software, and high-conversion digital assets.';
   const defaultImage = 'https://techfnm.com/og-preview.png';
 
-  const finalTitle = activeSeo.seoTitle || title || defaultTitle;
-  const finalDescription = activeSeo.metaDescription || description || defaultDescription;
-  const finalImage = activeSeo.socialImage || image || defaultImage;
+  const finalTitle = directSeo?.seoTitle || title || dbSeo?.seoTitle || defaultTitle;
+  const finalDescription = directSeo?.metaDescription || description || dbSeo?.metaDescription || defaultDescription;
+  const finalImage = directSeo?.socialImage || image || dbSeo?.socialImage || defaultImage;
   const currentTitle = finalTitle.includes('TechFNM') ? finalTitle : `${finalTitle} | TechFNM`;
 
   const socialTitle = activeSeo.socialTitle || currentTitle;
@@ -131,8 +134,13 @@ export default function SeoHead({
         }
       : null;
 
+  const canonicalUrl = url || (typeof window !== 'undefined'
+    ? `https://techfnm.com${window.location.pathname.replace(/\/$/, '') || '/'}`
+    : 'https://techfnm.com/');
+
   return (
     <Helmet>
+      <link rel="canonical" href={canonicalUrl} />
       <title>{currentTitle}</title>
       <meta name="description" content={finalDescription} />
       <meta name="robots" content={indexingEnabled ? 'index, follow' : 'noindex, nofollow'} />
@@ -146,7 +154,7 @@ export default function SeoHead({
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:image:alt" content={socialTitle} />
-      <meta property="og:url" content={url || (typeof window !== 'undefined' ? window.location.href : 'https://techfnm.com/')} />
+      <meta property="og:url" content={canonicalUrl} />
       <meta property="og:type" content={activeSeo.schemaPageType || 'website'} />
 
       {/* Twitter Card & Image Preview */}

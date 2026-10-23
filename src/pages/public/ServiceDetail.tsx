@@ -642,7 +642,6 @@ export default function ServiceDetail() {
   return (
     <div className="min-h-screen bg-[#09090b] font-sans text-zinc-100 scroll-smooth overflow-x-hidden w-full flex flex-col justify-between selection:bg-red-500/30 selection:text-white">
       <SeoHead
-        pageId="services"
         title={service.meta_title || seoData.seoTitle || `${service.title} Services | TechFNM`}
         description={service.meta_description || seoData.metaDescription || service.description}
         image={service.image}
