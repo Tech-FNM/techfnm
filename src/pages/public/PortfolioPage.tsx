@@ -124,7 +124,7 @@ export default function PortfolioPage() {
                       className="group relative overflow-hidden rounded-2xl border border-zinc-850 hover:border-red-650/30 shadow-lg bg-zinc-900/20 backdrop-blur-sm cursor-pointer transition-all"
                     >
                       <div className="relative aspect-[4/3] w-full overflow-hidden">
-                        <img
+                        <img loading="lazy" decoding="async"
                           src={project.image || 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800'}
                           alt={project.title}
                           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
@@ -214,7 +214,7 @@ export default function PortfolioPage() {
               </button>
 
               <div className="aspect-[16/10] w-full overflow-hidden rounded-2xl border border-zinc-850">
-                <img
+                <img loading="lazy" decoding="async"
                   src={selectedProject.image}
                   alt={selectedProject.title}
                   className="w-full h-full object-cover"
