@@ -150,7 +150,7 @@ export default function Testimonials() {
               {/* Author Info */}
               <div className="pt-6 border-t border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-3.5">
-                  <img loading="lazy" decoding="async"
+                  <img width={48} height={48} loading="lazy" decoding="async"
                     src={item.image || 'https://lh3.googleusercontent.com/a/ACg8ocJebTZef1PlAZ2KlnBvVinAYyAookncycfnwHyxCli_auWdeQ=w120-h120-p-rp-mo-br100'}
                     alt={item.name}
                     className="w-12 h-12 rounded-full object-cover border-2 border-white/10 group-hover:border-[#e5432e] transition-colors"

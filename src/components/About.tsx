@@ -64,7 +64,7 @@ export default function About() {
             className="lg:col-span-6 relative"
           >
             <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#121214] shadow-2xl group">
-              <img loading="lazy" decoding="async"
+              <img width={800} height={533} loading="lazy" decoding="async"
                 src={content.about_image || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80'}
                 alt="TechFNM Team at Work"
                 className="w-full h-[400px] sm:h-[480px] object-cover transition-transform duration-700 group-hover:scale-105 filter brightness-95"
@@ -74,7 +74,7 @@ export default function About() {
               {/* Founder Overlay Pill / Card */}
               <div className="absolute bottom-5 left-5 right-5 sm:left-6 sm:right-6 bg-black/80 backdrop-blur-xl border border-white/15 p-4 sm:p-5 rounded-2xl flex items-center justify-between shadow-2xl">
                 <div className="flex items-center gap-3.5">
-                  <img loading="lazy" decoding="async"
+                  <img width={48} height={48} loading="lazy" decoding="async"
                     src={content.about_founder_avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'}
                     alt={content.about_founder_name || 'Founder & CEO'}
                     className="w-12 h-12 rounded-full object-cover border-2 border-[#e5432e]"

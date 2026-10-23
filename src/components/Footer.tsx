@@ -2,8 +2,10 @@ import { Mail, MapPin, Phone, Facebook, Youtube, Instagram, Linkedin, Github, Ch
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useServices } from '../lib/useServices';
 
 export default function Footer() {
+  const services = useServices();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [settings, setSettings] = useState({
@@ -75,7 +77,7 @@ export default function Footer() {
           <div className="lg:col-span-4">
             <div className="mb-6 flex items-center">
               <Link to="/">
-                <img loading="lazy" decoding="async" 
+                <img width={160} height={40} loading="lazy" decoding="async" 
                   src="/image/agency-assets/projects/0.569918561129375.png" 
                   alt="TechFNM Logo" 
                   className="h-10 w-auto object-contain"
@@ -177,11 +179,11 @@ export default function Footer() {
               Our Services
             </h3>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Web Design & Development</Link></li>
-              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Mobile App Engineering</Link></li>
-              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Search Engine Optimization</Link></li>
-              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Social Media Marketing</Link></li>
-              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Brand Identity & Strategy</Link></li>
+              {services.map((s) => (
+                <li key={s.slug}>
+                  <Link to={`/services/${s.slug}`} className="text-zinc-400 hover:text-[#e5432e] transition-colors">{s.title}</Link>
+                </li>
+              ))}
             </ul>
           </div>
 

@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { projectSlug } from '../lib/revalidate';
 import { supabase } from '../lib/supabase';
 import { usePageContent } from '../lib/cmsContent';
 import { CANONICAL_PROJECTS, getCached, setCached } from '../lib/canonicalData';
@@ -143,8 +144,10 @@ export default function Portfolio() {
                 {/* Image Container with Hover Zoom */}
                 <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-zinc-900">
                   <img loading="lazy" decoding="async"
-                    src={project.image || 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800'}
-                    alt={project.title}
+                    src={project.image || '/og-preview.png'}
+                    alt={project.seo_settings?.imageAlt || `${project.title} ${project.category || ''} project by TechFNM`}
+                    width={800}
+                    height={600}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter brightness-95"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#121214] via-transparent to-transparent opacity-80" />
@@ -170,7 +173,7 @@ export default function Portfolio() {
 
                   <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
                     <Link
-                      to={project.link || '/portfolio'}
+                      to={`/portfolio/${projectSlug(project)}`}
                       className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-zinc-300 group-hover:text-[#e5432e] transition-colors"
                     >
                       <span>Explore Work</span>
