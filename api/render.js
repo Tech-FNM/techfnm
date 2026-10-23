@@ -307,10 +307,10 @@ export default async function handler(req, res) {
   html = setMeta(html, 'name', 'twitter:description', description);
   html = setMeta(html, 'name', 'twitter:url', page.canonical);
   html = setMeta(html, 'name', 'twitter:image', image);
-  html = html.replace(
-    /<link\s+rel="canonical"[^>]*>/i,
-    `<link rel="canonical" href="${esc(page.canonical)}" data-rh="true" />`
-  );
+  const canonicalTag = `<link rel="canonical" href="${esc(page.canonical)}" data-rh="true" />`;
+  html = /<link\s+rel="canonical"[^>]*>/i.test(html)
+    ? html.replace(/<link\s+rel="canonical"[^>]*>/i, canonicalTag)
+    : html.replace('</head>', `  ${canonicalTag}\n</head>`);
 
   // Homepage-only static schema (LocalBusiness/Organization/FAQ) must not repeat on every page
   if (!page.isHome) {
@@ -328,10 +328,10 @@ export default async function handler(req, res) {
     ['/', 'Home'], ['/services', 'Services'], ['/portfolio', 'Portfolio'], ['/blog', 'Blog'],
     ['/about', 'About'], ['/faq', 'FAQ'], ['/contact', 'Contact'],
   ];
-  const ssr = `<header><nav>${nav.map(([h, t]) => `<a href="${h}">${t}</a>`).join(' ')}</nav></header>
+  const ssr = `<div id="ssr-seo" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap"><header><nav>${nav.map(([h, t]) => `<a href="${h}">${t}</a>`).join(' ')}</nav></header>
 <main><h1>${esc(page.h1)}</h1><p>${esc(page.body || description)}</p>
 ${page.links.length ? `<h2>Our Services</h2><ul>${page.links.map((l) => `<li><a href="${esc(l.href)}">${esc(l.text)}</a></li>`).join('')}</ul>` : ''}
-</main>`;
+</main></div>`;
   html = html.replace('<!--SSR_CONTENT-->', ssr);
   // Fallback if template lacks the marker
   if (!html.includes(ssr)) html = html.replace('<div id="root"></div>', `<div id="root">${ssr}</div>`);
