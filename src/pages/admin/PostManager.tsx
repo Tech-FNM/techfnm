@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Trash2, Edit2, ChevronLeft, MessageSquare } from 'lucide-react';
+import BulkImport from '../../components/admin/BulkImport';
 import { revalidatePaths } from '../../lib/revalidate';
 import { supabase } from '../../lib/supabase';
 import { toast, Toaster } from 'react-hot-toast';
@@ -460,6 +461,8 @@ export default function PostManager() {
               Add New
             </button>
           </div>
+
+          <BulkImport />
 
           {/* Status filter tabs */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs">
