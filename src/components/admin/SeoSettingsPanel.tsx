@@ -30,6 +30,9 @@ export interface SeoSettingsData {
   twitterTitle?: string;
   twitterDescription?: string;
   twitterImage?: string;
+  h1?: string;
+  imageAlt?: string;
+  related_posts?: string[];
 }
 
 interface SeoSettingsPanelProps {
@@ -281,6 +284,28 @@ export default function SeoSettingsPanel({
                 onChange={(e) => updateField('metaDescription', e.target.value)}
                 placeholder="Enter custom meta description for search engines..."
                 className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl p-3.5 text-xs text-zinc-100 placeholder-zinc-600 outline-none transition-all resize-y"
+              />
+            </div>
+
+            {/* H1 + IMAGE ALT */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 block">Page H1 (hero headline)</label>
+              <input
+                type="text"
+                value={data.h1 || ''}
+                onChange={(e) => updateField('h1', e.target.value)}
+                placeholder="Leave empty to use the default heading"
+                className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-600 outline-none transition-all"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 block">Featured Image Alt Text</label>
+              <input
+                type="text"
+                value={data.imageAlt || ''}
+                onChange={(e) => updateField('imageAlt', e.target.value)}
+                placeholder="Describe the featured image"
+                className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-600 outline-none transition-all"
               />
             </div>
 

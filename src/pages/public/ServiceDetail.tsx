@@ -142,6 +142,16 @@ export default function ServiceDetail() {
 
   // Active FAQ Accordion item
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [relatedGuides, setRelatedGuides] = useState<Array<{ title: string; slug: string }>>([]);
+
+  // Related blog guides chosen in the service's SEO settings (seo_settings.related_posts = [slug, ...])
+  useEffect(() => {
+    const slugs: string[] = service?.seo_settings?.related_posts || service?.related_posts || [];
+    if (!Array.isArray(slugs) || !slugs.length) { setRelatedGuides([]); return; }
+    supabase.from('blogs').select('title,slug,status').in('slug', slugs).then(({ data }) => {
+      setRelatedGuides((data || []).filter((b: any) => !b.status || b.status === 'published'));
+    });
+  }, [service?.id, service?.seo_settings?.related_posts]);
 
   useEffect(() => {
     fetchServiceDetail();
@@ -357,6 +367,14 @@ export default function ServiceDetail() {
   const seoData = service.seo_settings || {};
   const heroBadge = service.hero_badge || seoData.hero_badge || 'High-Growth Solutions';
   const heroAccent = service.hero_accent || seoData.hero_accent || 'That Turn Searches Into Loyal Customers';
+  // H1 = the hero headline (e.g. "Web Development Company in Pakistan"), same rule as api/render.js
+  const heroHeadline: string = (() => {
+    const explicit = service.hero_title || seoData.hero_title || seoData.h1;
+    if (explicit) return String(explicit).trim();
+    const mt = String(service.meta_title || seoData.seoTitle || '').split('|')[0].trim();
+    if (mt && mt.toLowerCase() !== String(service.title).toLowerCase() && mt.split(' ').length >= 3) return mt;
+    return '';
+  })();
   const heroBullets: string[] = (service.hero_bullets && service.hero_bullets.length > 0)
     ? service.hero_bullets
     : (seoData.hero_bullets && seoData.hero_bullets.length > 0)
@@ -444,10 +462,16 @@ export default function ServiceDetail() {
 
                 {/* H1 Heading with Colored Accent Span */}
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                  {service.title}{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-500 to-amber-400">
-                    {heroAccent}
-                  </span>
+                  {heroHeadline ? (
+                    heroHeadline
+                  ) : (
+                    <>
+                      {service.title}{' '}
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-500 to-amber-400">
+                        {heroAccent}
+                      </span>
+                    </>
+                  )}
                 </h1>
 
                 {/* Main Value Proposition Copy */}
@@ -830,7 +854,7 @@ export default function ServiceDetail() {
                   className="bg-[#111116] border border-zinc-800 rounded-2xl overflow-hidden group hover:border-zinc-700 transition-all flex flex-col"
                 >
                   <div className="h-44 w-full overflow-hidden relative bg-zinc-900">
-                    <img
+                    <img width={800} height={500}
                       src={ind.image}
                       alt={ind.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -1171,6 +1195,23 @@ export default function ServiceDetail() {
             </div>
           </div>
         </section>
+
+        {relatedGuides.length > 0 && (
+          <section className="py-14 border-t border-zinc-900">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-6">Related Guides</h2>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {relatedGuides.map((g) => (
+                  <li key={g.slug}>
+                    <Link to={`/blog/${g.slug}`} className="block p-4 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-red-500/40 text-zinc-200 hover:text-white transition-colors">
+                      {g.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        )}
 
         {/* 16. CLOSING CALL TO ACTION BANNER */}
         <section className="py-24 bg-gradient-to-b from-black to-[#0d0a0e] text-center px-4 sm:px-6 lg:px-8 relative overflow-hidden">

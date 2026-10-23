@@ -69,7 +69,7 @@ export default function Clients() {
                 className="flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300 filter grayscale hover:grayscale-0 flex-shrink-0"
               >
                 {item.logo ? (
-                  <img loading="lazy" decoding="async"
+                  <img width={140} height={40} loading="lazy" decoding="async"
                     src={item.logo}
                     alt={item.name || 'Client Logo'}
                     className="h-8 sm:h-10 w-auto max-w-[140px] object-contain"
@@ -95,7 +95,7 @@ export default function Clients() {
                 className="flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300 filter grayscale hover:grayscale-0 flex-shrink-0"
               >
                 {item.logo ? (
-                  <img loading="lazy" decoding="async"
+                  <img width={140} height={40} loading="lazy" decoding="async"
                     src={item.logo}
                     alt={item.name || 'Client Logo'}
                     className="h-8 sm:h-10 w-auto max-w-[140px] object-contain"

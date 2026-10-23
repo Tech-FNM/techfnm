@@ -116,7 +116,7 @@ export default function HowItWorks() {
           {/* Right Column: Visual Process Image */}
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#121214] shadow-2xl group">
-              <img loading="lazy" decoding="async"
+              <img width={800} height={1000} loading="lazy" decoding="async"
                 src={content.process_image || 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80'}
                 alt="Process Strategy"
                 className="w-full h-[450px] sm:h-[550px] object-cover filter brightness-90 transition-transform duration-700 group-hover:scale-105"

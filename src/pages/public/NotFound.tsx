@@ -8,7 +8,7 @@ export default function NotFound() {
     <div className="min-h-screen bg-black font-sans text-white flex flex-col justify-between">
       <Helmet>
         <title>Page Not Found | TechFNM</title>
-        <meta name="robots" content="noindex, follow" />
+        <meta name="robots" content="noindex" />
       </Helmet>
       <Header />
       <main className="flex-grow flex flex-col items-center justify-center text-center px-4 pt-32 pb-24">

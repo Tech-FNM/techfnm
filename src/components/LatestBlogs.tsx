@@ -212,7 +212,7 @@ export default function LatestBlogs() {
                   <Link to={linkTarget} className="block">
                     {/* Thumbnail Image */}
                     <div className="relative h-60 w-full overflow-hidden bg-zinc-900">
-                      <img loading="lazy" decoding="async"
+                      <img width={800} height={500} loading="lazy" decoding="async"
                         src={post.image || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80'}
                         alt={post.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter brightness-95"

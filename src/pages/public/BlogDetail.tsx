@@ -195,8 +195,8 @@ export default function BlogDetail() {
   return (
     <div className="min-h-screen bg-black font-sans text-white scroll-smooth overflow-x-hidden w-full flex flex-col justify-between">
       <SeoHead
-        title={(post as any).meta_title || post.title}
-        description={(post as any).meta_description || (post as any).excerpt || String(post.content || '').replace(/[#*_>`\[\]()!-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 155)}
+        title={(post as any).seo_settings?.seoTitle || (post as any).meta_title || post.title}
+        description={(post as any).seo_settings?.metaDescription || (post as any).meta_description || (post as any).excerpt || String(post.content || '').replace(/[#*_>`\[\]()!-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 155)}
         image={post.image}
         url={`https://techfnm.com/blog/${post.slug}`}
         seoSettings={(post as any).seo_settings}
@@ -281,13 +281,13 @@ export default function BlogDetail() {
         {/* HERO IMAGE */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
           <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-zinc-900 shadow-2xl">
-            <img loading="lazy" decoding="async"
-              src={post.image || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80'}
-              alt={post.title}
+            <img decoding="async" fetchPriority="high" width={1200} height={630}
+              src={post.image || '/og-preview.png'}
+              alt={(post as any).seo_settings?.imageAlt || post.title}
               className="w-full h-auto max-h-[520px] object-cover filter brightness-95"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80';
+                target.src = '/og-preview.png';
               }}
             />
           </div>
@@ -307,7 +307,7 @@ export default function BlogDetail() {
             [&>strong]:text-white [&>strong]:font-bold
             [&>a]:text-[#e5432e] [&>a]:underline [&>a]:hover:text-[#cc3622]"
             dangerouslySetInnerHTML={{
-              __html: post.content && post.content.includes('<') ? post.content : `<p>${post.content.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br/>')}</p>`
+              __html: post.content && post.content.includes('<') ? post.content.replace(/<h1(\s|>)/gi, '<h2$1').replace(/<\/h1>/gi, '</h2>') : `<p>${post.content.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br/>')}</p>`
             }}
           />
 
@@ -357,7 +357,7 @@ export default function BlogDetail() {
                 >
                   <Link to={`/blog/${related.slug || related.id}`} className="block">
                     <div className="relative h-48 w-full overflow-hidden bg-zinc-900">
-                      <img loading="lazy" decoding="async"
+                      <img width={800} height={500} loading="lazy" decoding="async"
                         src={related.image || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80'}
                         alt={related.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"

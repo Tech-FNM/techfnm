@@ -87,24 +87,19 @@ export default function Hero() {
         </motion.div>
 
         {/* Big Bold Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
+        {/* LCP element: rendered visible immediately (no fade-in) so Largest Contentful Paint isn't delayed */}
+        <h1
           className="text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-extrabold tracking-tight text-white leading-[1.08] max-w-5xl"
         >
           {renderHighlightedTitle()}
-        </motion.h1>
+        </h1>
 
         {/* Lead Paragraph */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+        <p
           className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl text-zinc-400 max-w-3xl font-normal leading-relaxed"
         >
           {description}
-        </motion.p>
+        </p>
 
         {/* CTA Actions */}
         <motion.div
