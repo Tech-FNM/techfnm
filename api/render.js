@@ -318,7 +318,18 @@ ${link(d.blogs_btn_link, d.blogs_btn_text)}</section>`);
   // CTA
   parts.push(`<section id="contact">${sec(d.cta_badge, d.cta_heading, d.cta_desc)}${link(d.cta_btn_link, d.cta_btn_text)}</section>`);
 
-  return { body: parts.join('\n'), faqs, h1: d.hero_title || STATIC_PAGES['/'].h1 };
+  const title = d.hero_title || STATIC_PAGES['/'].h1;
+  const hl = d.hero_highlight_word;
+  let titleHtml = esc(title);
+  const at = hl ? title.toLowerCase().indexOf(String(hl).toLowerCase()) : -1;
+  if (at >= 0) {
+    const w = title.slice(at, at + String(hl).length);
+    titleHtml = `${esc(title.slice(0, at))}<span class="text-[#e5432e] inline-block relative">${esc(w)}</span>${esc(title.slice(at + w.length))}`;
+  }
+  // Visible, styled hero (same markup/classes as Hero.tsx) so the LCP text paints from the HTML
+  // instead of waiting for the JS bundle and the CMS request.
+  const heroHtml = `<section id="home" class="relative min-h-[92vh] lg:min-h-screen bg-black flex flex-col justify-center pt-28 sm:pt-36 pb-16 overflow-hidden"><div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center"><div class="inline-flex items-center gap-2 bg-[#1B1B1B] border border-white/10 rounded-full px-4 py-1.5 mb-6 sm:mb-8 text-xs sm:text-sm text-zinc-300 shadow-inner"><span class="font-medium tracking-wide uppercase text-zinc-200">${esc(d.hero_badge)}</span></div><h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-extrabold tracking-tight text-white leading-[1.08] max-w-5xl">${titleHtml}</h1><p class="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl text-zinc-400 max-w-3xl font-normal leading-relaxed">${esc(d.hero_desc)}</p></div></section>`;
+  return { body: parts.join('\n'), faqs, h1: title, heroHtml, cms: { 'page-home': d } };
 }
 
 // ---------- blog ----------
@@ -593,13 +604,19 @@ export default async function handler(req, res) {
   const svcLinks = (page.serviceLinks || []).map((l) => `<li><a href="${esc(l.href)}">${esc(l.text)}</a></li>`).join('');
   // Crawlable mirror of the React page. It is replaced by the app as soon as JS runs.
   const ssr = `<div id="ssr-seo" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap"><header><nav>${nav.map(([h, t]) => `<a href="${h}">${t}</a>`).join(' ')}<ul>${svcLinks}</ul></nav></header>
-<main><h1>${esc(page.h1)}</h1>
+<main>${page.heroHtml ? '' : `<h1>${esc(page.h1)}</h1>`}
 ${page.body || `<p>${esc(description)}</p>`}
 </main>
 <footer><h2>Our Services</h2><ul>${svcLinks}</ul><h2>Quick Links</h2><ul>${nav.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join('')}</ul>
 <p>TechFNM – Digital Marketing Agency in Pakistan. Karachi, Pakistan. Phone: 0313-9023118. Email: techhfnm@gmail.com</p></footer></div>`;
-  html = html.replace('<!--SSR_CONTENT-->', ssr);
-  if (!html.includes(ssr)) html = html.replace('<div id="root"></div>', `<div id="root">${ssr}</div>`);
+  const rootHtml = (page.heroHtml || '') + ssr;
+  html = html.replace('<!--SSR_CONTENT-->', rootHtml);
+  if (!html.includes(rootHtml)) html = html.replace('<div id="root"></div>', `<div id="root">${rootHtml}</div>`);
+  // Hand the CMS content the server already loaded to the app, so the first client render
+  // matches the HTML (no text swap / layout shift after the Supabase request).
+  if (page.cms) {
+    html = html.replace('</head>', `<script>window.__CMS_PAGES__=${JSON.stringify(page.cms).replace(/</g, '\\u003c')}</script>\n</head>`);
+  }
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   // Short CDN cache so CMS edits go live within ~1 minute, plus a per-URL cache tag that
