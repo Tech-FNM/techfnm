@@ -178,8 +178,33 @@ export default function PostManager() {
         seo_settings: seoSettings
       };
 
+      // If the blogs table is missing optional columns (seo_settings, category, ...),
+      // Supabase rejects the WHOLE save, so the SEO description never reached the live site.
+      // Retry with only the core columns so meta_title / meta_description always save.
+      const corePayload = {
+        title: payload.title,
+        slug: payload.slug,
+        image: payload.image,
+        content: payload.content,
+        meta_title: payload.meta_title,
+        meta_description: payload.meta_description,
+      };
+      const saveBlog = async (row: any) => {
+        let res: any = selectedPost
+          ? await supabase.from('blogs').update(row).eq('id', selectedPost.id).select().maybeSingle()
+          : await supabase.from('blogs').insert([row]).select().single();
+        if (res.error && /column|schema cache/i.test(res.error.message || '')) {
+          console.warn('Blog save: retrying with core columns only:', res.error.message);
+          res = selectedPost
+            ? await supabase.from('blogs').update(corePayload).eq('id', selectedPost.id).select().maybeSingle()
+            : await supabase.from('blogs').insert([corePayload]).select().single();
+        }
+        if (res.error) throw res.error;
+        return res;
+      };
+
       if (selectedPost) {
-        const { error } = await supabase.from('blogs').update(payload).eq('id', selectedPost.id);
+        const { error } = await saveBlog(payload);
         const updated = { ...selectedPost, ...payload };
         const updatedPosts = posts.map(p => p.id === selectedPost.id ? updated : p);
         setPosts(updatedPosts);
@@ -190,7 +215,7 @@ export default function PostManager() {
         toast.success('Post updated successfully');
       } else {
         const newId = Date.now();
-        const { data: newRow, error } = await supabase.from('blogs').insert([payload]).select().single();
+        const { data: newRow, error } = await saveBlog(payload);
         const created = newRow || { id: newId, ...payload, created_at: new Date().toISOString() };
         const updatedPosts = [created, ...posts];
         setPosts(updatedPosts);

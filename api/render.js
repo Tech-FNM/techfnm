@@ -7,6 +7,7 @@
 import fs from 'fs';
 import path from 'path';
 import { createClient } from '@supabase/supabase-js';
+import * as D from '../src/lib/serviceDefaults.js';
 
 const SITE_URL = 'https://techfnm.com';
 const DEFAULT_IMAGE = `${SITE_URL}/og-preview.png`;
@@ -147,13 +148,17 @@ async function resolvePage(pathname, sb) {
         title: seo.seoTitle || s.meta_title || `${s.title} Services | TechFNM`,
         description: seo.metaDescription || s.meta_description || s.description,
         image: seo.socialImage || s.image,
-        h1: s.title,
-        body: plain(s.content || s.description, 1200),
+        h1: `${s.title} ${s.hero_accent || seo.hero_accent || 'That Turn Searches Into Loyal Customers'}`.trim(),
+        body: s.description,
+        sections: serviceSections(s, seo),
         canonical: `${SITE_URL}/services/${cleanSlug(s.slug || s.id)}`,
         links,
         schema: 'service',
         name: s.title,
-        faqs: seo.schemaFaqs || [],
+        faqs: pick(s.faqs, seo.faqs, D.defaultServiceFaqs).map((f) => ({
+          question: f.q || f.question,
+          answer: f.a || f.answer,
+        })),
       };
     }
     return { notFound: true, links };
@@ -208,6 +213,49 @@ async function resolvePage(pathname, sb) {
     links,
     isHome: key === '/',
   };
+}
+
+const pick = (...lists) => lists.find((l) => Array.isArray(l) && l.length > 0) || [];
+
+// Full service page content, mirroring the sections rendered by ServiceDetail.tsx
+function serviceSections(s, seo) {
+  const items = (list) =>
+    `<ul>${list
+      .map((x) =>
+        typeof x === 'string'
+          ? `<li>${esc(x)}</li>`
+          : `<li><h3>${esc(x.title || x.name || '')}</h3><p>${esc(x.desc || x.story || '')}</p></li>`
+      )
+      .join('')}</ul>`;
+  const parts = [];
+  parts.push(items(pick(s.hero_bullets, seo.hero_bullets, D.defaultHeroBullets)));
+  parts.push(`<h2>Our Core Approach</h2>${items(pick(s.core_pillars, seo.core_pillars, D.defaultCorePillars))}`);
+  parts.push(`<h2>What We Deliver</h2>${items(pick(s.capabilities, s.features, seo.capabilities, D.defaultCapabilities))}`);
+  parts.push(`<h2>Key Benefits</h2>${items(pick(s.benefits, seo.benefits, D.defaultBenefits))}`);
+  parts.push(
+    `<h2>Our Process</h2><ol>${pick(s.process_steps, seo.process_steps, D.defaultProcessSteps)
+      .map((x) => `<li><h3>${esc(x.title)}</h3><p>${esc(x.desc)}</p></li>`)
+      .join('')}</ol>`
+  );
+  parts.push(
+    `<h2>Results</h2><ul>${pick(s.case_wins, seo.case_wins, D.defaultCaseWins)
+      .map((x) => `<li><h3>${esc(x.stat || '')} ${esc(x.title || '')}</h3><p>${esc(x.story || x.desc || '')}</p></li>`)
+      .join('')}</ul>`
+  );
+  parts.push(`<h2>Industries We Serve</h2>${items(pick(s.target_industries, seo.target_industries, D.defaultTargetIndustries))}`);
+  parts.push(`<h2>Tools We Use</h2>${items(pick(s.tools_used, seo.tools_used, D.defaultTools))}`);
+  parts.push(
+    `<h2>Pricing</h2><ul>${pick(s.pricing, seo.pricing, D.defaultPricingPlans)
+      .map((x) => `<li><h3>${esc(x.name)}: ${esc(x.price)} ${esc(x.period || '')}</h3>${Array.isArray(x.features) ? `<ul>${x.features.map((f) => `<li>${esc(typeof f === 'string' ? f : f.text || f.name || '')}</li>`).join('')}</ul>` : ''}</li>`)
+      .join('')}</ul>`
+  );
+  parts.push(
+    `<h2>Frequently Asked Questions</h2>${pick(s.faqs, seo.faqs, D.defaultServiceFaqs)
+      .map((f) => `<h3>${esc(f.q || f.question)}</h3><p>${esc(f.a || f.answer)}</p>`)
+      .join('')}`
+  );
+  if (s.content) parts.push(`<div>${esc(plain(s.content, 5000))}</div>`);
+  return parts.join('\n');
 }
 
 function buildSchema(page, title, description, image) {
@@ -284,7 +332,7 @@ export default async function handler(req, res) {
       description: 'The page you are looking for does not exist.',
       h1: 'Page not found',
       body: 'The page you are looking for does not exist or has been moved.',
-      canonical: `${SITE_URL}/`,
+      canonical: '',
       links: page.links,
       noindex: true,
     };
@@ -307,7 +355,7 @@ export default async function handler(req, res) {
   html = setMeta(html, 'name', 'twitter:description', description);
   html = setMeta(html, 'name', 'twitter:url', page.canonical);
   html = setMeta(html, 'name', 'twitter:image', image);
-  const canonicalTag = `<link rel="canonical" href="${esc(page.canonical)}" data-rh="true" />`;
+  const canonicalTag = page.noindex ? '' : `<link rel="canonical" href="${esc(page.canonical)}" data-rh="true" />`;
   html = /<link\s+rel="canonical"[^>]*>/i.test(html)
     ? html.replace(/<link\s+rel="canonical"[^>]*>/i, canonicalTag)
     : html.replace('</head>', `  ${canonicalTag}\n</head>`);
@@ -330,6 +378,7 @@ export default async function handler(req, res) {
   ];
   const ssr = `<div id="ssr-seo" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap"><header><nav>${nav.map(([h, t]) => `<a href="${h}">${t}</a>`).join(' ')}</nav></header>
 <main><h1>${esc(page.h1)}</h1><p>${esc(page.body || description)}</p>
+${page.sections || ''}
 ${page.links.length ? `<h2>Our Services</h2><ul>${page.links.map((l) => `<li><a href="${esc(l.href)}">${esc(l.text)}</a></li>`).join('')}</ul>` : ''}
 </main></div>`;
   html = html.replace('<!--SSR_CONTENT-->', ssr);
