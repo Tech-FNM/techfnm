@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
       "source": "/image/:match*",
       "destination": "https://rpnaqrmquddupmxvvcjg.supabase.co/storage/v1/object/public/:match*"
     },
