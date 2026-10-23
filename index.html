@@ -2,11 +2,17 @@
 <html lang="en">
   <head>
     <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+<script>
+// GTM is non-critical: start it after the page has loaded so it doesn't compete with the first render.
+window.dataLayer=window.dataLayer||[];
+(function(){function g(){if(window.__gtm)return;window.__gtm=1;(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-THXG6NVS');</script>
+})(window,document,'script','dataLayer','GTM-THXG6NVS');}
+if(document.readyState==='complete'){setTimeout(g,1500)}else{window.addEventListener('load',function(){setTimeout(g,1500)})}
+['scroll','pointerdown','keydown','touchstart'].forEach(function(e){window.addEventListener(e,g,{once:true,passive:true})});})();
+</script>
 <!-- End Google Tag Manager -->
     <meta name="trustpilot-one-time-domain-verification-id" content="7830a348-be18-4a17-9e65-1e8782d2af51"/>
     <meta charset="UTF-8" />
@@ -21,9 +27,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="icon" type="image/png" href="/image/agency-assets/projects/0.569918561129375.png" />
 
     <!-- Google Fonts DM Sans (Fexora Design System) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+    <!-- Self-hosted, preloaded main font (no render-blocking Google Fonts request) -->
+    <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <style>
+      @font-face{font-family:'DM Sans';font-style:normal;font-display:swap;font-weight:100 1000;src:url(/fonts/dm-sans-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+      @font-face{font-family:'DM Sans';font-style:normal;font-display:swap;font-weight:100 1000;src:url(/fonts/dm-sans-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+    </style>
+    <link rel="preconnect" href="https://rpnaqrmquddupmxvvcjg.supabase.co" crossorigin>
+    <link rel="preconnect" href="https://images.unsplash.com">
 <script type="application/ld+json">
 [
   {

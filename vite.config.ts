@@ -16,6 +16,18 @@ export default defineConfig(({mode}) => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          // Long-lived vendor chunks so repeat visits only re-download app code
+          manualChunks: {
+            react: ['react', 'react-dom', 'react-router-dom', 'react-helmet-async'],
+            supabase: ['@supabase/supabase-js'],
+            motion: ['motion/react'],
+          },
+        },
+      },
+    },
     server: {
       port: 3000,
       host: '0.0.0.0',
