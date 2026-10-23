@@ -25,6 +25,7 @@ import {
   Link as LinkIcon,
   Tag
 } from 'lucide-react';
+import { revalidatePaths, projectSlug } from '../../lib/revalidate';
 import { supabase } from '../../lib/supabase';
 import { toast, Toaster } from 'react-hot-toast';
 import { setCached, CANONICAL_PROJECTS } from '../../lib/canonicalData';
@@ -361,8 +362,10 @@ export default function PortfolioManager() {
         content: updatedProject.content,
         author: updatedProject.author,
         status: updatedProject.status,
+        seo_settings: updatedProject.seo_settings || {},
         updated_at: new Date().toISOString()
       }).eq('id', updatedProject.id);
+      revalidatePaths(['/portfolio', `/portfolio/${projectSlug(updatedProject)}`, '/']);
     } else {
       const { data: newRow } = await supabase.from('projects').insert([{
         title: updatedProject.title,
@@ -376,8 +379,10 @@ export default function PortfolioManager() {
         content: updatedProject.content,
         author: updatedProject.author,
         status: updatedProject.status,
+        seo_settings: updatedProject.seo_settings || {},
         updated_at: new Date().toISOString()
       }]).select().single();
+      revalidatePaths(['/portfolio', `/portfolio/${projectSlug(updatedProject)}`, '/']);
 
       if (newRow) {
         updatedProject.id = newRow.id;
@@ -488,6 +493,51 @@ export default function PortfolioManager() {
                   onChange={e => setEditingProject({ ...editingProject, title: e.target.value })}
                   placeholder="e.g. RBS Engineering System"
                   className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-3 text-base text-white font-bold placeholder-zinc-600 outline-none transition-all shadow-inner"
+                />
+              </div>
+            </div>
+
+            {/* SEO FIELDS */}
+            <div className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-5 space-y-4 shadow-xl">
+              <span className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">SEO</span>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">SEO Title (max 60 chars)</label>
+                <input
+                  type="text"
+                  value={(editingProject.seo_settings || {}).seoTitle || ''}
+                  onChange={e => setEditingProject({ ...editingProject, seo_settings: { ...(editingProject.seo_settings || {}), seoTitle: e.target.value } })}
+                  placeholder="e.g. RBS Engineering Logo Design | TechFNM Portfolio"
+                  className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-600 outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Meta Description (max 155 chars)</label>
+                <input
+                  type="text"
+                  value={(editingProject.seo_settings || {}).metaDescription || ''}
+                  onChange={e => setEditingProject({ ...editingProject, seo_settings: { ...(editingProject.seo_settings || {}), metaDescription: e.target.value } })}
+                  placeholder="Short summary shown in Google results"
+                  className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-600 outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Page H1</label>
+                <input
+                  type="text"
+                  value={(editingProject.seo_settings || {}).h1 || ''}
+                  onChange={e => setEditingProject({ ...editingProject, seo_settings: { ...(editingProject.seo_settings || {}), h1: e.target.value } })}
+                  placeholder="e.g. RBS Engineering System – Logo & Brand Identity"
+                  className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-600 outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Image Alt Text</label>
+                <input
+                  type="text"
+                  value={(editingProject.seo_settings || {}).imageAlt || ''}
+                  onChange={e => setEditingProject({ ...editingProject, seo_settings: { ...(editingProject.seo_settings || {}), imageAlt: e.target.value } })}
+                  placeholder="Describe the project image"
+                  className="w-full bg-[#141419] border border-zinc-800 focus:border-red-600/50 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-600 outline-none transition-all"
                 />
               </div>
             </div>

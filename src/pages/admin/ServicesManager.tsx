@@ -48,6 +48,7 @@ import {
   MessageSquare,
   FileText
 } from 'lucide-react';
+import { revalidatePaths, pagePath, projectSlug } from '../../lib/revalidate';
 import { supabase } from '../../lib/supabase';
 import { toast, Toaster } from 'react-hot-toast';
 import SeoSettingsPanel, { SeoSettingsData } from '../../components/admin/SeoSettingsPanel';
@@ -764,6 +765,7 @@ export default function ServicesManager() {
         setCached('techfnm_services_cache', updated);
         triggerContentUpdate();
         setEditingService(serviceToSave);
+        revalidatePaths([`/services/${String(finalSlug || '').replace(/^\/?(services\/)?/, '')}`, '/services', '/']);
         toast.success(`Service "${serviceToSave.title}" saved & published live!`);
       } else {
         const { data: newRow, error: insertError } = await supabase.from('services').insert([rowPayload]).select().maybeSingle();
@@ -778,6 +780,7 @@ export default function ServicesManager() {
         triggerContentUpdate();
         setEditingService(createdService);
         navigate(`/admin/services/edit/${createdService.id}`, { replace: true });
+        revalidatePaths([`/services/${String(finalSlug || '').replace(/^\/?(services\/)?/, '')}`, '/services', '/']);
         toast.success(`Service "${createdService.title}" created & published live!`);
       }
     } catch (err) {
@@ -822,6 +825,7 @@ export default function ServicesManager() {
     setCached('techfnm_services_cache', updated);
     triggerContentUpdate();
     setQuickEditingId(null);
+    revalidatePaths([`/services/${String(newSlug || '').replace(/^\/?(services\/)?/, '')}`, '/services', '/']);
     toast.success('Service updated.');
   };
 

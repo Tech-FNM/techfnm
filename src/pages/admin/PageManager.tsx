@@ -40,6 +40,7 @@ import {
   BarChart3,
   Upload
 } from 'lucide-react';
+import { revalidatePaths, pagePath } from '../../lib/revalidate';
 import { supabase } from '../../lib/supabase';
 import { triggerContentUpdate } from '../../lib/cmsContent';
 import { toast, Toaster } from 'react-hot-toast';
@@ -1202,6 +1203,7 @@ export default function PageManager({ forcedPageId }: { forcedPageId?: string } 
         updated_at: new Date().toISOString()
       }));
       await supabase.from('site_pages').upsert(rows);
+      revalidatePaths(rows.map((r: any) => pagePath(r.id)));
     } catch (err) {
       console.error('Error syncing pages to Supabase:', err);
     }
@@ -1504,6 +1506,7 @@ export default function PageManager({ forcedPageId }: { forcedPageId?: string } 
 
       if (upserts.length > 0) {
         await supabase.from('pages_content').upsert(upserts);
+        revalidatePaths([pagePath(updatedPage.id)]);
       }
     } catch (err) {
       // silent fallback

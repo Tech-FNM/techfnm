@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Trash2, Edit2, ChevronLeft, MessageSquare } from 'lucide-react';
+import { revalidatePaths } from '../../lib/revalidate';
 import { supabase } from '../../lib/supabase';
 import { toast, Toaster } from 'react-hot-toast';
 import InsertMediaModal from '../../components/admin/InsertMediaModal';
@@ -212,6 +213,7 @@ export default function PostManager() {
         window.dispatchEvent(new Event('techfnm_blogs_updated'));
         if (!error) fetchPosts();
         setSelectedPost(updated);
+        revalidatePaths([`/blog/${payload.slug}`, '/blog', '/']);
         toast.success('Post updated successfully');
       } else {
         const newId = Date.now();
@@ -226,6 +228,7 @@ export default function PostManager() {
         if (action === 'new') {
           navigate(`/admin/posts/edit/${created.id}`, { replace: true });
         }
+        revalidatePaths([`/blog/${payload.slug}`, '/blog', '/']);
         toast.success('New blog post published');
       }
     } catch (err: any) { toast.error(err.message || 'Error saving post'); }
