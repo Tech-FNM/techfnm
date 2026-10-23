@@ -29,6 +29,33 @@ export function getPageData(pageId: string): Record<string, any> {
   };
 }
 
+const remoteCache: Record<string, Promise<Record<string, any>>> = {};
+
+function loadRemote(pageId: string): Promise<Record<string, any>> {
+  if (!remoteCache[pageId]) {
+    remoteCache[pageId] = (async () => {
+      const merged: Record<string, any> = {};
+      try {
+        const [{ data: pageRow }, { data: remoteData }] = await Promise.all([
+          supabase.from('site_pages').select('sections_data').eq('id', pageId).maybeSingle(),
+          supabase.from('pages_content').select('*'),
+        ]);
+        if (pageRow && pageRow.sections_data && Object.keys(pageRow.sections_data).length > 0) {
+          Object.assign(merged, pageRow.sections_data);
+          setCached(`techfnm_page_cache_${pageId}`, pageRow.sections_data);
+        }
+        (remoteData || []).forEach((item: any) => {
+          if (item && item.content) Object.assign(merged, item.content);
+        });
+      } catch {
+        delete remoteCache[pageId];
+      }
+      return merged;
+    })();
+  }
+  return remoteCache[pageId];
+}
+
 export function usePageContent(pageId: string, defaultData: Record<string, any> = {}) {
   const [data, setData] = useState<Record<string, any>>(() => {
     const canonical = CANONICAL_PAGES_DATA[pageId] || {};
@@ -47,68 +74,14 @@ export function usePageContent(pageId: string, defaultData: Record<string, any> 
       setData(prev => ({ ...prev, ...local }));
     }
 
-    // 2. Fetch directly from Supabase Database (both site_pages & pages_content)
-    const fetchRemote = async () => {
-      try {
-        // A. Check site_pages for full page sections_data
-        const { data: pageRow } = await supabase
-          .from('site_pages')
-          .select('sections_data')
-          .eq('id', pageId)
-          .maybeSingle();
-
-        if (pageRow && pageRow.sections_data && Object.keys(pageRow.sections_data).length > 0) {
-          setData(prev => ({ ...prev, ...pageRow.sections_data }));
-          setCached(`techfnm_page_cache_${pageId}`, pageRow.sections_data);
-        }
-
-        // B. Check pages_content for individual section entries
-        const { data: remoteData } = await supabase.from('pages_content').select('*');
-        if (remoteData && remoteData.length > 0) {
-          const remoteObj: Record<string, any> = {};
-          remoteData.forEach((item: any) => {
-            if (item.content) {
-              Object.assign(remoteObj, item.content);
-            }
-          });
-          if (Object.keys(remoteObj).length > 0) {
-            setData(prev => ({ ...prev, ...remoteObj }));
-          }
-        }
-      } catch (err) {
-        // silent fallback
+    // 2. Fetch from Supabase once per page id (all sections share the same request),
+    //    instead of every section firing its own queries + realtime websocket.
+    let alive = true;
+    loadRemote(pageId).then((remote) => {
+      if (alive && remote && Object.keys(remote).length > 0) {
+        setData(prev => ({ ...prev, ...remote }));
       }
-    };
-
-    fetchRemote();
-
-    // 3. Setup Supabase Realtime WebSocket subscription for live database changes!
-    const channel = supabase
-      .channel(`realtime_${pageId}_${Date.now()}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'pages_content' },
-        (payload: any) => {
-          if (payload.new && payload.new.content) {
-            setData(prev => ({ ...prev, ...payload.new.content }));
-          } else {
-            fetchRemote();
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'site_pages' },
-        (payload: any) => {
-          if (payload.new && payload.new.id === pageId && payload.new.sections_data) {
-            setData(prev => ({ ...prev, ...payload.new.sections_data }));
-            setCached(`techfnm_page_cache_${pageId}`, payload.new.sections_data);
-          } else {
-            fetchRemote();
-          }
-        }
-      )
-      .subscribe();
+    });
 
     // 4. Local storage event listener (for intra-tab communication)
     const handleStorageUpdate = () => {
@@ -122,7 +95,7 @@ export function usePageContent(pageId: string, defaultData: Record<string, any> 
     window.addEventListener('techfnm_content_updated', handleStorageUpdate);
 
     return () => {
-      supabase.removeChannel(channel);
+      alive = false;
       window.removeEventListener('storage', handleStorageUpdate);
       window.removeEventListener('techfnm_content_updated', handleStorageUpdate);
     };
