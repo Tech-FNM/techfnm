@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/render.js": {
+      "includeFiles": "dist/app.html"
+    }
+  },
   "rewrites": [
     {
       "source": "/sitemap.xml",
@@ -9,8 +14,16 @@
       "destination": "https://rpnaqrmquddupmxvvcjg.supabase.co/storage/v1/object/public/:match*"
     },
     {
+      "source": "/admin",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/app.html"
+    },
+    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/api/render"
     }
   ]
 }

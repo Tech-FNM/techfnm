@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"vite --open\" \"node server.js\"",
     "server": "node server.js",
-    "build": "vite build",
+    "build": "vite build && node -e \"require('fs').renameSync('dist/index.html','dist/app.html')\"",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
