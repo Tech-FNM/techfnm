@@ -55,7 +55,7 @@ export const HOME = {
  "portfolio_desc": "We combine creativity, technology, and strategic thinking to deliver digital solutions that help businesses grow and succeed online.",
  "portfolio_btn_text": "View Projects",
  "portfolio_btn_link": "/portfolio",
- "process_badge": "How It Work",
+ "process_badge": "How It Works",
  "process_heading": "Simple process that drives real business results",
  "process_desc": "Our streamlined process is designed to deliver clarity, efficiency helping your business grow without unnecessary complexity.",
  "process_btn_text": "Get Started Now",
@@ -137,7 +137,7 @@ export const FAQS = [
  {
   "id": "b5e1aca5-a976-4e66-8047-d03521f68b8b",
   "question": "What specific services do you offer?",
-  "answer": "We specialize in providing high-quality Web Development, Digital Marketing, content writting, finance, PPC and SEO solutions. Our goal is to help businesses establish a strong and effective digital presence.",
+  "answer": "We specialize in providing high-quality Web Development, Digital Marketing, content writing, finance, PPC and SEO solutions. Our goal is to help businesses establish a strong and effective digital presence.",
   "category": "Services",
   "created_at": "2026-03-14T00:46:00.723Z"
  },

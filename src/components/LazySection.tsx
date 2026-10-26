@@ -5,7 +5,9 @@ import { ReactNode, useEffect, useRef, useState } from 'react';
 // (Crawlers still get the full content from the server-rendered HTML.)
 export default function LazySection({ children, minHeight = 600, id }: { children: ReactNode; minHeight?: number; id?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [show, setShow] = useState(() => typeof window === 'undefined' || !('IntersectionObserver' in window) || !!(id && window.location.hash === `#${id}`));
+  // Arriving via a deep link (/#contact, /#pricing…) renders everything up front, otherwise the
+  // placeholders above the target change height after the jump and the page lands in the wrong place.
+  const [show, setShow] = useState(() => typeof window === 'undefined' || !('IntersectionObserver' in window) || !!window.location.hash);
 
   useEffect(() => {
     if (show || !ref.current) return;

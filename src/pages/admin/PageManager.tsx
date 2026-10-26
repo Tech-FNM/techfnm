@@ -190,7 +190,7 @@ const PAGE_SECTIONS_REGISTRY: Record<string, PageSectionConfig[]> = {
       description: 'Streamlined 3-step workflow with feature image and action button.',
       icon: ListOrdered,
       fields: [
-        { key: 'process_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. How It Work' },
+        { key: 'process_badge', label: 'Section Badge', type: 'text', placeholder: 'e.g. How It Works' },
         { key: 'process_heading', label: 'Main Heading', type: 'text', placeholder: 'e.g. Simple process that drives real business results' },
         { key: 'process_desc', label: 'Section Description', type: 'textarea', placeholder: 'Our streamlined process is designed...' },
         { key: 'process_btn_text', label: 'Button Text', type: 'text', placeholder: 'e.g. Get Started Now' },
@@ -762,7 +762,7 @@ const DEFAULT_PAGES: PageItem[] = [
       portfolio_btn_text: 'View Projects',
       portfolio_btn_link: '/portfolio',
 
-      process_badge: 'How It Work',
+      process_badge: 'How It Works',
       process_heading: 'Simple process that drives real business results',
       process_desc: 'Our streamlined process is designed to deliver clarity, efficiency helping your business grow without unnecessary complexity.',
       process_btn_text: 'Get Started Now',

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { projectSlug } from '../lib/revalidate';
+import { isPublishedProject } from '../lib/seoDefaults.js';
 import { supabase } from '../lib/supabase';
 import { usePageContent } from '../lib/cmsContent';
 import { CANONICAL_PROJECTS, getCached, setCached } from '../lib/canonicalData';
@@ -66,15 +67,17 @@ export default function Portfolio() {
 
   const categories = useMemo(() => {
     const set = new Set<string>();
-    projects.forEach(p => {
+    projects.filter(isPublishedProject).forEach(p => {
       if (p.category) set.add(p.category);
     });
     return ['All', ...Array.from(set)];
   }, [projects]);
 
   const filteredProjects = useMemo(() => {
-    if (selectedCategory === 'All') return projects.slice(0, 6);
-    return projects.filter(p => p.category === selectedCategory);
+    // Draft projects 404 on their detail page, so never link to them
+    const live = projects.filter(isPublishedProject);
+    if (selectedCategory === 'All') return live.slice(0, 6);
+    return live.filter(p => p.category === selectedCategory);
   }, [projects, selectedCategory]);
 
   return (
@@ -116,6 +119,8 @@ export default function Portfolio() {
           {categories.map((cat, idx) => (
             <button
               key={idx}
+              type="button"
+              aria-pressed={selectedCategory === cat}
               onClick={() => setSelectedCategory(cat)}
               className={`px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 ${
                 selectedCategory === cat

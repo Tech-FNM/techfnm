@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './supabase';
 import { CANONICAL_SERVICES, getCached } from './canonicalData';
+import { isLiveService, serviceSlug } from './seoDefaults.js';
+
+export { isLiveService, serviceSlug };
 
 export interface NavService {
   id: number | string;
@@ -8,14 +11,12 @@ export interface NavService {
   slug: string;
 }
 
-const clean = (s: any) => String(s || '').replace(/^\/services\//, '').replace(/^\//, '');
-
 const SEO_FALLBACK: NavService = { id: 7, title: 'SEO Services', slug: 'seo-services' };
 
 function normalize(rows: any[]): NavService[] {
   const list = (rows || [])
-    .filter((r) => r && r.title && r.status !== 'trash' && r.status !== 'draft')
-    .map((r) => ({ id: r.id, title: r.title, slug: clean(r.slug) || String(r.id) }));
+    .filter((r) => r && r.title && isLiveService(r))
+    .map((r) => ({ id: r.id, title: r.title, slug: serviceSlug(r) }));
   if (!list.some((s) => s.slug === 'seo-services')) list.push(SEO_FALLBACK);
   return list;
 }

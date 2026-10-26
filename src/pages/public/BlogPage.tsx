@@ -6,6 +6,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
 import { supabase } from '../../lib/supabase';
+import { isPublishedPost } from '../../lib/seoDefaults.js';
 
 export interface BlogPost {
   id: string | number;
@@ -19,55 +20,31 @@ export interface BlogPost {
   created_at?: string;
   date?: string;
   meta_description?: string;
+  excerpt?: string;
+  seo_settings?: any;
 }
 
-const FALLBACK_BLOGS: BlogPost[] = [
-  {
-    id: 'b1',
-    title: 'How We Build Scalable Cloud-Native Applications in 2026',
-    slug: 'how-we-build-scalable-cloud-native-applications',
-    category: 'Web Engineering',
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
-    content: 'Building resilient, cloud-native applications in today’s landscape demands modular architectures, automated deployment pipelines, and zero-downtime reliability. At Tech FNM, we implement cutting-edge frameworks paired with robust cloud backends to deliver lightning-fast digital solutions that scale effortlessly with your business.',
-    author: 'Tech FNM Team',
-    created_at: new Date('2026-10-11T12:00:00Z').toISOString()
-  },
-  {
-    id: 'b2',
-    title: 'AI-Powered Digital Transformation: Accelerating Business Growth',
-    slug: 'ai-powered-digital-transformation',
-    category: 'Artificial Intelligence',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80',
-    content: 'Artificial intelligence is no longer an experimental luxury—it is the driving catalyst behind high-growth modern businesses. Through machine learning models, natural language processing, and automated operational pipelines, Tech FNM helps ambitious companies unlock unprecedented efficiency and competitive advantage.',
-    author: 'Tech FNM Team',
-    created_at: new Date('2026-10-10T15:30:00Z').toISOString()
-  },
-  {
-    id: 'b3',
-    title: 'Data-Driven SEO & High-Performance Marketing Strategies',
-    slug: 'data-driven-seo-performance-marketing',
-    category: 'Digital Marketing',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
-    content: 'Driving organic search dominance requires more than basic keywords. Modern search engines reward technical performance, semantic relevance, and engaging digital experiences. At Tech FNM, our growth marketing methodologies align technical architecture with strategic content optimization to maximize inbound traffic and conversion rates.',
-    author: 'Tech FNM Team',
-    created_at: new Date('2026-10-09T09:15:00Z').toISOString()
+// Drafts must never be listed, and legacy demo posts may still sit in old browser caches.
+const isLivePost = (p: any) =>
+  isPublishedPost(p) &&
+  p.slug !== 'stress-free-uk-airport-transfers' &&
+  p.id !== 'f1' &&
+  !String(p.title || '').toLowerCase().includes('uk airport transfers');
+
+export function readCachedPosts(): BlogPost[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem('techfnm_blogs_cache') || '[]');
+    return Array.isArray(parsed) ? parsed.filter(isLivePost) : [];
+  } catch {
+    return [];
   }
-];
+}
 
 export default function BlogPage() {
-  const [blogs, setBlogs] = useState<BlogPost[]>(() => {
-    try {
-      const cached = localStorage.getItem('techfnm_blogs_cache');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const liveOnly = parsed.filter((p: any) => p.slug !== 'stress-free-uk-airport-transfers' && p.id !== 'f1');
-          if (liveOnly.length > 0) return liveOnly;
-        }
-      }
-    } catch {}
-    return FALLBACK_BLOGS;
-  });
+  // Start from the last real list (instant on repeat visits); first visits show a skeleton instead of
+  // the old hard-coded demo posts, which linked to URLs that 404.
+  const [blogs, setBlogs] = useState<BlogPost[]>(readCachedPosts);
+  const [loading, setLoading] = useState(() => blogs.length === 0);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -79,12 +56,15 @@ export default function BlogPage() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (data && data.length > 0) {
-        setBlogs(data);
-        localStorage.setItem('techfnm_blogs_cache', JSON.stringify(data));
+      if (Array.isArray(data)) {
+        const live = data.filter(isLivePost);
+        setBlogs(live);
+        localStorage.setItem('techfnm_blogs_cache', JSON.stringify(live));
       }
     } catch (err) {
       console.error('Error fetching blogs:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,29 +92,33 @@ export default function BlogPage() {
         selectedCategory === 'All' ||
         (blog.category && blog.category.toLowerCase() === selectedCategory.toLowerCase());
 
+      const q = searchQuery.trim().toLowerCase();
       const matchesSearch =
-        !searchQuery.trim() ||
-        blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (blog.content && blog.content.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (blog.category && blog.category.toLowerCase().includes(searchQuery.toLowerCase()));
+        !q ||
+        String(blog.title || '').toLowerCase().includes(q) ||
+        String(blog.content || '').toLowerCase().includes(q) ||
+        String(blog.category || '').toLowerCase().includes(q);
 
       return matchesCategory && matchesSearch;
     });
   }, [blogs, selectedCategory, searchQuery]);
 
   const formatDate = (dateStr?: string) => {
-    if (!dateStr) return 'Recent';
-    try {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    } catch {
-      return dateStr;
-    }
+    const d = dateStr ? new Date(dateStr) : null;
+    return d && !isNaN(d.getTime()) ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent';
   };
 
-  const stripHtml = (html: string) => {
-    if (!html) return '';
-    return html.replace(/<[^>]*>?/gm, '').slice(0, 140) + '...';
+  // Prefer the hand-written summary; otherwise a clean excerpt of the body (HTML/markdown stripped)
+  const excerpt = (blog: BlogPost) => {
+    const summary = blog.excerpt || blog.meta_description || blog.seo_settings?.metaDescription;
+    if (summary) return summary;
+    const plain = String(blog.content || '')
+      .replace(/<[^>]*>?/gm, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/[#*_>`~\[\]]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return plain.length > 150 ? `${plain.slice(0, 150).replace(/\s+\S*$/, '')}…` : plain;
   };
 
   return (
@@ -167,10 +151,12 @@ export default function BlogPage() {
             {/* Search & Category Filter Bar */}
             <div className="pt-6 max-w-2xl mx-auto space-y-5">
               {/* Search Box */}
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
+              <div className="relative" role="search">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} aria-hidden="true" />
+                <label htmlFor="blog-search" className="sr-only">Search articles</label>
                 <input
-                  type="text"
+                  id="blog-search"
+                  type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search articles by title, topic, or keyword..."
@@ -187,6 +173,7 @@ export default function BlogPage() {
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
                       type="button"
+                      aria-pressed={active}
                       className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer ${
                         active
                           ? 'bg-[#e5432e] text-white shadow-lg shadow-[#e5432e]/25 font-semibold'
@@ -204,7 +191,20 @@ export default function BlogPage() {
 
         {/* BLOG GRID */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20">
-          {filteredBlogs.length === 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" aria-busy="true" aria-label="Loading articles">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="bg-[#121214] border border-white/5 rounded-3xl overflow-hidden animate-pulse">
+                  <div className="h-60 w-full bg-zinc-800/50" />
+                  <div className="p-7 space-y-4">
+                    <div className="h-3 w-24 bg-zinc-800 rounded" />
+                    <div className="h-6 w-full bg-zinc-800 rounded" />
+                    <div className="h-4 w-3/4 bg-zinc-800/70 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredBlogs.length === 0 ? (
             <div className="text-center py-20 bg-[#121214] border border-white/10 rounded-3xl p-10 max-w-md mx-auto space-y-4">
               <Tag size={40} className="mx-auto text-zinc-600" />
               <h3 className="text-lg font-bold text-white">No articles found</h3>
@@ -241,7 +241,9 @@ export default function BlogPage() {
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter brightness-95"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80';
+                          if (target.dataset.fallback) return; // don't loop if the fallback fails too
+                          target.dataset.fallback = '1';
+                          target.src = '/og-preview.png';
                         }}
                       />
                       <div className="absolute top-4 left-4">
@@ -269,7 +271,7 @@ export default function BlogPage() {
                       </h2>
 
                       <p className="text-sm text-zinc-400 line-clamp-3 leading-relaxed">
-                        {stripHtml(blog.content)}
+                        {excerpt(blog)}
                       </p>
                     </div>
                   </Link>
@@ -285,6 +287,8 @@ export default function BlogPage() {
                     </Link>
                     <Link
                       to={`/blog/${blog.slug || blog.id}`}
+                      aria-label={`Read ${blog.title}`}
+                      tabIndex={-1}
                       className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 group-hover:bg-[#e5432e] group-hover:text-white transition-all"
                     >
                       <ArrowUpRight size={14} />

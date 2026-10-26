@@ -8,30 +8,35 @@ import SeoHead from '../../components/SeoHead';
 import { Link } from 'react-router-dom';
 import { projectSlug } from '../../lib/revalidate';
 import { CANONICAL_PROJECTS, getCached, setCached } from '../../lib/canonicalData';
+import { isPublishedProject } from '../../lib/seoDefaults.js';
 
 export default function PortfolioPage() {
-  const [projects, setProjects] = useState<any[]>(() => getCached('techfnm_projects_cache', CANONICAL_PROJECTS));
+  const [allProjects, setProjects] = useState<any[]>(() => getCached('techfnm_projects_cache', CANONICAL_PROJECTS));
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [loading, setLoading] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
+  // Draft projects 404 on their detail page, so keep them off the public grid
+  const projects = allProjects.filter(isPublishedProject);
 
-  // Dynamic categories for filtering
-  const dynamicCategories = Array.from(
-    new Set([
-      'All',
-      'Web Development',
-      'Mobile App',
-      'UI/UX Design',
-      'Digital Marketing',
-      'Graphic Designing',
-      'E-Commerce',
-      ...projects.map(p => p.category).filter(Boolean)
-    ])
-  );
+  // Only offer categories that actually have projects (empty filters looked broken)
+  const dynamicCategories = ['All', ...Array.from(new Set(projects.map(p => String(p.category || '').trim()).filter(Boolean)))];
 
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  // Lightbox: close with Escape and stop the page scrolling behind it
+  useEffect(() => {
+    if (!selectedProject) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setSelectedProject(null);
+    window.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [selectedProject]);
 
   const fetchProjects = async () => {
     try {
@@ -39,7 +44,7 @@ export default function PortfolioPage() {
       if (data && data.length > 0) {
         setProjects(data);
         setCached('techfnm_projects_cache', data);
-      } else if (projects.length === 0) {
+      } else if (allProjects.length === 0) {
         setProjects(CANONICAL_PROJECTS);
       }
     } catch (err) {
@@ -49,7 +54,7 @@ export default function PortfolioPage() {
 
   const filteredProjects = selectedCategory === 'All'
     ? projects
-    : projects.filter(project => project.category?.toLowerCase() === selectedCategory.toLowerCase());
+    : projects.filter(project => String(project.category || '').trim().toLowerCase() === selectedCategory.toLowerCase());
 
   return (
     <div className="min-h-screen bg-black font-sans text-white scroll-smooth overflow-x-hidden w-full flex flex-col justify-between">
@@ -88,6 +93,8 @@ export default function PortfolioPage() {
               {dynamicCategories.map((category) => (
                 <button
                   key={category}
+                  type="button"
+                  aria-pressed={selectedCategory === category}
                   onClick={() => setSelectedCategory(category)}
                   className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all border ${
                     selectedCategory === category
@@ -123,7 +130,7 @@ export default function PortfolioPage() {
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.4 }}
                       onClick={() => setSelectedProject(project)}
-                      className="group relative overflow-hidden rounded-2xl border border-zinc-850 hover:border-red-650/30 shadow-lg bg-zinc-900/20 backdrop-blur-sm cursor-pointer transition-all"
+                      className="group relative overflow-hidden rounded-2xl border border-white/10 hover:border-[#e5432e]/40 shadow-lg bg-[#121214] cursor-pointer transition-all"
                     >
                       <div className="relative aspect-[4/3] w-full overflow-hidden">
                         <img loading="lazy" decoding="async"
@@ -182,13 +189,13 @@ export default function PortfolioPage() {
             </p>
 
             <div className="pt-2">
-              <a
-                href="/request-service"
+              <Link
+                to="/request-service"
                 className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-full font-bold transition-all hover:scale-105 shadow-lg shadow-red-950/20"
               >
                 <span>Request a Service</span>
                 <ArrowRight size={16} />
-              </a>
+              </Link>
             </div>
           </div>
         </section>
@@ -209,10 +216,16 @@ export default function PortfolioPage() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative max-w-4xl w-full bg-zinc-950 border border-zinc-850 rounded-3xl overflow-hidden p-3 shadow-2xl flex flex-col justify-between cursor-default"
+              role="dialog"
+              aria-modal="true"
+              aria-label={selectedProject.title}
+              className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto bg-zinc-950 border border-zinc-850 rounded-3xl p-3 shadow-2xl flex flex-col justify-between cursor-default"
             >
               {/* Close Button */}
               <button
+                type="button"
+                autoFocus
+                aria-label="Close preview"
                 onClick={() => setSelectedProject(null)}
                 className="absolute top-6 right-6 z-10 bg-black/60 hover:bg-black text-white p-2 rounded-full border border-zinc-800 transition-colors"
               >
@@ -220,9 +233,9 @@ export default function PortfolioPage() {
               </button>
 
               <div className="aspect-[16/10] w-full overflow-hidden rounded-2xl border border-zinc-850">
-                <img loading="lazy" decoding="async"
-                  src={selectedProject.image}
-                  alt={selectedProject.title}
+                <img decoding="async"
+                  src={selectedProject.image || '/og-preview.png'}
+                  alt={selectedProject.seo_settings?.imageAlt || `${selectedProject.title} ${selectedProject.category || ''} project by TechFNM`}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -239,6 +252,15 @@ export default function PortfolioPage() {
                     {selectedProject.description}
                   </p>
                 )}
+                <div className="pt-3">
+                  <Link
+                    to={`/portfolio/${projectSlug(selectedProject)}`}
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-red-400 hover:text-white transition-colors"
+                  >
+                    <span>View case study</span>
+                    <ArrowRight size={15} />
+                  </Link>
+                </div>
               </div>
             </motion.div>
           </motion.div>

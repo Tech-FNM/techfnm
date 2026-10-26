@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, pageDefaultsById } from '../lib/seoDefaults.js';
 
 interface SeoHeadProps {
   pageId?: string; // e.g. 'home', 'about', 'services', 'portfolio', 'faq', 'contact'
@@ -9,7 +10,29 @@ interface SeoHeadProps {
   image?: string;
   url?: string;
   seoSettings?: any;
+  type?: 'website' | 'article';
 }
+
+const absoluteUrl = (u?: string) => (!u ? '' : /^https?:\/\//.test(u) ? u : `${SITE_URL}${u.startsWith('/') ? '' : '/'}${u}`);
+
+// Canonicals are always https://techfnm.com/<path> with no trailing slash, query or hash.
+const normalizeCanonical = (u: string) => {
+  try {
+    const parsed = new URL(u, SITE_URL);
+    const path = parsed.pathname.replace(/\/{2,}/g, '/').replace(/\/$/, '') || '/';
+    return `${SITE_URL}${path}`;
+  } catch {
+    return `${SITE_URL}/`;
+  }
+};
+
+// api/render.js already puts the page's FAQPage JSON-LD in the HTML; a second copy from Helmet
+// makes Search Console report "Duplicate field FAQPage".
+const serverHasFaqSchema = () =>
+  typeof document !== 'undefined' &&
+  Array.from(document.querySelectorAll('script[type="application/ld+json"]:not([data-rh])')).some((s) =>
+    (s.textContent || '').includes('"FAQPage"')
+  );
 
 export default function SeoHead({
   pageId,
@@ -17,7 +40,8 @@ export default function SeoHead({
   description,
   image,
   url,
-  seoSettings: directSeo
+  seoSettings: directSeo,
+  type
 }: SeoHeadProps) {
   const [dbSeo, setDbSeo] = useState<any>({});
   const [indexingEnabled, setIndexingEnabled] = useState<boolean>(() => {
@@ -84,7 +108,7 @@ export default function SeoHead({
 
   // Ensure there is strictly only ONE robots meta tag in the entire document head
   useEffect(() => {
-    const robotVal = indexingEnabled ? 'index, follow' : 'noindex, nofollow';
+    const robotVal = indexingEnabled ? 'index, follow, max-image-preview:large, max-snippet:-1' : 'noindex, nofollow';
     const allRobots = document.querySelectorAll('meta[name="robots"]');
     if (allRobots.length > 1) {
       allRobots.forEach((tag, idx) => {
@@ -101,25 +125,26 @@ export default function SeoHead({
   // page-level description silently overrode every item's own description.
   const activeSeo = { ...(dbSeo || {}), ...(directSeo || {}) };
 
-  const defaultTitle = 'TechFNM | Production Software, Modern Web & Digital Growth';
-  const defaultDescription =
-    'TechFNM builds modern web applications, scalable cloud software, and high-conversion digital assets.';
-  const defaultImage = 'https://techfnm.com/og-preview.png';
+  // Same defaults the server renders (src/lib/seoDefaults.js), so hydration never swaps the
+  // keyword-targeted server title for a generic one.
+  const pageDefaults = pageDefaultsById(pageId || '') || pageDefaultsById('home')!;
 
-  const finalTitle = directSeo?.seoTitle || title || dbSeo?.seoTitle || defaultTitle;
-  const finalDescription = directSeo?.metaDescription || description || dbSeo?.metaDescription || defaultDescription;
-  const finalImage = directSeo?.socialImage || image || dbSeo?.socialImage || defaultImage;
-  const currentTitle = finalTitle.includes('TechFNM') ? finalTitle : `${finalTitle} | TechFNM`;
+  const finalTitle = directSeo?.seoTitle || title || dbSeo?.seoTitle || pageDefaults.title;
+  const finalDescription = directSeo?.metaDescription || description || dbSeo?.metaDescription || pageDefaults.description;
+  const finalImage = absoluteUrl(directSeo?.socialImage || image || dbSeo?.socialImage) || DEFAULT_OG_IMAGE;
+  const currentTitle = /techfnm/i.test(finalTitle) ? finalTitle : `${finalTitle} | ${SITE_NAME}`;
 
   const socialTitle = activeSeo.socialTitle || currentTitle;
   const socialDescription = activeSeo.socialDescription || finalDescription;
   const twitterTitle = activeSeo.twitterTitle || socialTitle;
   const twitterDescription = activeSeo.twitterDescription || socialDescription;
+  const imageAlt = activeSeo.imageAlt || socialTitle;
+  const isDefaultImage = finalImage === DEFAULT_OG_IMAGE;
 
   // JSON-LD Structured Data (FAQ Schema generator)
-  const faqs = activeSeo.schemaFaqs || [];
+  const faqs = (activeSeo.schemaFaqs || []).filter((f: any) => f && f.question && f.answer);
   const faqSchema =
-    faqs.length > 0
+    faqs.length > 0 && !serverHasFaqSchema()
       ? {
           '@context': 'https://schema.org',
           '@type': 'FAQPage',
@@ -134,35 +159,38 @@ export default function SeoHead({
         }
       : null;
 
-  const canonicalUrl = url || (typeof window !== 'undefined'
-    ? `https://techfnm.com${window.location.pathname.replace(/\/$/, '') || '/'}`
-    : 'https://techfnm.com/');
+  const canonicalUrl = normalizeCanonical(
+    url || (typeof window !== 'undefined' ? window.location.pathname : pageDefaults.path)
+  );
 
   return (
     <Helmet>
       <link rel="canonical" href={canonicalUrl} />
       <title>{currentTitle}</title>
       <meta name="description" content={finalDescription} />
-      <meta name="robots" content={indexingEnabled ? 'index, follow' : 'noindex, nofollow'} />
+      <meta name="robots" content={indexingEnabled ? 'index, follow, max-image-preview:large, max-snippet:-1' : 'noindex, nofollow'} />
 
       {/* OpenGraph & Social Image Preview */}
+      <meta property="og:site_name" content={SITE_NAME} />
+      <meta property="og:locale" content="en_US" />
       <meta property="og:title" content={socialTitle} />
       <meta property="og:description" content={socialDescription} />
       <meta property="og:image" content={finalImage} />
       <meta property="og:image:secure_url" content={finalImage} />
-      <meta property="og:image:type" content="image/png" />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
-      <meta property="og:image:alt" content={socialTitle} />
+      {/* Dimensions/type are only known for the default share image */}
+      {isDefaultImage && <meta property="og:image:type" content="image/png" />}
+      {isDefaultImage && <meta property="og:image:width" content="1200" />}
+      {isDefaultImage && <meta property="og:image:height" content="630" />}
+      <meta property="og:image:alt" content={imageAlt} />
       <meta property="og:url" content={canonicalUrl} />
-      <meta property="og:type" content={activeSeo.schemaPageType || 'website'} />
+      <meta property="og:type" content={type || activeSeo.schemaPageType || 'website'} />
 
       {/* Twitter Card & Image Preview */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={twitterTitle} />
       <meta name="twitter:description" content={twitterDescription} />
       <meta name="twitter:image" content={finalImage} />
-      <meta name="twitter:image:alt" content={twitterTitle} />
+      <meta name="twitter:image:alt" content={imageAlt} />
 
       {/* FAQ Schema JSON-LD */}
       {faqSchema && (

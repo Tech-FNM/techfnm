@@ -9,64 +9,18 @@ import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 import * as D from '../src/lib/serviceDefaults.js';
 import * as C from './_lib/defaults.js';
+import {
+  SITE_URL,
+  SITE_NAME,
+  DEFAULT_OG_IMAGE as DEFAULT_IMAGE,
+  STATIC_PAGES,
+  isLiveService,
+  isPublishedProject,
+  isPublishedPost,
+  serviceSlug,
+} from '../src/lib/seoDefaults.js';
 
-const SITE_URL = 'https://techfnm.com';
-const DEFAULT_IMAGE = `${SITE_URL}/og-preview.png`;
 const LOGO = `${SITE_URL}/image/agency-assets/projects/0.3295514356725505.png`;
-
-const STATIC_PAGES = {
-  '/': {
-    id: 'page-home',
-    title: 'Digital Marketing Agency In Pakistan | TechFNM',
-    h1: 'Digital Marketing Agency in Pakistan',
-    description:
-      'TechFNM is a digital marketing agency in Pakistan offering SEO services, web development, mobile apps, social media and content writing for businesses worldwide.',
-  },
-  '/about': {
-    id: 'page-about',
-    title: 'About TechFNM | Digital Marketing & Web Development Agency',
-    h1: 'About TechFNM',
-    description:
-      'Learn about TechFNM, a Pakistan-based team delivering SEO, web development, app development and digital marketing to clients worldwide.',
-  },
-  '/services': {
-    id: 'page-services',
-    title: 'Our Services | SEO, Web Development & Digital Marketing | TechFNM',
-    h1: 'Our Digital Services',
-    description:
-      'Explore TechFNM services: SEO, digital marketing, web development, app development, ecommerce, social media and content writing.',
-  },
-  '/portfolio': {
-    id: 'page-portfolio',
-    title: 'Portfolio | Recent Projects by TechFNM',
-    h1: 'Our Portfolio',
-    description: 'See websites, apps, branding and marketing projects TechFNM has delivered for clients.',
-  },
-  '/blog': {
-    id: 'page-blog',
-    title: 'Blog | SEO, Web & Digital Marketing Insights | TechFNM',
-    h1: 'TechFNM Blog',
-    description: 'Guides and insights on SEO, web development, and digital marketing from the TechFNM team.',
-  },
-  '/contact': {
-    id: 'page-contact',
-    title: 'Contact TechFNM | Get a Free Quote',
-    h1: 'Contact Us',
-    description: 'Contact TechFNM for SEO, web development and digital marketing. Get a free quote via form, WhatsApp or email.',
-  },
-  '/faq': {
-    id: 'page-faq',
-    title: 'FAQ | TechFNM',
-    h1: 'Frequently Asked Questions',
-    description: 'Answers about TechFNM services, project timelines, payments and after-sales support.',
-  },
-  '/request-service': {
-    id: 'page-request-service',
-    title: 'Request a Service - Get a Free Quote | TechFNM',
-    h1: 'Request a Service',
-    description: 'Tell us about your project and get a free quote from TechFNM.',
-  },
-};
 
 const FALLBACK_SERVICES = [
   ...C.SERVICES,
@@ -99,7 +53,20 @@ export const slugify = (s = '') =>
 export const projectSlug = (p) => String(p.slug || '').replace(/^\/?(portfolio\/)?/, '').replace(/\/$/, '') || `${slugify(p.title)}-${p.id}`;
 const pick = (...lists) => lists.find((l) => Array.isArray(l) && l.length > 0) || [];
 const abs = (u) => (!u ? '' : /^https?:/.test(u) ? u : `${SITE_URL}${u.startsWith('/') ? '' : '/'}${u}`);
-const isPublished = (b) => !b.status || b.status === 'published' || b.status === 'live';
+const isPublished = isPublishedPost;
+// new Date('garbage').toISOString() throws and would 500 the whole page
+const isoDate = (d) => {
+  const t = d ? new Date(d) : null;
+  return t && !isNaN(t.getTime()) ? t.toISOString() : undefined;
+};
+// A malformed escape such as /blog/%E0%A4 makes decodeURIComponent throw (→ 500); treat it as a plain slug.
+const safeDecode = (s) => {
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    return s;
+  }
+};
 
 // Keep only safe tags from CMS rich text, and demote any <h1> to <h2> (the page already has one H1).
 function safeHtml(html = '') {
@@ -156,31 +123,36 @@ async function q(promise, fallback) {
 async function loadServices(sb) {
   let services = sb ? await q(sb.from('services').select('*').order('id', { ascending: true }), []) : [];
   if (!services.length) services = FALLBACK_SERVICES;
-  if (!services.some((x) => cleanSlug(x.slug) === 'seo-services')) {
+  // Drafted/trashed services are hidden in the app (useServices) — don't publish them here either.
+  services = services.filter(isLiveService);
+  if (!services.some((x) => serviceSlug(x) === 'seo-services')) {
     services = [...services, FALLBACK_SERVICES.find((f) => f.slug === 'seo-services')];
   }
   return services;
 }
 
+// Same fallback rule everywhere (index, detail, homepage, sitemap): an empty table means "use defaults".
+async function loadProjects(sb) {
+  const rows = sb ? await q(sb.from('projects').select('*').order('id', { ascending: true }), []) : [];
+  return (rows.length ? rows : C.PROJECTS).filter(isPublishedProject);
+}
+
 const fmtDate = (d) => {
-  try {
-    return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  } catch {
-    return '';
-  }
+  const t = d ? new Date(d) : null;
+  return t && !isNaN(t.getTime()) ? t.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
 };
 
 // ---------- page resolvers ----------
 async function resolvePage(pathname, sb) {
   const services = await loadServices(sb);
-  const serviceLinks = services.map((s) => ({ href: `/services/${cleanSlug(s.slug || s.id)}`, text: s.title }));
+  const serviceLinks = services.map((s) => ({ href: `/services/${serviceSlug(s)}`, text: s.title }));
   const ctx = { services, serviceLinks };
 
   // Service detail
   const svc = pathname.match(/^\/services\/([^/]+)\/?$/);
   if (svc) {
-    const slug = decodeURIComponent(svc[1]);
-    const s = services.find((x) => cleanSlug(x.slug) === slug || String(x.id) === slug);
+    const slug = safeDecode(svc[1]);
+    const s = services.find((x) => serviceSlug(x) === slug || String(x.id) === slug);
     if (!s) return { notFound: true, ...ctx };
     const seo = s.seo_settings || {};
     const faqs = pick(s.faqs, seo.faqs, D.defaultServiceFaqs).map((f) => ({ question: f.q || f.question, answer: f.a || f.answer }));
@@ -193,18 +165,18 @@ async function resolvePage(pathname, sb) {
       image: seo.socialImage || s.image,
       h1: serviceH1(s),
       body: `<p>${esc(s.description)}</p>${serviceSections(s, seo)}${relatedHtml(related)}`,
-      canonical: `${SITE_URL}/services/${cleanSlug(s.slug || s.id)}`,
+      canonical: `${SITE_URL}/services/${serviceSlug(s)}`,
       schema: 'service',
       name: s.title,
       faqs,
-      crumbs: [['Services', `${SITE_URL}/services`], [s.title, `${SITE_URL}/services/${cleanSlug(s.slug || s.id)}`]],
+      crumbs: [['Services', `${SITE_URL}/services`], [s.title, `${SITE_URL}/services/${serviceSlug(s)}`]],
     };
   }
 
   // Blog detail
   const blog = pathname.match(/^\/blog\/([^/]+)\/?$/);
   if (blog) {
-    const slug = decodeURIComponent(blog[1]);
+    const slug = safeDecode(blog[1]);
     const data = sb ? await q(sb.from('blogs').select('*').eq('slug', slug).maybeSingle(), null) : null;
     if (!data || !isPublished(data)) return { notFound: true, ...ctx };
     return { ...ctx, ...(await blogPage(sb, data)) };
@@ -213,10 +185,10 @@ async function resolvePage(pathname, sb) {
   // Portfolio project detail
   const proj = pathname.match(/^\/portfolio\/([^/]+)\/?$/);
   if (proj) {
-    const slug = decodeURIComponent(proj[1]);
-    const projects = sb ? await q(sb.from('projects').select('*').order('id', { ascending: true }), C.PROJECTS) : C.PROJECTS;
+    const slug = safeDecode(proj[1]);
+    const projects = await loadProjects(sb);
     const p = projects.find((x) => projectSlug(x) === slug || String(x.id) === slug);
-    if (!p || (p.status && p.status !== 'published')) return { notFound: true, ...ctx };
+    if (!p) return { notFound: true, ...ctx };
     return { ...ctx, ...projectPage(p) };
   }
 
@@ -252,16 +224,15 @@ async function homePage(sb, row, services) {
     const pc = await q(sb.from('pages_content').select('*'), []);
     pc.forEach((r) => r && r.content && r.id !== 'site_header' && Object.assign(d, r.content));
   }
-  const [faqRows, testRows, blogRows, projRows] = await Promise.all([
+  const [faqRows, testRows, blogRows, projects] = await Promise.all([
     sb ? q(sb.from('faqs').select('*').order('created_at', { ascending: true }), []) : [],
     sb ? q(sb.from('testimonials').select('*'), []) : [],
     sb ? q(sb.from('blogs').select('title,slug,image,meta_description,content,created_at,status,category,author,seo_settings').order('created_at', { ascending: false }), []) : [],
-    sb ? q(sb.from('projects').select('*').order('id', { ascending: true }), []) : [],
+    loadProjects(sb),
   ]);
   const faqs = (faqRows.length ? faqRows : C.FAQS).map((f) => ({ question: f.question || f.q, answer: f.answer || f.a })).filter((f) => f.question && f.answer);
   const testimonials = testRows.length ? testRows : C.TESTIMONIALS;
   const posts = blogRows.filter(isPublished).slice(0, 3);
-  const projects = (projRows.length ? projRows : C.PROJECTS).filter((p) => !p.status || p.status === 'published');
 
   const sec = (badge, heading, desc) =>
     `${badge ? `<p>${esc(badge)}</p>` : ''}<h2>${esc(heading)}</h2>${desc ? `<p>${esc(desc)}</p>` : ''}`;
@@ -281,7 +252,7 @@ ${['mission', 'vision', 'goals'].map((k) => (d[`about_${k}_title`] ? `<h3>${esc(
 ${link(d.about_btn_link, d.about_btn_text)}</section>`);
   // Services
   parts.push(`<section id="services">${sec(d.services_badge, d.services_heading, d.services_desc)}
-<ul>${services.map((s) => `<li><h3><a href="/services/${esc(cleanSlug(s.slug || s.id))}">${esc(s.title)}</a></h3><p>${esc(s.description)}</p></li>`).join('')}</ul>
+<ul>${services.map((s) => `<li><h3><a href="/services/${esc(serviceSlug(s))}">${esc(s.title)}</a></h3><p>${esc(s.description)}</p></li>`).join('')}</ul>
 ${link(d.services_btn_link, d.services_btn_text)}</section>`);
   // Core features
   parts.push(`<section id="features">${sec(d.features_badge, d.features_heading, d.features_desc)}
@@ -363,7 +334,8 @@ ${cats.length > 1 ? `<p>Tags: ${cats.slice(1).map(esc).join(', ')}</p>` : ''}
     author,
     category: data.category,
     imageAlt: alt,
-    lcpImage: data.image || '/og-preview.png',
+    // Only preload an image the page actually shows (the app renders data.image as the hero)
+    lcpImage: data.image || '',
     faqs,
     crumbs: [['Blog', `${SITE_URL}/blog`], [data.title, canonical]],
   };
@@ -410,11 +382,11 @@ ${p.project_url ? `<p><a href="${esc(p.project_url)}" rel="noopener">Visit proje
   };
 }
 async function portfolioIndexHtml(sb) {
-  const rows = sb ? await q(sb.from('projects').select('*').order('id', { ascending: true }), C.PROJECTS) : C.PROJECTS;
-  return `<ul>${rows.filter((p) => !p.status || p.status === 'published').map((p) => `<li><h2><a href="/portfolio/${esc(projectSlug(p))}">${esc(p.title)}</a></h2><p>${esc(p.category || '')}</p></li>`).join('')}</ul>`;
+  const rows = await loadProjects(sb);
+  return `<ul>${rows.map((p) => `<li><h2><a href="/portfolio/${esc(projectSlug(p))}">${esc(p.title)}</a></h2><p>${esc(p.category || '')}</p></li>`).join('')}</ul>`;
 }
 const servicesListHtml = (services) =>
-  `<ul>${services.map((s) => `<li><h2><a href="/services/${esc(cleanSlug(s.slug || s.id))}">${esc(s.title)}</a></h2><p>${esc(s.description)}</p></li>`).join('')}</ul>`;
+  `<ul>${services.map((s) => `<li><h2><a href="/services/${esc(serviceSlug(s))}">${esc(s.title)}</a></h2><p>${esc(s.description)}</p></li>`).join('')}</ul>`;
 
 // ---------- service sections (mirror ServiceDetail.tsx) ----------
 function serviceSections(s, seo) {
@@ -488,8 +460,8 @@ function buildSchema(page, title, description, image) {
       image: [{ '@type': 'ImageObject', url: image, caption: page.imageAlt }],
       url: page.canonical,
       mainEntityOfPage: { '@type': 'WebPage', '@id': page.canonical },
-      datePublished: page.published || undefined,
-      dateModified: page.modified || page.published || undefined,
+      datePublished: isoDate(page.published),
+      dateModified: isoDate(page.modified) || isoDate(page.published),
       articleSection: page.category || undefined,
       author: page.author === 'TechFNM Editorial'
         ? { '@type': 'Organization', name: 'TechFNM Editorial', url: `${SITE_URL}/` }
@@ -518,7 +490,13 @@ function setMeta(html, attr, name, content) {
 const LD_RE = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/i;
 
 export default async function handler(req, res) {
-  const pathname = (req.url || '/').split('?')[0];
+  const [pathname, query = ''] = (req.url || '/').split('?');
+  // /about/ and /about served the same page under two URLs; collapse to the canonical (no trailing slash).
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    res.setHeader('Location', `${pathname.replace(/\/+$/, '') || '/'}${query ? `?${query}` : ''}`);
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    return res.status(301).end();
+  }
   let html = await getTemplate(req);
   const sb = getSupabase();
   let page = await resolvePage(pathname, sb);
@@ -547,6 +525,8 @@ export default async function handler(req, res) {
   html = setMeta(html, 'property', 'og:description', description);
   html = setMeta(html, 'property', 'og:image', image);
   html = setMeta(html, 'property', 'og:type', page.type || 'website');
+  html = setMeta(html, 'property', 'og:site_name', SITE_NAME);
+  html = setMeta(html, 'property', 'og:locale', 'en_US');
   html = setMeta(html, 'name', 'twitter:card', 'summary_large_image');
   html = setMeta(html, 'name', 'twitter:title', title);
   html = setMeta(html, 'name', 'twitter:description', description);
@@ -559,9 +539,9 @@ export default async function handler(req, res) {
   if (page.lcpImage) {
     html = html.replace('</head>', `<link rel="preload" as="image" href="${esc(page.lcpImage)}" fetchpriority="high" />\n</head>`);
   }
-  if (page.type === 'article' && page.published) {
-    html = setMeta(html, 'property', 'article:published_time', new Date(page.published).toISOString());
-    if (page.modified) html = setMeta(html, 'property', 'article:modified_time', new Date(page.modified).toISOString());
+  if (page.type === 'article' && isoDate(page.published)) {
+    html = setMeta(html, 'property', 'article:published_time', isoDate(page.published));
+    if (isoDate(page.modified)) html = setMeta(html, 'property', 'article:modified_time', isoDate(page.modified));
   }
 
   if (page.noindex) {
@@ -582,19 +562,20 @@ export default async function handler(req, res) {
 
   // Static site-wide schema in app.html (LocalBusiness/Organization/WebSite/WebPage + a static FAQPage).
   // Home: keep the business entities but replace the static FAQPage with one built from the live FAQ section.
-  // Other pages: drop it (they get their own page-specific schema below).
+  // Other pages: keep only Organization + WebSite (the entities every page's schema points at via @id);
+  // the homepage WebPage/FAQ blocks would describe the wrong page.
   const m = html.match(LD_RE);
   if (m) {
     let replacement = '';
-    if (page.isHome) {
-      try {
-        let arr = JSON.parse(m[1]);
-        arr = (Array.isArray(arr) ? arr : [arr]).filter((x) => x['@type'] !== 'FAQPage');
-        if (page.faqs && page.faqs.length) arr.push(faqLd(page.faqs));
-        replacement = `<script type="application/ld+json">${JSON.stringify(arr).replace(/</g, '\\u003c')}</script>`;
-      } catch {
-        replacement = m[0];
-      }
+    try {
+      let arr = JSON.parse(m[1]);
+      arr = (Array.isArray(arr) ? arr : [arr]).filter((x) =>
+        page.isHome ? x['@type'] !== 'FAQPage' : !page.noindex && (x['@type'] === 'Organization' || x['@type'] === 'WebSite')
+      );
+      if (page.isHome && page.faqs && page.faqs.length) arr.push(faqLd(page.faqs));
+      if (arr.length) replacement = `<script type="application/ld+json">${JSON.stringify(arr).replace(/</g, '\\u003c')}</script>`;
+    } catch {
+      replacement = page.isHome ? m[0] : '';
     }
     html = html.replace(m[0], replacement);
   }

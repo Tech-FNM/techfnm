@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { ArrowUpRight, CheckCircle2, Star, Zap, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import SmartLink from './SmartLink';
 import { usePageContent } from '../lib/cmsContent';
 
 export default function Hero() {
@@ -35,7 +35,9 @@ export default function Hero() {
     if (!highlightWord || !fullTitle.toLowerCase().includes(highlightWord.toLowerCase())) {
       return fullTitle;
     }
-    const parts = fullTitle.split(new RegExp(`(${highlightWord})`, 'gi'));
+    // Escape the CMS value: a highlight word like "C++" or "(SEO)" would otherwise throw and blank the page
+    const escaped = highlightWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const parts = fullTitle.split(new RegExp(`(${escaped})`, 'gi'));
     return parts.map((part, i) =>
       part.toLowerCase() === highlightWord.toLowerCase() ? (
         <span key={i} className="text-[#e5432e] inline-block relative">
@@ -45,6 +47,7 @@ export default function Hero() {
             height="8"
             viewBox="0 0 100 8"
             preserveAspectRatio="none"
+            aria-hidden="true"
           >
             <path d="M0,5 Q50,0 100,5" stroke="currentColor" strokeWidth="3" fill="none" />
           </svg>
@@ -108,7 +111,7 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4"
         >
-          <Link
+          <SmartLink
             to={cta1Link}
             className="group inline-flex items-center justify-center gap-3 bg-[#e5432e] hover:bg-[#cc3622] text-white px-7 h-14 min-w-[175px] sm:min-w-[185px] rounded-full text-base font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl shadow-[#e5432e]/20"
           >
@@ -116,14 +119,14 @@ export default function Hero() {
             <span className="w-7 h-7 rounded-full bg-white text-[#e5432e] flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
               <ArrowUpRight size={16} />
             </span>
-          </Link>
+          </SmartLink>
 
-          <a
-            href={cta2Link}
+          <SmartLink
+            to={cta2Link}
             className="inline-flex items-center justify-center gap-2 bg-[#1B1B1B] hover:bg-[#252528] text-white px-7 h-14 min-w-[175px] sm:min-w-[185px] rounded-full text-base font-semibold border border-white/10 hover:border-white/25 transition-all duration-300"
           >
             <span>{cta2Text}</span>
-          </a>
+          </SmartLink>
         </motion.div>
 
         {/* 3 Funfact / Metric Counter Cards */}

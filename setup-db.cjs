@@ -1,6 +1,8 @@
+require('dotenv').config();
 const { Client } = require('pg');
 
-const connectionString = 'postgres://postgres.rpnaqrmquddupmxvvcjg:lkYHYQfUUwenW5ai@aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require';
+const connectionString = process.env.DATABASE_URL; // set in .env (never commit credentials)
+if (!connectionString) { console.error('Set DATABASE_URL in your .env file first.'); process.exit(1); }
 
 const client = new Client({
   connectionString,

@@ -5,7 +5,7 @@ import { usePageContent } from '../lib/cmsContent';
 
 export default function HowItWorks() {
   const content = usePageContent('page-home', {
-    process_badge: 'How It Work',
+    process_badge: 'How It Works',
     process_heading: 'Simple process that drives real business results',
     process_desc: 'Our streamlined process is designed to deliver clarity, efficiency helping your business grow without unnecessary complexity.',
     process_btn_text: 'Get Started Now',
@@ -52,7 +52,7 @@ export default function HowItWorks() {
             <div className="inline-flex items-center gap-2 bg-[#1B1B1B] border border-white/10 rounded-full px-4 py-1.5 mb-5 w-fit">
               <span className="w-2 h-2 rounded-full bg-[#e5432e]" />
               <span className="text-xs sm:text-sm font-semibold tracking-wider text-zinc-300 uppercase">
-                {content.process_badge || 'How It Work'}
+                {content.process_badge || 'How It Works'}
               </span>
             </div>
 

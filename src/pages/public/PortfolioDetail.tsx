@@ -8,6 +8,7 @@ import SeoHead from '../../components/SeoHead';
 import NotFound from './NotFound';
 import { CANONICAL_PROJECTS, getCached } from '../../lib/canonicalData';
 import { projectSlug } from '../../lib/revalidate';
+import { isPublishedProject } from '../../lib/seoDefaults.js';
 
 // Individual project page: /portfolio/:slug  (slug from the CMS, or "<title>-<id>" when none is set)
 export default function PortfolioDetail() {
@@ -16,17 +17,25 @@ export default function PortfolioDetail() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    let alive = true;
     supabase
       .from('projects')
       .select('*')
       .order('id', { ascending: true })
-      .then(({ data }) => {
-        if (data && data.length) setProjects(data);
-        setLoaded(true);
-      });
+      .then(
+        ({ data }) => {
+          if (alive && data && data.length) setProjects(data);
+        },
+        () => {}
+      )
+      // A failed request used to leave `loaded` false forever → permanent blank screen
+      .then(() => alive && setLoaded(true));
+    return () => {
+      alive = false;
+    };
   }, []);
 
-  const p = projects.find((x) => projectSlug(x) === slug || String(x.id) === slug);
+  const p = projects.filter(isPublishedProject).find((x) => projectSlug(x) === slug || String(x.id) === slug);
   if (!p) return loaded ? <NotFound /> : <div className="min-h-screen bg-black" />;
 
   const seo = p.seo_settings || {};
@@ -42,18 +51,18 @@ export default function PortfolioDetail() {
         title={seo.seoTitle || `${p.title} | ${p.category || 'Portfolio'} Project | TechFNM`}
         description={description}
         image={seo.socialImage || img}
-        url={`https://techfnm.com/portfolio/${projectSlug(p)}`}
+        url={`/portfolio/${projectSlug(p)}`}
         seoSettings={seo}
       />
       <Header />
       <main className="flex-grow pt-32 pb-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <nav className="flex items-center gap-2 text-xs text-zinc-500">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-zinc-500">
             <Link to="/" className="hover:text-zinc-300">Home</Link>
-            <span>/</span>
+            <span aria-hidden="true">/</span>
             <Link to="/portfolio" className="hover:text-zinc-300">Portfolio</Link>
-            <span>/</span>
-            <span className="text-zinc-300">{p.title}</span>
+            <span aria-hidden="true">/</span>
+            <span className="text-zinc-300" aria-current="page">{p.title}</span>
           </nav>
           <span className="inline-block text-xs font-bold text-red-500 uppercase tracking-wider">{p.category}</span>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">{h1}</h1>
@@ -84,13 +93,13 @@ export default function PortfolioDetail() {
           </div>
           {p.description && <p className="text-zinc-300 text-lg leading-relaxed">{p.description}</p>}
           {p.content && (
-            <div className="prose prose-invert max-w-none text-zinc-300" dangerouslySetInnerHTML={{ __html: p.content }} />
+            <div className="article-content" dangerouslySetInnerHTML={{ __html: p.content }} />
           )}
           <div className="flex flex-wrap gap-3 pt-6">
-            <Link to="/portfolio" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-zinc-700 hover:border-zinc-500 font-semibold">
+            <Link to="/portfolio" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/15 hover:border-white/30 font-semibold transition-colors">
               <ArrowLeft size={16} /> All projects
             </Link>
-            <Link to="/contact" className="px-5 py-2.5 rounded-full bg-red-600 hover:bg-red-500 font-semibold">Start a similar project</Link>
+            <Link to="/request-service" className="px-5 py-2.5 rounded-full bg-red-600 hover:bg-red-700 font-semibold transition-colors">Start a similar project</Link>
           </div>
         </div>
       </main>

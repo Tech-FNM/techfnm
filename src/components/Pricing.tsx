@@ -34,7 +34,7 @@ export default function Pricing() {
       name: content.plan1_name || 'Basic Plan',
       desc: content.plan1_desc || 'Ideal for growing businesses looking to expand online presence.',
       price: content.plan1_price || '29.00',
-      period: '/Per Month',
+      period: '/ month',
       popular: false,
       features: parseFeatures(content.plan1_features)
     },
@@ -42,7 +42,7 @@ export default function Pricing() {
       name: content.plan2_name || 'Standard Plan',
       desc: content.plan2_desc || 'Best value for scaling businesses wanting aggressive online growth.',
       price: content.plan2_price || '49.00',
-      period: '/Per Month',
+      period: '/ month',
       popular: true,
       badge: content.plan2_badge || 'Popular Choice',
       features: parseFeatures(content.plan2_features)
@@ -51,7 +51,7 @@ export default function Pricing() {
       name: content.plan3_name || 'Premium Plan',
       desc: content.plan3_desc || 'Enterprise level digital transformation for market leaders.',
       price: content.plan3_price || '99.00',
-      period: '/Per Month',
+      period: '/ month',
       popular: false,
       features: parseFeatures(content.plan3_features)
     }

@@ -9,15 +9,17 @@ export default function NotFound() {
       <Helmet>
         <title>Page Not Found | TechFNM</title>
         <meta name="robots" content="noindex" />
+        <meta name="description" content="The page you are looking for does not exist or has been moved." />
       </Helmet>
       <Header />
       <main className="flex-grow flex flex-col items-center justify-center text-center px-4 pt-32 pb-24">
-        <p className="text-red-500 font-bold text-6xl">404</p>
-        <h1 className="mt-4 text-3xl sm:text-4xl font-extrabold">Page not found</h1>
+        <p className="text-[#e5432e] font-bold text-6xl tracking-tight">404</p>
+        <h1 className="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">Page not found</h1>
         <p className="mt-3 text-zinc-400 max-w-md">The page you are looking for doesn't exist or has been moved.</p>
-        <div className="mt-8 flex gap-3">
-          <Link to="/" className="px-5 py-2.5 rounded-full bg-red-600 hover:bg-red-500 font-semibold">Go to Home</Link>
-          <Link to="/services" className="px-5 py-2.5 rounded-full border border-zinc-700 hover:border-zinc-500 font-semibold">Our Services</Link>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link to="/" className="px-6 py-3 rounded-full bg-[#e5432e] hover:bg-[#cc3622] font-semibold transition-colors">Go to Home</Link>
+          <Link to="/services" className="px-6 py-3 rounded-full border border-white/15 hover:border-white/30 font-semibold transition-colors">Our Services</Link>
+          <Link to="/contact" className="px-6 py-3 rounded-full border border-white/15 hover:border-white/30 font-semibold transition-colors">Contact Us</Link>
         </div>
       </main>
       <Footer />

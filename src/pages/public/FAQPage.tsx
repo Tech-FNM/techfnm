@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Minus, HelpCircle, ArrowRight, MessageSquare } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -78,7 +79,7 @@ export default function FAQPage() {
                 <div className="space-y-4">
                   {faqs.map((faq, index) => (
                     <motion.div
-                      key={faq.id}
+                      key={faq.id || index}
                       initial={{ opacity: 0, y: 15 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
@@ -86,6 +87,8 @@ export default function FAQPage() {
                       className="bg-zinc-900/30 border border-zinc-850 hover:border-zinc-800 rounded-2xl overflow-hidden backdrop-blur-md transition-colors"
                     >
                       <button
+                        type="button"
+                        aria-expanded={activeIndex === index}
                         onClick={() => setActiveIndex(activeIndex === index ? null : index)}
                         className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-zinc-850/20 transition-colors"
                       >
@@ -132,13 +135,13 @@ export default function FAQPage() {
             </p>
 
             <div className="pt-2">
-              <a
-                href="/contact"
+              <Link
+                to="/contact"
                 className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-full font-bold transition-all hover:scale-105 shadow-lg shadow-red-950/20"
               >
                 <span>Contact Our Team</span>
                 <ArrowRight size={16} />
-              </a>
+              </Link>
             </div>
           </div>
         </section>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { Lock, User, ShieldAlert } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
@@ -16,33 +17,11 @@ export default function AdminLogin() {
     setLoading(true);
     setErrorMsg('');
 
+    // SECURITY: this bundle is public, so it must not contain any built-in password. The previous
+    // version had hard-coded fallback passwords (for a master account and for any profile without a
+    // password) and trusted user lists stored in the visitor's own localStorage.
     try {
-      // 1. Check Supabase profiles table in database directly
-      try {
-        const { data: dbProfile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('email', email.trim())
-          .maybeSingle();
-
-        if (dbProfile) {
-          const validPass = dbProfile.password ? dbProfile.password === password : password === 'TechFNM@2026';
-          if (validPass) {
-            localStorage.setItem('techfnm_admin_token', `db_auth_${dbProfile.id}`);
-            localStorage.setItem('techfnm_current_user', JSON.stringify({
-              name: dbProfile.name,
-              email: dbProfile.email,
-              role: dbProfile.role || 'Administrator'
-            }));
-            navigate('/admin/dashboard');
-            return;
-          }
-        }
-      } catch (e) {
-        // continue to next checks
-      }
-
-      // 1. Check Supabase profiles database table directly
+      // 1. Admin profiles that have an explicit password set (managed in Admin → Users)
       try {
         const { data: dbProfile } = await supabase
           .from('profiles')
@@ -50,65 +29,21 @@ export default function AdminLogin() {
           .ilike('email', email.trim())
           .maybeSingle();
 
-        if (dbProfile) {
-          const validPass = dbProfile.password
-            ? dbProfile.password === password
-            : (password === 'TechFNM@2026' || password === 'admin123');
-          if (validPass) {
-            localStorage.setItem('techfnm_admin_token', `local_auth_${dbProfile.id}`);
-            localStorage.setItem(
-              'techfnm_current_user',
-              JSON.stringify({
-                name: dbProfile.name || dbProfile.full_name || 'Muhammad Naeem',
-                email: dbProfile.email,
-                role: dbProfile.role || 'Super Admin'
-              })
-            );
-            navigate('/admin/dashboard');
-            return;
-          }
+        if (dbProfile && dbProfile.password && dbProfile.password === password) {
+          localStorage.setItem('techfnm_admin_token', `db_auth_${dbProfile.id}`);
+          localStorage.setItem('techfnm_current_user', JSON.stringify({
+            name: dbProfile.name || dbProfile.full_name || 'Admin',
+            email: dbProfile.email,
+            role: dbProfile.role || 'Administrator'
+          }));
+          navigate('/admin/dashboard');
+          return;
         }
-      } catch (err) {
-        // continue
+      } catch (e) {
+        // continue to Supabase Auth
       }
 
-      // 2. Check local dashboard users directory (managed via UserManager)
-      const rawUsers = localStorage.getItem('techfnm_admin_users');
-      if (rawUsers) {
-        try {
-          const userList = JSON.parse(rawUsers);
-          const matched = userList.find((u: any) =>
-            u.email?.trim().toLowerCase() === email.trim().toLowerCase() &&
-            (u.password ? u.password === password : (password === 'TechFNM@2026' || password === 'admin123'))
-          );
-          if (matched) {
-            localStorage.setItem('techfnm_admin_token', `local_auth_${matched.id}`);
-            localStorage.setItem('techfnm_current_user', JSON.stringify({
-              name: matched.name,
-              email: matched.email,
-              role: matched.role
-            }));
-            navigate('/admin/dashboard');
-            return;
-          }
-        } catch {
-          // continue
-        }
-      }
-
-      // 3. Master admin fallback
-      if (email.trim().toLowerCase() === 'admin@techfnm.com' && (password === 'TechFNM@2026' || password === 'admin123')) {
-        localStorage.setItem('techfnm_admin_token', 'local_authorized_root');
-        localStorage.setItem('techfnm_current_user', JSON.stringify({
-          name: 'Muhammad Naeem',
-          email: 'admin@techfnm.com',
-          role: 'Super Admin'
-        }));
-        navigate('/admin/dashboard');
-        return;
-      }
-
-      // 4. Try Supabase Auth service
+      // 2. Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
@@ -136,6 +71,10 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-4 font-sans text-white">
+      <Helmet>
+        <title>Admin Login | TechFNM</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       {/* Background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-red-900/10 blur-[80px] rounded-full" />
