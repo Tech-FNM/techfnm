@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
+import ScriptInjector from './components/ScriptInjector';
 
 // Route-level code splitting: only the homepage ships in the main bundle,
 // every other page (and the admin) loads its own chunk on demand.
@@ -35,9 +36,42 @@ function DeferredCursor() {
   ) : null;
 }
 
+// SPA navigation kept the previous page's scroll position (e.g. clicking a footer link landed you
+// at the bottom of the next page). Scroll to the top on every route change, or to the #hash target —
+// retrying briefly because lazy sections/pages render after the route change.
+function ScrollManager() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (!hash) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    const id = decodeURIComponent(hash.slice(1));
+    let tries = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const seek = () => {
+      const el = document.getElementById(id) || document.getElementById(`${id}-lazy`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      else if (tries++ < 20) timer = setTimeout(seek, 100);
+    };
+    seek();
+    return () => clearTimeout(timer);
+  }, [pathname, hash]);
+  return null;
+}
+
+// Admin-managed tracking/verification snippets (Settings → Custom Scripts) belong on every public page,
+// not only the homepage — and never inside the admin panel.
+function PublicScripts() {
+  const { pathname } = useLocation();
+  return pathname.startsWith('/admin') ? null : <ScriptInjector />;
+}
+
 function App() {
   return (
     <Router>
+      <ScrollManager />
+      <PublicScripts />
       <DeferredCursor />
       <Suspense fallback={<div className="min-h-screen bg-black" />}>
         <Routes>

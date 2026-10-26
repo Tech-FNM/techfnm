@@ -31,8 +31,26 @@ export default function Header() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close menus on navigation (back/forward, in-page links) and with the Escape key
+  useEffect(() => {
+    setIsOpen(false);
+    setSvcOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+        setSvcOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   useEffect(() => {
@@ -60,9 +78,11 @@ export default function Header() {
     return () => window.removeEventListener('techfnm_content_updated', loadHeader);
   }, []);
 
+  // "/blog" is active on "/blog" and "/blog/post", but not on "/blogging"
   const isActive = (path: string) => {
-    if (path === '/' && location.pathname !== '/') return false;
-    return location.pathname.startsWith(path);
+    if (!path || path.startsWith('#') || /^https?:/.test(path)) return false;
+    if (path === '/') return location.pathname === '/';
+    return location.pathname === path || location.pathname.startsWith(`${path.replace(/\/$/, '')}/`);
   };
 
   return (
@@ -95,8 +115,8 @@ export default function Header() {
         </div>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center space-x-1 sm:space-x-2 bg-black/40 border border-white/5 px-4 py-1.5 rounded-full">
-          {content.nav_links.map((link: any, idx: number) => {
+        <nav aria-label="Main" className="hidden lg:flex items-center space-x-1 sm:space-x-2 bg-black/40 border border-white/5 px-4 py-1.5 rounded-full">
+          {(Array.isArray(content.nav_links) ? content.nav_links : []).map((link: any, idx: number) => {
             const active = isActive(link.href);
             const cls = `relative px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
               active
@@ -136,7 +156,7 @@ export default function Header() {
               );
             }
             return (
-              <Link key={idx} to={link.href} className={cls}>
+              <Link key={idx} to={link.href} className={cls} aria-current={active ? 'page' : undefined}>
                 {link.label}
               </Link>
             );
@@ -159,9 +179,12 @@ export default function Header() {
         {/* Mobile Menu Button */}
         <div className="lg:hidden flex items-center">
           <button
+            type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2 rounded-full bg-white/5 border border-white/10 text-zinc-300 hover:text-[#e5432e] transition-colors focus:outline-none"
-            aria-label="Toggle Navigation"
+            className="p-2 rounded-full bg-white/5 border border-white/10 text-zinc-300 hover:text-[#e5432e] transition-colors"
+            aria-label={isOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
           >
             {isOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -171,7 +194,9 @@ export default function Header() {
       {/* Mobile Offcanvas / Dropdown */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <motion.nav
+            id="mobile-menu"
+            aria-label="Mobile"
             initial={{ opacity: 0, y: -15, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -15, scale: 0.98 }}
@@ -179,7 +204,7 @@ export default function Header() {
             className="lg:hidden mt-2 max-w-7xl mx-auto rounded-3xl bg-[#121214] border border-white/15 p-5 shadow-2xl shadow-black backdrop-blur-2xl"
           >
             <div className="flex flex-col space-y-2">
-              {content.nav_links.map((link: any, idx: number) => {
+              {(Array.isArray(content.nav_links) ? content.nav_links : []).map((link: any, idx: number) => {
                 const active = isActive(link.href);
                 return (
                   <div key={idx} className="flex flex-col">
@@ -222,7 +247,7 @@ export default function Header() {
                 </Link>
               </div>
             </div>
-          </motion.div>
+          </motion.nav>
         )}
       </AnimatePresence>
     </header>

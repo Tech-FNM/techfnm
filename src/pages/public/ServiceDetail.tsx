@@ -38,7 +38,9 @@ import { supabase } from '../../lib/supabase';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
+import NotFound from './NotFound';
 import { CANONICAL_SERVICES, getCached } from '../../lib/canonicalData';
+import { useServices, isLiveService, serviceSlug } from '../../lib/useServices';
 
 const iconMap: Record<string, any> = {
   Code,
@@ -115,19 +117,24 @@ const countriesServed = [
   'Singapore'
 ];
 
-const otherServicesList = [
-  { title: 'Search Engine Optimization', slug: 'seo', icon: Globe, desc: 'Climb organic search rankings with data-driven on-page and technical SEO.' },
-  { title: 'Web Development', slug: 'web-development', icon: Code, desc: 'High-performance React & Next.js web applications engineered for speed.' },
-  { title: 'UI/UX Design', slug: 'ui-ux-design', icon: PenTool, desc: 'Modern user interfaces and seamless experiences that convert visitors.' },
-  { title: 'Google & Meta Ads (PPC)', slug: 'digital-marketing', icon: Target, desc: 'Targeted pay-per-click ad campaigns optimized for positive return on ad spend.' },
-  { title: 'Social Media Management', slug: 'social-media', icon: Share2, desc: 'Build loyal brand communities and creative digital engagement.' },
-  { title: 'E-Commerce Engineering', slug: 'ecommerce', icon: ShoppingCart, desc: 'High-conversion digital storefronts with secure payment integrations.' }
-];
+// Icon + one-liner for the "Connected Growth" cards, keyed by service slug. The cards themselves come
+// from the live services list — the old hard-coded list linked to /services/seo and
+// /services/ui-ux-design, which don't exist (404s on every service page).
+const relatedServiceMeta: Record<string, { icon: any; desc: string }> = {
+  'seo-services': { icon: Search, desc: 'Climb organic search rankings with data-driven on-page and technical SEO.' },
+  'web-development': { icon: Code, desc: 'High-performance web applications engineered for speed and conversions.' },
+  'app-development': { icon: Smartphone, desc: 'Fast, scalable mobile and web apps tailored to your business.' },
+  'digital-marketing': { icon: Target, desc: 'Targeted campaigns optimized for a positive return on ad spend.' },
+  'social-media': { icon: Share2, desc: 'Build loyal brand communities and creative digital engagement.' },
+  'ecommerce': { icon: ShoppingCart, desc: 'High-conversion digital storefronts with secure payment integrations.' },
+  'content-writing': { icon: PenTool, desc: 'SEO-friendly content that captures your brand voice and converts readers.' }
+};
 
 export default function ServiceDetail() {
   const { id } = useParams();
   const [service, setService] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const navServices = useServices();
 
   // Hero Lead Form State
   const [leadForm, setLeadForm] = useState({
@@ -211,13 +218,15 @@ export default function ServiceDetail() {
         if (byId) serviceData = byId;
       }
 
-      if (!serviceData) {
+      // Only slug-safe characters go into the PostgREST filter: a comma or parenthesis in the URL
+      // would otherwise break (or extend) the .or() expression.
+      if (!serviceData && /^[a-z0-9_-]+$/i.test(cleanParam)) {
         const { data: bySlug } = await supabase
           .from('services')
           .select('*')
           .or(`slug.eq.${cleanParam},slug.eq./services/${cleanParam},slug.eq./${cleanParam}`)
-          .maybeSingle();
-        if (bySlug) serviceData = bySlug;
+          .limit(1);
+        if (bySlug && bySlug[0]) serviceData = bySlug[0];
       }
 
       if (serviceData) {
@@ -307,58 +316,58 @@ export default function ServiceDetail() {
       return;
     }
 
-    try {
-      setSubmittingLead(true);
-      const payload = {
-        name: leadForm.name,
-        email: leadForm.email,
-        phone: '',
-        business_name: service?.title || 'Service Page Inquiry',
-        business_website: leadForm.website || null,
-        business_type: 'Service Lead',
-        service: service?.title || 'General Service',
-        seo_issues: [],
-        description: leadForm.message || `Inquiry for ${service?.title} via Hero Form`,
-        how_found: 'Website Service Hero Form',
-        preferred_contact: 'Email'
-      };
+    setSubmittingLead(true);
+    const payload = {
+      name: leadForm.name.trim(),
+      email: leadForm.email.trim(),
+      phone: '',
+      business_name: service?.title || 'Service Page Inquiry',
+      business_website: leadForm.website.trim() || null,
+      business_type: 'Service Lead',
+      service: service?.title || 'General Service',
+      seo_issues: [],
+      description: leadForm.message.trim() || `Inquiry for ${service?.title} via Hero Form`,
+      how_found: 'Website Service Hero Form',
+      preferred_contact: 'Email'
+    };
 
-      const { error } = await supabase.from('service_requests').insert([payload]);
-      if (error) {
-        console.warn('Supabase lead insert notice:', error);
-      }
+    // Save the lead AND email it. The old code showed "received" even when the insert failed,
+    // silently losing the lead; now success means at least one channel actually got it.
+    const saved = await supabase
+      .from('service_requests')
+      .insert([payload])
+      .then(({ error }) => {
+        if (error) console.error('Lead insert failed:', error);
+        return !error;
+      }, () => false);
+    const emailed = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(async (r) => r.ok && (await r.json().catch(() => ({}))).success === true)
+      .catch(() => false);
 
+    setSubmittingLead(false);
+    if (saved || emailed) {
       setLeadSubmitted(true);
       setLeadForm({ name: '', email: '', website: '', message: '' });
-    } catch (err: any) {
-      console.error('Error submitting consultation:', err);
-      setLeadError('Submission failed. Please try again or reach out via contact.');
-    } finally {
-      setSubmittingLead(false);
+    } else {
+      setLeadError('Submission failed. Please try again, or email techhfnm@gmail.com.');
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-zinc-400 font-mono tracking-wider">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-          <span>Loading service layout...</span>
-        </div>
+      <div className="min-h-screen bg-black flex items-center justify-center text-zinc-400" role="status" aria-label="Loading">
+        <div className="w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  if (!service) {
-    return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center space-y-6 text-center px-4">
-        <h1 className="text-3xl font-bold text-white">Service Not Found</h1>
-        <p className="text-zinc-400 max-w-sm">The service you are looking for might have been moved or renamed.</p>
-        <Link to="/services" className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-bold transition-all">
-          <ArrowLeft size={16} /> Back to Services
-        </Link>
-      </div>
-    );
+  // Unknown, drafted or trashed services get the real 404 page (noindex), matching the server's 404
+  if (!service || !isLiveService(service)) {
+    return <NotFound />;
   }
 
   const Icon = iconMap[service.icon] || Code;
@@ -421,13 +430,29 @@ export default function ServiceDetail() {
     ? service.pricing
     : (seoData.pricing || defaultPricingPlans);
 
+  const currentSlug = serviceSlug(service);
+  const servicesCache = getCached<any[]>('techfnm_services_cache', CANONICAL_SERVICES);
+  const otherServicesList = navServices
+    .filter((s) => s.slug !== currentSlug && String(s.id) !== String(service.id))
+    .slice(0, 6)
+    .map((s) => {
+      const meta = relatedServiceMeta[s.slug];
+      const full = servicesCache.find((x: any) => serviceSlug(x) === s.slug);
+      return {
+        title: s.title,
+        slug: s.slug,
+        icon: meta?.icon || iconMap[full?.icon] || Globe,
+        desc: meta?.desc || full?.description || ''
+      };
+    });
+
   return (
     <div className="min-h-screen bg-[#09090b] font-sans text-zinc-100 scroll-smooth overflow-x-hidden w-full flex flex-col justify-between selection:bg-red-500/30 selection:text-white">
       <SeoHead
         title={service.meta_title || seoData.seoTitle || `${service.title} Services | TechFNM`}
         description={service.meta_description || seoData.metaDescription || service.description}
         image={service.image}
-        url={`https://techfnm.com/services/${service.slug || service.id}`}
+        url={`/services/${currentSlug}`}
         seoSettings={seoData}
       />
       <Header />
@@ -435,13 +460,13 @@ export default function ServiceDetail() {
       <main className="flex-grow pt-24">
         {/* 1. BREADCRUMBS BAR */}
         <div className="bg-zinc-950/60 backdrop-blur-md">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-2 text-xs text-zinc-400">
+          <nav aria-label="Breadcrumb" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-2 text-xs text-zinc-400">
             <Link to="/" className="hover:text-white transition-colors">Home</Link>
-            <span className="text-zinc-600">/</span>
+            <span className="text-zinc-600" aria-hidden="true">/</span>
             <Link to="/services" className="hover:text-white transition-colors">Services</Link>
-            <span className="text-zinc-600">/</span>
-            <span className="text-red-400 font-medium truncate">{service.title}</span>
-          </div>
+            <span className="text-zinc-600" aria-hidden="true">/</span>
+            <span className="text-red-400 font-medium truncate" aria-current="page">{service.title}</span>
+          </nav>
         </div>
 
         {/* 2. HIGH-CONVERTING 2-COLUMN HERO SECTION */}
@@ -467,7 +492,7 @@ export default function ServiceDetail() {
                   ) : (
                     <>
                       {service.title}{' '}
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-500 to-amber-400">
+                      <span className="text-red-500">
                         {heroAccent}
                       </span>
                     </>
@@ -495,7 +520,7 @@ export default function ServiceDetail() {
                 <div className="pt-4 flex flex-wrap items-center gap-4">
                   <a
                     href="#consultation-card"
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white px-7 py-3.5 rounded-full font-bold text-sm shadow-xl shadow-red-950/40 transition-all hover:scale-105 cursor-pointer"
+                    className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-7 py-3.5 rounded-full font-bold text-sm shadow-xl shadow-red-950/40 transition-all hover:scale-105 cursor-pointer"
                   >
                     <span>Get Free Consultation</span>
                     <ArrowRight size={16} />
@@ -605,7 +630,7 @@ export default function ServiceDetail() {
                       <button
                         type="submit"
                         disabled={submittingLead}
-                        className="w-full py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-red-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                        className="w-full py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-lg shadow-red-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                       >
                         {submittingLead ? (
                           <span>Submitting Request...</span>
@@ -1165,11 +1190,12 @@ export default function ServiceDetail() {
                   >
                     <button
                       type="button"
+                      aria-expanded={isOpen}
                       onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
                       className="w-full px-6 py-4.5 text-left flex items-center justify-between gap-4 cursor-pointer"
                     >
                       <span className="text-sm sm:text-base font-bold text-white">
-                        {idx + 1}. {faq.q}
+                        {idx + 1}. {faq.q || faq.question}
                       </span>
                       <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0 text-zinc-400">
                         {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -1185,7 +1211,7 @@ export default function ServiceDetail() {
                           transition={{ duration: 0.2 }}
                           className="px-6 pb-5 pt-1 text-xs sm:text-sm text-zinc-400 leading-relaxed border-t border-zinc-850/60"
                         >
-                          {faq.a}
+                          {faq.a || faq.answer}
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -1233,7 +1259,7 @@ export default function ServiceDetail() {
             <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
               <a
                 href="#consultation-card"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white px-8 py-3.5 rounded-full font-bold text-sm shadow-xl shadow-red-950/40 transition-all hover:scale-105 cursor-pointer"
+                className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-full font-bold text-sm shadow-xl shadow-red-950/40 transition-all hover:scale-105 cursor-pointer"
               >
                 <span>Start Free Consultation</span>
                 <ArrowRight size={16} />

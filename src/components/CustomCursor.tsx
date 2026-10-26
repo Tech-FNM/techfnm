@@ -1,60 +1,60 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
+const INTERACTIVE = 'button, a, input, select, textarea, [role="button"], .cursor-pointer';
+
+// Decorative cursor dot. Moves via a direct style write per animation frame instead of React state,
+// which used to re-render the component (and re-attach its listeners) on every mouse move.
 export default function CustomCursor() {
-  const [position, setPosition] = useState({ x: -100, y: -100 });
-  const [isHovered, setIsHovered] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+  const dot = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Only run on desktop/devices with fine pointer
     if (window.matchMedia('(pointer: coarse)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const el = dot.current;
+    if (!el) return;
+
+    let x = -100;
+    let y = -100;
+    let frame = 0;
+
+    const paint = () => {
+      frame = 0;
+      el.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+    };
 
     const onMouseMove = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-      if (!isVisible) setIsVisible(true);
-
-      const target = e.target as HTMLElement;
-      if (
-        target.closest('button') ||
-        target.closest('a') ||
-        target.closest('input') ||
-        target.closest('select') ||
-        target.closest('textarea') ||
-        target.closest('[role="button"]') ||
-        target.closest('.cursor-pointer')
-      ) {
-        setIsHovered(true);
-      } else {
-        setIsHovered(false);
-      }
+      x = e.clientX;
+      y = e.clientY;
+      el.style.opacity = '1';
+      const hovering = !!(e.target as HTMLElement)?.closest?.(INTERACTIVE);
+      el.style.width = el.style.height = hovering ? '10px' : '7px';
+      if (!frame) frame = requestAnimationFrame(paint);
+    };
+    const hide = () => {
+      el.style.opacity = '0';
     };
 
-    const onMouseLeave = () => setIsVisible(false);
-    const onMouseEnter = () => setIsVisible(true);
-
-    window.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseleave', onMouseLeave);
-    document.addEventListener('mouseenter', onMouseEnter);
-
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+    document.documentElement.addEventListener('mouseleave', hide);
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseleave', onMouseLeave);
-      document.removeEventListener('mouseenter', onMouseEnter);
+      document.documentElement.removeEventListener('mouseleave', hide);
+      if (frame) cancelAnimationFrame(frame);
     };
-  }, [isVisible]);
-
-  if (!isVisible) return null;
+  }, []);
 
   return (
     <div
-      className="fixed pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 rounded-full transition-[width,height,transform] duration-150 ease-out"
+      ref={dot}
+      aria-hidden="true"
+      className="fixed top-0 left-0 pointer-events-none z-[9999] rounded-full transition-[width,height,opacity] duration-150 ease-out"
       style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        width: isHovered ? '10px' : '7px',
-        height: isHovered ? '10px' : '7px',
+        width: '7px',
+        height: '7px',
+        opacity: 0,
         backgroundColor: '#e5432e',
-        boxShadow: '0 0 10px rgba(229, 67, 46, 0.75)'
+        boxShadow: '0 0 10px rgba(229, 67, 46, 0.75)',
+        transform: 'translate3d(-100px, -100px, 0)'
       }}
     />
   );

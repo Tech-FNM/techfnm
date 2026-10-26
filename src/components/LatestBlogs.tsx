@@ -132,7 +132,7 @@ export default function LatestBlogs() {
   };
 
   return (
-    <section className="py-24 sm:py-32 bg-black relative overflow-hidden border-t border-white/5">
+    <section id="blog" className="py-24 sm:py-32 bg-black relative overflow-hidden border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Top Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-14 sm:mb-16">
@@ -218,7 +218,9 @@ export default function LatestBlogs() {
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter brightness-95"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80';
+                          if (target.dataset.fallback) return; // don't loop if the fallback fails too
+                          target.dataset.fallback = '1';
+                          target.src = '/og-preview.png';
                         }}
                       />
                       <div className="absolute top-4 left-4">
@@ -251,6 +253,8 @@ export default function LatestBlogs() {
                     </Link>
                     <Link
                       to={linkTarget}
+                      aria-label={`Read ${post.title}`}
+                      tabIndex={-1}
                       className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 group-hover:bg-[#e5432e] group-hover:text-white transition-all"
                     >
                       <ArrowUpRight size={14} />

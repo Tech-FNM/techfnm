@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { Mail, MapPin, Phone, Send, Loader2, CheckCircle2, AlertCircle, ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
 import { usePageContent } from '../lib/cmsContent';
+import { telHref } from '../lib/phone';
 
 export default function Contact() {
   const pageContent = usePageContent('page-home', {
@@ -95,7 +96,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <div className="text-xs text-zinc-500 font-medium">Call Us Directly</div>
-                  <a href={`tel:${pageContent.phone_number || '0313-9023118'}`} className="text-white font-bold hover:text-[#e5432e] transition-colors">
+                  <a href={`tel:${telHref(pageContent.phone_number || '0313-9023118')}`} className="text-white font-bold hover:text-[#e5432e] transition-colors">
                     {pageContent.phone_number || '0313-9023118'}
                   </a>
                 </div>

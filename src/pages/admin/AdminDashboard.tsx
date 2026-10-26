@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import AdminLayout from '../../components/admin/AdminLayout';
 import DashboardHome from './DashboardHome';
 import LeadsManager from './LeadsManager';
@@ -69,6 +70,10 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout activeTab={currentTab}>
+      <Helmet>
+        <title>Admin Dashboard | TechFNM</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       {renderContent()}
     </AdminLayout>
   );

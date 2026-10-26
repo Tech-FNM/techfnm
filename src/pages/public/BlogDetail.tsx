@@ -1,156 +1,80 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ArrowUpRight, Calendar, Clock, Share2, Tag, Check, User } from 'lucide-react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
 import { supabase } from '../../lib/supabase';
-import { BlogPost } from './BlogPage';
+import { BlogPost, readCachedPosts } from './BlogPage';
+import { isPublishedPost } from '../../lib/seoDefaults.js';
+import NotFound from './NotFound';
 
-const FALLBACK_POSTS: BlogPost[] = [
-  {
-    id: 'b1',
-    title: 'How We Build Scalable Cloud-Native Applications in 2026',
-    slug: 'how-we-build-scalable-cloud-native-applications',
-    category: 'Web Engineering',
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
-    content: `<p>Building resilient, cloud-native applications in today’s landscape demands modular architectures, automated deployment pipelines, and zero-downtime reliability. At Tech FNM, we implement cutting-edge frameworks paired with robust cloud backends to deliver lightning-fast digital solutions that scale effortlessly with your business.</p>
-    <h3>1. Decoupled & Microservice Architectures</h3>
-    <p>By separating backend business logic from frontend presentation layers, modern applications achieve superior fault isolation, high availability, and horizontal scalability under heavy traffic loads.</p>
-    <h3>2. Real-Time Data Synchronization</h3>
-    <p>Utilizing reactive state management and distributed edge databases ensures users receive instant updates without page refreshes, providing an app-like experience on the web.</p>
-    <h3>3. Security by Design</h3>
-    <p>Row-level security policies, encrypted environment secrets, and strict API validation ensure enterprise data remains fortified against evolving security threats.</p>`,
-    author: 'Tech FNM Team',
-    created_at: new Date('2026-10-11T12:00:00Z').toISOString()
-  },
-  {
-    id: 'b2',
-    title: 'AI-Powered Digital Transformation: Accelerating Business Growth',
-    slug: 'ai-powered-digital-transformation',
-    category: 'Artificial Intelligence',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80',
-    content: `<p>Artificial intelligence is no longer an experimental luxury—it is the driving catalyst behind high-growth modern businesses. Through machine learning models, natural language processing, and automated operational pipelines, Tech FNM helps ambitious companies unlock unprecedented efficiency and competitive advantage.</p>
-    <h3>Strategic AI Implementation</h3>
-    <p>We believe AI implementations must deliver measurable ROI. Rather than adopting novelty tools, our team integrates targeted automated pipelines that eliminate bottlenecks and enhance decision-making.</p>
-    <h3>Intelligent Customer Workflows</h3>
-    <p>From conversational agents that qualify leads 24/7 to predictive analytics models that anticipate customer needs, AI transforms interactions into revenue opportunities.</p>`,
-    author: 'Tech FNM Team',
-    created_at: new Date('2026-10-10T15:30:00Z').toISOString()
-  },
-  {
-    id: 'b3',
-    title: 'Data-Driven SEO & High-Performance Marketing Strategies',
-    slug: 'data-driven-seo-performance-marketing',
-    category: 'Digital Marketing',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
-    content: `<p>Driving organic search dominance requires more than basic keywords. Modern search engines reward technical performance, semantic relevance, and engaging digital experiences. At Tech FNM, our growth marketing methodologies align technical architecture with strategic content optimization to maximize inbound traffic and conversion rates.</p>
-    <h3>1. Technical Architecture & Core Web Vitals</h3>
-    <p>Search algorithms heavily prioritize sub-second load times, minimal layout shifts, and mobile responsiveness. Fast sites convert higher and rank better.</p>
-    <h3>2. High-Intent Content Optimization</h3>
-    <p>Targeting buyer intent queries positions your services in front of decision-makers when they are actively seeking enterprise solutions.</p>`,
-    author: 'Tech FNM Team',
-    created_at: new Date('2026-10-09T09:15:00Z').toISOString()
-  }
-];
+const matches = (p: any, slug?: string) => !!p && (p.slug === slug || String(p.id) === slug);
+
+// CMS bodies are either HTML or plain text with blank-line paragraphs. The page already has an H1.
+const renderBody = (content?: string) => {
+  const body = String(content || '');
+  if (!body.trim()) return '';
+  if (/<[a-z][\s\S]*>/i.test(body)) return body.replace(/<h1(\s|>)/gi, '<h2$1').replace(/<\/h1>/gi, '</h2>');
+  const escaped = body.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return `<p>${escaped.replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br/>')}</p>`;
+};
 
 export default function BlogDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
-  const [post, setPost] = useState<BlogPost | null>(null);
+  // Paint instantly from the cached list when we have it; the network copy replaces it.
+  const [post, setPost] = useState<BlogPost | null>(() => readCachedPosts().find((p) => matches(p, slug)) || null);
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !post);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    loadPost();
+    let alive = true;
+    const cached = readCachedPosts();
+    const fromCache = cached.find((p) => matches(p, slug)) || null;
+    setPost(fromCache);
+    setRelatedPosts(cached.filter((p) => !matches(p, slug)).slice(0, 3));
+    setLoading(!fromCache);
+
+    (async () => {
+      try {
+        const { data, error } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
+        if (!alive || error || !Array.isArray(data)) return;
+        const live = data.filter(isPublishedPost);
+        // Unknown or unpublished slugs are a real 404 (the server already answers 404 for them)
+        const found = live.find((p: any) => matches(p, slug)) || null;
+        setPost(found);
+        setRelatedPosts(found ? live.filter((p: any) => !matches(p, slug)).slice(0, 3) : []);
+      } catch (err) {
+        console.error('Error loading post:', err);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
   }, [slug]);
 
-  const loadPost = async () => {
+  const handleShare = async () => {
+    const shareData = { title: post?.title, url: window.location.href };
     try {
-      setLoading(true);
-
-      // Check cache first (ignore legacy dummy posts)
-      let allPosts: BlogPost[] = [];
-      try {
-        const cached = localStorage.getItem('techfnm_blogs_cache');
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          if (Array.isArray(parsed)) {
-            allPosts = parsed.filter(
-              (p: any) =>
-                p.slug !== 'stress-free-uk-airport-transfers' &&
-                p.id !== 'f1' &&
-                !String(p.title || '').toLowerCase().includes('uk airport transfers')
-            );
-          }
-        }
-      } catch {}
-
-      if (allPosts.length === 0) {
-        allPosts = FALLBACK_POSTS;
+      if (navigator.share) {
+        await navigator.share(shareData);
+        return;
       }
-
-      // Try finding from local cache
-      const foundInCache = allPosts.find(
-        p => p.slug === slug || String(p.id) === slug
-      );
-
-      // Fetch from Supabase
-      const { data } = await supabase
-        .from('blogs')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (data && data.length > 0) {
-        const found = data.find((p: any) => p.slug === slug || String(p.id) === slug);
-        if (found) {
-          setPost(found);
-          const others = data.filter((p: any) => (p.slug || String(p.id)) !== (found.slug || String(found.id))).slice(0, 3);
-          setRelatedPosts(others.length > 0 ? others : FALLBACK_POSTS.filter(p => p.slug !== found.slug).slice(0, 3));
-          setLoading(false);
-          return;
-        }
-      }
-
-      if (foundInCache) {
-        setPost(foundInCache);
-        const others = allPosts.filter(p => p.slug !== foundInCache.slug).slice(0, 3);
-        setRelatedPosts(others.length > 0 ? others : FALLBACK_POSTS.slice(0, 3));
-      } else {
-        const fb = FALLBACK_POSTS.find(p => p.slug === slug || String(p.id) === slug);
-        if (fb) {
-          setPost(fb);
-          setRelatedPosts(FALLBACK_POSTS.filter(p => p.slug !== fb.slug).slice(0, 3));
-        } else if (FALLBACK_POSTS.length > 0) {
-          setPost(FALLBACK_POSTS[0]);
-          setRelatedPosts(FALLBACK_POSTS.slice(1, 3));
-        }
-      }
-    } catch (err) {
-      console.error('Error loading post:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleShare = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // share sheet dismissed or clipboard blocked: nothing to do
     }
   };
 
   const formatDate = (dateStr?: string) => {
-    if (!dateStr) return 'Recent';
-    try {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    } catch {
-      return dateStr;
-    }
+    const d = dateStr ? new Date(dateStr) : null;
+    return d && !isNaN(d.getTime()) ? d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Recent';
   };
 
   // Approximate reading time
@@ -174,32 +98,19 @@ export default function BlogDetail() {
   }
 
   if (!post) {
-    return (
-      <div className="min-h-screen bg-black font-sans text-white flex flex-col justify-between">
-        <Header />
-        <div className="flex-grow flex flex-col items-center justify-center pt-32 text-center px-4">
-          <h1 className="text-3xl font-bold mb-4">Article Not Found</h1>
-          <p className="text-zinc-400 mb-6">The blog post you requested could not be located.</p>
-          <Link
-            to="/blog"
-            className="bg-[#e5432e] hover:bg-[#cc3622] text-white px-6 py-2.5 rounded-full font-semibold transition-colors"
-          >
-            Return to All Articles
-          </Link>
-        </div>
-        <Footer />
-      </div>
-    );
+    // Real 404 page (noindex) instead of a soft-404 or a substitute article
+    return <NotFound />;
   }
 
   return (
     <div className="min-h-screen bg-black font-sans text-white scroll-smooth overflow-x-hidden w-full flex flex-col justify-between">
       <SeoHead
         title={(post as any).seo_settings?.seoTitle || (post as any).meta_title || post.title}
-        description={(post as any).seo_settings?.metaDescription || (post as any).meta_description || (post as any).excerpt || String(post.content || '').replace(/[#*_>`\[\]()!-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 155)}
+        description={(post as any).seo_settings?.metaDescription || (post as any).meta_description || (post as any).excerpt || String(post.content || '').replace(/<[^>]*>/g, ' ').replace(/[#*_>`\[\]()!-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 155)}
         image={post.image}
-        url={`https://techfnm.com/blog/${post.slug}`}
+        url={`/blog/${post.slug || post.id}`}
         seoSettings={(post as any).seo_settings}
+        type="article"
       />
       <Header />
 
@@ -216,13 +127,13 @@ export default function BlogDetail() {
               <span>Back to Articles</span>
             </Link>
 
-            <div className="hidden sm:flex items-center gap-2 text-zinc-500">
+            <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-2 text-zinc-500">
               <Link to="/" className="hover:text-zinc-300 transition-colors">Home</Link>
-              <span>/</span>
+              <span aria-hidden="true">/</span>
               <Link to="/blog" className="hover:text-zinc-300 transition-colors">Blog</Link>
-              <span>/</span>
-              <span className="text-[#e5432e] font-medium">{post.category || 'Article'}</span>
-            </div>
+              <span aria-hidden="true">/</span>
+              <span className="text-[#e5432e] font-medium" aria-current="page">{post.category || 'Article'}</span>
+            </nav>
           </div>
 
           {/* Badges and Meta Bar */}
@@ -232,7 +143,7 @@ export default function BlogDetail() {
             </span>
             <div className="flex items-center gap-1.5 text-xs text-zinc-400">
               <Calendar size={13} className="text-[#e5432e]" />
-              <span>{formatDate(post.created_at || post.date)}</span>
+              <time dateTime={post.created_at || post.date}>{formatDate(post.created_at || post.date)}</time>
             </div>
             <span className="text-zinc-600">•</span>
             <div className="flex items-center gap-1.5 text-xs text-zinc-400">
@@ -253,7 +164,7 @@ export default function BlogDetail() {
                 <User size={18} />
               </div>
               <div>
-                <p className="text-xs font-bold text-white capitalize">{post.author || 'TechFNM Editorial'}</p>
+                <p className="text-xs font-bold text-white capitalize">{post.author && post.author !== 'admin' ? post.author : 'TechFNM Editorial'}</p>
                 <p className="text-[11px] text-zinc-400">Published by TechFNM Team</p>
               </div>
             </div>
@@ -287,6 +198,8 @@ export default function BlogDetail() {
               className="w-full h-auto max-h-[520px] object-cover filter brightness-95"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
+                if (target.dataset.fallback) return;
+                target.dataset.fallback = '1';
                 target.src = '/og-preview.png';
               }}
             />
@@ -296,19 +209,8 @@ export default function BlogDetail() {
         {/* MAIN BODY CONTENT */}
         <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
           <div
-            className="prose prose-invert max-w-none text-zinc-300 leading-relaxed space-y-6 text-base sm:text-lg
-            [&>p]:leading-relaxed [&>p]:text-zinc-300 [&>p]:mb-5
-            [&>h2]:text-2xl [&>h2]:sm:text-3xl [&>h2]:font-bold [&>h2]:text-white [&>h2]:mt-10 [&>h2]:mb-4
-            [&>h3]:text-xl [&>h3]:sm:text-2xl [&>h3]:font-bold [&>h3]:text-white [&>h3]:mt-8 [&>h3]:mb-3
-            [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:space-y-2 [&>ul]:text-zinc-300 [&>ul]:my-5
-            [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:space-y-2 [&>ol]:text-zinc-300 [&>ol]:my-5
-            [&>li]:text-zinc-300
-            [&>blockquote]:border-l-4 [&>blockquote]:border-[#e5432e] [&>blockquote]:pl-4 [&>blockquote]:italic [&>blockquote]:text-zinc-200 [&>blockquote]:my-6
-            [&>strong]:text-white [&>strong]:font-bold
-            [&>a]:text-[#e5432e] [&>a]:underline [&>a]:hover:text-[#cc3622]"
-            dangerouslySetInnerHTML={{
-              __html: post.content && post.content.includes('<') ? post.content.replace(/<h1(\s|>)/gi, '<h2$1').replace(/<\/h1>/gi, '</h2>') : `<p>${post.content.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br/>')}</p>`
-            }}
+            className="article-content"
+            dangerouslySetInnerHTML={{ __html: renderBody(post.content) }}
           />
 
           {/* Bottom Tags / Category Footer */}
@@ -358,7 +260,7 @@ export default function BlogDetail() {
                   <Link to={`/blog/${related.slug || related.id}`} className="block">
                     <div className="relative h-48 w-full overflow-hidden bg-zinc-900">
                       <img width={800} height={500} loading="lazy" decoding="async"
-                        src={related.image || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80'}
+                        src={related.image || '/og-preview.png'}
                         alt={related.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />

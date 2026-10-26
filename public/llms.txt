@@ -1,19 +1,30 @@
 # TechFNM
 
-> TechFNM specializes in custom web development, mobile apps, and SEO solutions. We develop the digital future for businesses worldwide.
+> TechFNM is a digital marketing agency in Karachi, Pakistan offering SEO services, web development, mobile app development, social media marketing, ecommerce and content writing for businesses in Pakistan and worldwide.
 
 ## About Us
-TechFNM is a digital agency based in Karachi, Pakistan. We provide high-quality software development and digital marketing services to help businesses grow online.
+TechFNM is a digital agency based in Karachi, Pakistan. We provide high-quality software development and digital marketing services to help businesses grow online. Founder & CEO: Muhammad Naeem.
 
 ## Services
-- Custom Web Development
-- Mobile App Development
-- SEO (Search Engine Optimization) Solutions
-- UI/UX Design
-- Ads Management 
+- [SEO Services](https://techfnm.com/services/seo-services): technical SEO, keyword research, on-page and local SEO, link building
+- [Digital Marketing](https://techfnm.com/services/digital-marketing): paid ads (Google & Meta), campaign strategy
+- [Web Development](https://techfnm.com/services/web-development): custom, fast, mobile-responsive websites
+- [App Development](https://techfnm.com/services/app-development): mobile and web applications
+- [Ecommerce](https://techfnm.com/services/ecommerce): online stores with secure payments
+- [Social Media](https://techfnm.com/services/social-media): social media management and growth
+- [Content Writing](https://techfnm.com/services/content-writing): SEO-friendly copy and articles
+
+## Key Pages
+- [Home](https://techfnm.com/)
+- [All Services](https://techfnm.com/services)
+- [Portfolio](https://techfnm.com/portfolio)
+- [Blog](https://techfnm.com/blog)
+- [FAQ](https://techfnm.com/faq)
+- [Request a Free Quote](https://techfnm.com/request-service)
+- [Contact](https://techfnm.com/contact)
 
 ## Contact Information
 - Email: techhfnm@gmail.com
-- Phone: 0313-9023118
-- Location: Pakistan
+- Phone: +92 313 9023118
+- Location: Karachi, Pakistan
 - Website: https://techfnm.com

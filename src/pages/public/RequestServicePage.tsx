@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
@@ -52,23 +53,44 @@ const HOW_FOUND = [
   'Other',
 ];
 
+// Service pages link here with ?service=<title>&plan=<plan>; pick the closest form option.
+function serviceFromQuery(title: string): string {
+  const t = title.toLowerCase();
+  if (!t) return '';
+  const exact = SERVICES.find((s) => s.toLowerCase() === t);
+  if (exact) return exact;
+  if (/seo/.test(t)) return /local/.test(t) ? 'Local SEO' : /technical/.test(t) ? 'Technical SEO' : 'On Page SEO';
+  if (/web|app|develop|ecommerce|e-commerce|store/.test(t)) return 'Development';
+  if (/social/.test(t)) return 'Social Media Marketing (SMM)';
+  if (/content|writ/.test(t)) return 'Content Writing';
+  if (/ads|ppc|marketing/.test(t)) return 'Ads (PPC)';
+  if (/design|graphic|brand/.test(t)) return 'Graphic Designing';
+  return 'Other';
+}
+
 export default function RequestServicePage() {
+  const [searchParams] = useSearchParams();
+  const requestedService = searchParams.get('service') || '';
+  const requestedPlan = searchParams.get('plan') || '';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [formData, setFormData] = useState({
+  const [submitError, setSubmitError] = useState('');
+  const [formData, setFormData] = useState(() => ({
     name: '',
     email: '',
     phone: '',
     business_name: '',
     business_website: '',
     business_type: '',
-    service: '',
+    service: serviceFromQuery(requestedService),
     seo_issues: [] as string[],
     why_choose_us: '',
     how_found: '',
-    description: '',
+    description: requestedService
+      ? `I'm interested in ${requestedService}${requestedPlan ? ` (${requestedPlan} plan)` : ''}.\n\n`
+      : '',
     preferred_contact: '',
-  });
+  }));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -85,42 +107,59 @@ export default function RequestServicePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError('');
+    // Radio groups can't be enforced with `required` on a custom-styled control in every browser
+    if (!formData.preferred_contact) {
+      setSubmitError('Please choose your preferred method of contact.');
+      return;
+    }
     setIsSubmitting(true);
 
-    try {
-      // 1. Save to Supabase Dashboard
-      const { error } = await supabase.from('service_requests').insert([{
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        business_name: formData.business_name,
-        business_website: formData.business_website || null,
+    // 1. Save to Supabase (Admin → Leads)
+    const saved = await supabase
+      .from('service_requests')
+      .insert([{
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        business_name: formData.business_name.trim(),
+        business_website: formData.business_website.trim() || null,
         business_type: formData.business_type,
         service: formData.service,
         seo_issues: formData.seo_issues,
-        why_choose_us: formData.why_choose_us || null,
+        why_choose_us: formData.why_choose_us.trim() || null,
         how_found: formData.how_found,
-        description: formData.description,
+        description: formData.description.trim(),
         preferred_contact: formData.preferred_contact,
-      }]);
+      }])
+      .then(({ error }) => {
+        if (error) console.error('Lead insert failed:', error);
+        return !error;
+      }, () => false);
 
-      if (error) throw error;
+    // 2. Email notification. Either channel succeeding means the request reached the team —
+    //    previously a database hiccup threw away a request that had been emailed fine.
+    const emailed = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    })
+      .then(async (r) => r.ok && (await r.json().catch(() => ({}))).success === true)
+      .catch(() => false);
 
-      // 2. Send Email via Custom SMTP Backend
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      }).catch(e => console.error('Error connecting to email backend:', e));
-
+    setIsSubmitting(false);
+    if (saved || emailed) {
       setIsSubmitted(true);
-    } catch (err: any) {
-      console.error(err);
-      alert('Something went wrong. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      setSubmitError('Something went wrong and your request was not sent. Please try again, or email techhfnm@gmail.com.');
     }
   };
+
+  const inputCls =
+    'w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600';
+  const selectCls =
+    'w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all appearance-none cursor-pointer';
 
   return (
     <div className="min-h-screen bg-black font-sans text-white flex flex-col w-full">
@@ -133,7 +172,7 @@ export default function RequestServicePage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">Get Started</span>
             <h1 className="mt-4 text-4xl md:text-6xl font-extrabold text-white tracking-tight">
-              Request a <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Service</span>
+              Request a <span className="text-red-500">Service</span>
             </h1>
             <p className="mt-6 text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
               Tell us about your business and what you need. We'll get back to you with a tailored solution and a free quote within 24 hours.
@@ -167,73 +206,78 @@ export default function RequestServicePage() {
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-500/5 rounded-full blur-3xl" />
 
               {/* Personal Info */}
-              <div className="relative z-10">
-                <h3 className="text-lg font-bold text-white mb-4 pb-2 border-b border-zinc-800">Personal Information</h3>
+              <fieldset className="relative z-10">
+                <legend className="w-full text-lg font-bold text-white mb-4 pb-2 border-b border-zinc-800">Personal Information</legend>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm text-zinc-400 mb-1.5">Full Name <span className="text-red-500">*</span></label>
-                    <input name="name" required value={formData.name} onChange={handleChange}
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600"
+                    <label htmlFor="rs-name" className="block text-sm text-zinc-400 mb-1.5">Full Name <span className="text-red-500">*</span></label>
+                    <input id="rs-name" name="name" required autoComplete="name" value={formData.name} onChange={handleChange}
+                      className={inputCls}
                       placeholder="John Doe" />
                   </div>
                   <div>
-                    <label className="block text-sm text-zinc-400 mb-1.5">Email Address <span className="text-red-500">*</span></label>
-                    <input name="email" type="email" required value={formData.email} onChange={handleChange}
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600"
+                    <label htmlFor="rs-email" className="block text-sm text-zinc-400 mb-1.5">Email Address <span className="text-red-500">*</span></label>
+                    <input id="rs-email" name="email" type="email" required autoComplete="email" value={formData.email} onChange={handleChange}
+                      className={inputCls}
                       placeholder="john@example.com" />
                   </div>
                   <div>
-                    <label className="block text-sm text-zinc-400 mb-1.5">Phone Number <span className="text-red-500">*</span></label>
-                    <input name="phone" type="tel" required value={formData.phone} onChange={handleChange}
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600"
-                      placeholder="+1 (234) 567-890" />
+                    <label htmlFor="rs-phone" className="block text-sm text-zinc-400 mb-1.5">Phone Number <span className="text-red-500">*</span></label>
+                    <input id="rs-phone" name="phone" type="tel" required autoComplete="tel" value={formData.phone} onChange={handleChange}
+                      className={inputCls}
+                      placeholder="+92 300 1234567" />
                   </div>
                 </div>
-              </div>
+              </fieldset>
 
               {/* Business Info */}
-              <div className="relative z-10">
-                <h3 className="text-lg font-bold text-white mb-4 pb-2 border-b border-zinc-800">Business Details</h3>
+              <fieldset className="relative z-10">
+                <legend className="w-full text-lg font-bold text-white mb-4 pb-2 border-b border-zinc-800">Business Details</legend>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm text-zinc-400 mb-1.5">Business Name <span className="text-red-500">*</span></label>
-                    <input name="business_name" required value={formData.business_name} onChange={handleChange}
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600"
+                    <label htmlFor="rs-business-name" className="block text-sm text-zinc-400 mb-1.5">Business Name <span className="text-red-500">*</span></label>
+                    <input id="rs-business-name" name="business_name" required autoComplete="organization" value={formData.business_name} onChange={handleChange}
+                      className={inputCls}
                       placeholder="Your Business Name" />
                   </div>
                   <div>
-                    <label className="block text-sm text-zinc-400 mb-1.5">Business Website <span className="text-zinc-600">(Optional)</span></label>
-                    <input name="business_website" value={formData.business_website} onChange={handleChange}
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600"
+                    <label htmlFor="rs-website" className="block text-sm text-zinc-400 mb-1.5">Business Website <span className="text-zinc-600">(Optional)</span></label>
+                    <input id="rs-website" name="business_website" type="text" inputMode="url" autoComplete="url" value={formData.business_website} onChange={handleChange}
+                      onBlur={() => {
+                        // Normalise "mysite.com" → "https://mysite.com" so the link is clickable in Leads
+                        const v = formData.business_website.trim();
+                        if (v && !/^https?:\/\//i.test(v)) setFormData((prev) => ({ ...prev, business_website: `https://${v}` }));
+                      }}
+                      className={inputCls}
                       placeholder="https://yourbusiness.com" />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm text-zinc-400 mb-1.5">Business Type <span className="text-red-500">*</span></label>
-                    <select name="business_type" required value={formData.business_type} onChange={handleChange}
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all appearance-none cursor-pointer">
+                    <label htmlFor="rs-business-type" className="block text-sm text-zinc-400 mb-1.5">Business Type <span className="text-red-500">*</span></label>
+                    <select id="rs-business-type" name="business_type" required value={formData.business_type} onChange={handleChange}
+                      className={selectCls}>
                       <option value="" className="bg-zinc-900">Select your business type</option>
                       {BUSINESS_TYPES.map(t => <option key={t} value={t} className="bg-zinc-900">{t}</option>)}
                     </select>
                   </div>
                 </div>
-              </div>
+              </fieldset>
 
               {/* Service Selection */}
-              <div className="relative z-10">
-                <h3 className="text-lg font-bold text-white mb-4 pb-2 border-b border-zinc-800">Service Required</h3>
+              <fieldset className="relative z-10">
+                <legend className="w-full text-lg font-bold text-white mb-4 pb-2 border-b border-zinc-800">Service Required</legend>
                 <div>
-                  <label className="block text-sm text-zinc-400 mb-1.5">Select a Service <span className="text-red-500">*</span></label>
-                  <select name="service" required value={formData.service} onChange={handleChange}
-                    className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all appearance-none cursor-pointer">
+                  <label htmlFor="rs-service" className="block text-sm text-zinc-400 mb-1.5">Select a Service <span className="text-red-500">*</span></label>
+                  <select id="rs-service" name="service" required value={formData.service} onChange={handleChange}
+                    className={selectCls}>
                     <option value="" className="bg-zinc-900">Choose a service</option>
                     {SERVICES.map(s => <option key={s} value={s} className="bg-zinc-900">{s}</option>)}
                   </select>
                 </div>
-              </div>
+              </fieldset>
 
               {/* SEO Issues */}
-              <div className="relative z-10">
-                <h3 className="text-lg font-bold text-white mb-4 pb-2 border-b border-zinc-800">SEO Issues You Are Facing</h3>
+              <fieldset className="relative z-10">
+                <legend className="w-full text-lg font-bold text-white mb-4 pb-2 border-b border-zinc-800">SEO Issues You Are Facing</legend>
                 <p className="text-sm text-zinc-500 mb-3">Select all that apply:</p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {SEO_ISSUES.map(issue => (
@@ -248,34 +292,34 @@ export default function RequestServicePage() {
                     </label>
                   ))}
                 </div>
-              </div>
+              </fieldset>
 
               {/* Additional Info */}
-              <div className="relative z-10">
-                <h3 className="text-lg font-bold text-white mb-4 pb-2 border-b border-zinc-800">Additional Information</h3>
+              <fieldset className="relative z-10">
+                <legend className="w-full text-lg font-bold text-white mb-4 pb-2 border-b border-zinc-800">Additional Information</legend>
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-sm text-zinc-400 mb-1.5">Why Did You Choose Us? <span className="text-zinc-600">(Optional)</span></label>
-                    <input name="why_choose_us" value={formData.why_choose_us} onChange={handleChange}
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600"
+                    <label htmlFor="rs-why" className="block text-sm text-zinc-400 mb-1.5">Why Did You Choose Us? <span className="text-zinc-600">(Optional)</span></label>
+                    <input id="rs-why" name="why_choose_us" value={formData.why_choose_us} onChange={handleChange}
+                      className={inputCls}
                       placeholder="What made you reach out to us?" />
                   </div>
                   <div>
-                    <label className="block text-sm text-zinc-400 mb-1.5">How Did You Find Us? <span className="text-red-500">*</span></label>
-                    <select name="how_found" required value={formData.how_found} onChange={handleChange}
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all appearance-none cursor-pointer">
+                    <label htmlFor="rs-how-found" className="block text-sm text-zinc-400 mb-1.5">How Did You Find Us? <span className="text-red-500">*</span></label>
+                    <select id="rs-how-found" name="how_found" required value={formData.how_found} onChange={handleChange}
+                      className={selectCls}>
                       <option value="" className="bg-zinc-900">Select an option</option>
                       {HOW_FOUND.map(h => <option key={h} value={h} className="bg-zinc-900">{h}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm text-zinc-400 mb-1.5">Brief Description of Your Query or Concern <span className="text-red-500">*</span></label>
-                    <textarea name="description" required rows={5} value={formData.description} onChange={handleChange}
-                      className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600 resize-none"
+                    <label htmlFor="rs-description" className="block text-sm text-zinc-400 mb-1.5">Brief Description of Your Query or Concern <span className="text-red-500">*</span></label>
+                    <textarea id="rs-description" name="description" required rows={5} value={formData.description} onChange={handleChange}
+                      className={`${inputCls} resize-none`}
                       placeholder="Tell us more about your project, goals, and any specific requirements..." />
                   </div>
-                  <div>
-                    <label className="block text-sm text-zinc-400 mb-1.5">Preferred Method of Contact <span className="text-red-500">*</span></label>
+                  <div role="radiogroup" aria-labelledby="rs-contact-label">
+                    <span id="rs-contact-label" className="block text-sm text-zinc-400 mb-1.5">Preferred Method of Contact <span className="text-red-500">*</span></span>
                     <div className="flex gap-4 flex-wrap">
                       {CONTACT_METHODS.map(method => (
                         <label key={method} className={`flex items-center gap-2 px-5 py-3 rounded-xl border cursor-pointer transition-all ${
@@ -293,10 +337,15 @@ export default function RequestServicePage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </fieldset>
 
               {/* Submit */}
               <div className="relative z-10 pt-4 border-t border-zinc-800">
+                {submitError && (
+                  <p role="alert" className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm">
+                    {submitError}
+                  </p>
+                )}
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -308,7 +357,7 @@ export default function RequestServicePage() {
                     <>Submit Request <Send className="w-5 h-5" /></>
                   )}
                 </button>
-                <p className="text-xs text-zinc-600 mt-3">By submitting, you agree to our terms and privacy policy.</p>
+                <p className="text-xs text-zinc-500 mt-3">We only use your details to respond to this request. No spam, ever.</p>
               </div>
             </motion.form>
           )}

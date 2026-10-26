@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Code, Smartphone, Globe, PenTool, ShoppingCart, Share2, ArrowRight } from 'lucide-react';
+import { Code, Smartphone, Globe, PenTool, ShoppingCart, Share2, ArrowRight, TrendingUp, Search } from 'lucide-react';
 import { motion } from 'motion/react';
 import { supabase } from '../../lib/supabase';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
+import SmartLink from '../../components/SmartLink';
 import { usePageContent } from '../../lib/cmsContent';
 import { CANONICAL_SERVICES, getCached, setCached } from '../../lib/canonicalData';
+import { isLiveService, serviceSlug } from '../../lib/useServices';
 
 const iconMap: any = {
   Code,
@@ -16,6 +18,8 @@ const iconMap: any = {
   PenTool,
   ShoppingCart,
   Share2,
+  TrendingUp,
+  Search,
 };
 
 export default function ServicesPage() {
@@ -119,13 +123,10 @@ export default function ServicesPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {services.map((service, index) => {
+                {services.filter(isLiveService).map((service, index) => {
                   const Icon = iconMap[service.icon] || Code;
-                  const rawSlug = service.slug || service.seo_settings?.slug;
-                  const cleanSlug = rawSlug && isNaN(Number(rawSlug))
-                    ? String(rawSlug).replace(/^\/services\//, '').replace(/^\//, '')
-                    : (service.title ? service.title.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '') : String(service.id));
-                  const serviceLink = `/services/${cleanSlug}`;
+                  // Same slug rule as the server and the header menu (a title-derived slug 404s)
+                  const serviceLink = `/services/${serviceSlug(service)}`;
 
                   return (
                     <motion.div
@@ -133,11 +134,12 @@ export default function ServicesPage() {
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
-                      transition={{ delay: index * 0.1, duration: 0.4 }}
-                      className="bg-zinc-900/20 rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-zinc-850 group hover:border-red-650/30 overflow-hidden relative backdrop-blur-sm flex flex-col justify-between"
+                      transition={{ delay: (index % 3) * 0.08, duration: 0.4 }}
+                      className="bg-[#121214] rounded-3xl p-8 hover:shadow-xl hover:shadow-[#e5432e]/5 transition-all duration-300 border border-white/10 group hover:border-[#e5432e]/40 overflow-hidden relative flex flex-col justify-between"
                     >
                       <div>
-                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${service.color || 'bg-red-500/10 text-red-500'} group-hover:scale-110 transition-transform shadow-lg shadow-black/20`}>
+                        {/* CMS colour presets like "text-white-400" aren't real classes, so use the brand style */}
+                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-[#1B1B1B] border border-white/10 text-[#e5432e] group-hover:bg-[#e5432e] group-hover:text-white transition-all duration-300">
                           <Icon size={28} />
                         </div>
                         <Link to={serviceLink} className="block">
@@ -180,13 +182,13 @@ export default function ServicesPage() {
             </p>
 
             <div className="pt-2">
-              <a
-                href={pageContent.cta_btn_link || '/request-service'}
+              <SmartLink
+                to={pageContent.cta_btn_link || '/request-service'}
                 className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-full font-bold transition-all hover:scale-105 shadow-lg shadow-red-950/20"
               >
                 <span>{pageContent.cta_btn_text || 'Get Started Now'}</span>
                 <ArrowRight size={16} />
-              </a>
+              </SmartLink>
             </div>
           </div>
         </section>

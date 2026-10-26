@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useServices } from '../lib/useServices';
+import { telHref } from '../lib/phone';
 
 export default function Footer() {
   const services = useServices();
@@ -54,7 +55,8 @@ export default function Footer() {
         },
         body: JSON.stringify({
           email: email,
-          _subject: "New Newsletter Subscription from Fexora Footer!"
+          _subject: "New Newsletter Subscription - TechFNM Website",
+          _template: "table"
         })
       });
 
@@ -65,9 +67,11 @@ export default function Footer() {
       setTimeout(() => setStatus('idle'), 3000);
     } catch (error) {
       setStatus('error');
-      setTimeout(() => setStatus('idle'), 3000);
+      setTimeout(() => setStatus('idle'), 5000);
     }
   };
+
+  const headingCls = 'text-xs font-bold text-white mb-5 uppercase tracking-wider';
 
   return (
     <footer className="bg-black text-white pt-20 pb-12 border-t border-white/10 relative overflow-hidden">
@@ -159,7 +163,7 @@ export default function Footer() {
 
           {/* Column 2: Quick Links (2.5 cols) */}
           <div className="lg:col-span-2">
-            <h3 className="text-base font-bold text-white mb-5 uppercase tracking-wider text-xs">
+            <h3 className={headingCls}>
               Quick Links
             </h3>
             <ul className="space-y-2.5 text-sm">
@@ -175,7 +179,7 @@ export default function Footer() {
 
           {/* Column 3: Our Services (2.5 cols) */}
           <div className="lg:col-span-3">
-            <h3 className="text-base font-bold text-white mb-5 uppercase tracking-wider text-xs">
+            <h3 className={headingCls}>
               Our Services
             </h3>
             <ul className="space-y-2.5 text-sm">
@@ -189,7 +193,7 @@ export default function Footer() {
 
           {/* Column 4: Newsletter Subscription (3 cols) */}
           <div className="lg:col-span-3">
-            <h3 className="text-base font-bold text-white mb-5 uppercase tracking-wider text-xs">
+            <h3 className={headingCls}>
               Subscribe Newsletter
             </h3>
             <p className="text-zinc-400 text-sm mb-4 leading-relaxed">
@@ -197,8 +201,11 @@ export default function Footer() {
             </p>
 
             <form onSubmit={handleSubscribe} className="space-y-3">
+              <label htmlFor="footer-newsletter-email" className="sr-only">Email address</label>
               <input
+                id="footer-newsletter-email"
                 type="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address"
@@ -225,7 +232,28 @@ export default function Footer() {
                   </>
                 )}
               </button>
+              <p role="status" aria-live="polite" className="text-xs min-h-[1rem]">
+                {status === 'error' && (
+                  <span className="text-red-400">Subscription failed. Please try again or email us directly.</span>
+                )}
+              </p>
             </form>
+
+            {/* Direct contact details (also helps local SEO: consistent name/address/phone on every page) */}
+            <ul className="mt-6 space-y-2.5 text-sm text-zinc-400">
+              <li className="flex items-center gap-2.5">
+                <MapPin size={15} className="text-[#e5432e] shrink-0" />
+                <span>{settings.address}</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Phone size={15} className="text-[#e5432e] shrink-0" />
+                <a href={`tel:${telHref(settings.phone)}`} className="hover:text-white transition-colors">{settings.phone}</a>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Mail size={15} className="text-[#e5432e] shrink-0" />
+                <a href={`mailto:${settings.email}`} className="hover:text-white transition-colors">{settings.email}</a>
+              </li>
+            </ul>
           </div>
         </div>
 
@@ -234,11 +262,12 @@ export default function Footer() {
           <p>
             Copyright &copy; {new Date().getFullYear()} <span className="text-white font-medium">TechFNM</span>. All rights reserved.
           </p>
-          <div className="flex items-center gap-6">
-            <Link to="/about" className="hover:text-zinc-300 transition-colors">Privacy Policy</Link>
-            <Link to="/about" className="hover:text-zinc-300 transition-colors">Terms of Service</Link>
+          {/* "Privacy Policy" / "Terms" used to point at /about — there are no such pages yet, so link real ones */}
+          <nav aria-label="Footer" className="flex items-center gap-6">
+            <Link to="/faq" className="hover:text-zinc-300 transition-colors">FAQ</Link>
+            <Link to="/request-service" className="hover:text-zinc-300 transition-colors">Get a Quote</Link>
             <Link to="/contact" className="hover:text-zinc-300 transition-colors">Support</Link>
-          </div>
+          </nav>
         </div>
       </div>
     </footer>

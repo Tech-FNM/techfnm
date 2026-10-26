@@ -2,8 +2,7 @@
 // and portfolio projects, each with a real <lastmod>. /admin and unknown/404 URLs are never listed.
 import { createClient } from '@supabase/supabase-js';
 import { PROJECTS } from './_lib/defaults.js';
-
-const SITE_URL = 'https://techfnm.com';
+import { SITE_URL, isLiveService, isPublishedProject, isPublishedPost, serviceSlug } from '../src/lib/seoDefaults.js';
 
 const STATIC_PAGES = [
   { path: '/', id: 'page-home', priority: '1.0', changefreq: 'weekly' },
@@ -27,8 +26,7 @@ const day = (d) => {
 };
 const latest = (...ds) => ds.map(day).filter(Boolean).sort().pop() || null;
 const slugify = (s = '') => String(s || '').toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-const clean = (s = '') => String(s || '').replace(/^\/services\//, '').replace(/^\//, '');
-const xmlEsc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const xmlEsc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 const entry = (loc, lastmod, changefreq, priority) =>
   `  <url>\n    <loc>${xmlEsc(loc)}</loc>\n${lastmod ? `    <lastmod>${lastmod}</lastmod>\n` : ''}    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
@@ -64,7 +62,7 @@ export default async function handler(req, res) {
       ])
     : [null, null, null, null];
 
-  const blogList = (blogs || []).filter((b) => b.slug && (!b.status || b.status === 'published' || b.status === 'live'));
+  const blogList = (blogs || []).filter((b) => b.slug && isPublishedPost(b));
   const newestPost = latest(...blogList.map((b) => b.updated_at || b.created_at));
 
   for (const p of STATIC_PAGES) {
@@ -74,16 +72,17 @@ export default async function handler(req, res) {
     add(p.path, lm, p.changefreq, p.priority);
   }
 
-  const svcList = services && services.length ? services : FALLBACK_SERVICES.map((slug) => ({ slug }));
+  // Drafted/trashed services 404 in api/render.js, so they must not be listed here.
+  const svcList = (services && services.length ? services : FALLBACK_SERVICES.map((slug) => ({ slug }))).filter(isLiveService);
+  if (!svcList.some((s) => serviceSlug(s) === 'seo-services')) svcList.push({ slug: 'seo-services' });
   for (const s of svcList) {
-    const slug = clean(s.slug || s.id);
-    add(`/services/${slug}`, latest(s.updated_at || s.created_at), 'weekly', '0.8');
+    add(`/services/${serviceSlug(s)}`, latest(s.updated_at || s.created_at), 'weekly', '0.8');
   }
 
   for (const b of blogList) add(`/blog/${b.slug}`, latest(b.updated_at || b.created_at), 'monthly', '0.7');
 
-  for (const p of projects || PROJECTS) {
-    if (p.status && p.status !== 'published') continue;
+  // An empty projects table falls back to the defaults (same rule as api/render.js)
+  for (const p of (projects && projects.length ? projects : PROJECTS).filter(isPublishedProject)) {
     add(`/portfolio/${String(p.slug || '').replace(/^\/?(portfolio\/)?/, '').replace(/\/$/, '') || `${slugify(p.title)}-${p.id}`}`, latest(p.updated_at || p.created_at), 'monthly', '0.6');
   }
 

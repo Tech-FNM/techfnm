@@ -6,64 +6,76 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
 import { usePageContent } from '../../lib/cmsContent';
+import { supabase } from '../../lib/supabase';
+
+const SOCIALS = [
+  { href: 'https://www.facebook.com/techfnm', label: 'TechFNM on Facebook', Icon: Facebook },
+  { href: 'https://www.youtube.com/@techhfnm', label: 'TechFNM on YouTube', Icon: Youtube },
+  { href: 'https://www.instagram.com/techfnm', label: 'TechFNM on Instagram', Icon: Instagram },
+  { href: 'https://www.linkedin.com/company/techfnm', label: 'TechFNM on LinkedIn', Icon: Linkedin },
+  { href: 'https://github.com/Tech-FNM', label: 'TechFNM on GitHub', Icon: Github },
+];
 
 export default function ContactPage() {
   const pageContent = usePageContent('page-contact', {
     hero_badge: 'Contact Us',
-    hero_title: 'Lets Have a Chat',
+    hero_title: "Let's Have a Chat",
     hero_desc: "Questions about our products/services, orders, or just want to say hello? We're here to help"
   });
 
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
+  const emptyForm = { firstName: '', lastName: '', email: '', phone: '', message: '' };
+  const [formData, setFormData] = useState(emptyForm);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.firstName || !formData.email || !formData.message) {
+    if (!formData.firstName.trim() || !formData.email.trim() || !formData.message.trim()) {
       toast.error('Please fill in all required fields.');
       return;
     }
 
     setLoading(true);
-    try {
-      const response = await fetch('/api/send-contact-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: `${formData.firstName} ${formData.lastName}`.trim(),
-          email: formData.email,
-          subject: formData.subject || 'General Inquiry',
-          message: formData.message
-        }),
-      });
+    const name = `${formData.firstName} ${formData.lastName}`.trim();
 
-      const result = await response.json();
-      if (result.success) {
-        toast.success('Your message has been sent successfully!');
-        setFormData({
-          firstName: '',
-          lastName: '',
-          email: '',
-          subject: '',
-          message: ''
-        });
-      } else {
-        throw new Error(result.error || 'Failed to send message.');
-      }
-    } catch (error: any) {
-      console.error('Contact submit error:', error);
-      toast.error(error.message || 'Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
+    // 1. Save as a lead (shows up in Admin → Leads) so a message is never lost if email delivery fails
+    const saved = await supabase
+      .from('service_requests')
+      .insert([{
+        name,
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        business_name: 'Contact Form',
+        business_type: 'Contact Form',
+        service: 'General Inquiry',
+        seo_issues: [],
+        how_found: 'Website Contact Page',
+        description: formData.message.trim(),
+        preferred_contact: formData.phone.trim() ? 'Phone' : 'Email',
+      }])
+      .then(({ error }) => !error, () => false);
+
+    // 2. Email notification. The phone number used to be sent as the email *subject*.
+    const emailed = await fetch('/api/send-contact-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        subject: 'Website Contact Form',
+        message: formData.message.trim()
+      }),
+    })
+      .then(async (r) => r.ok && (await r.json().catch(() => ({}))).success === true)
+      .catch(() => false);
+
+    if (saved || emailed) {
+      toast.success("Thanks! Your message has been sent. We'll get back to you within 24 hours.");
+      setFormData(emptyForm);
+    } else {
+      toast.error('Sorry, we could not send your message. Please email techhfnm@gmail.com or call 0313-9023118.');
     }
+    setLoading(false);
   };
 
   return (
@@ -105,7 +117,7 @@ export default function ContactPage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white"
             >
-              {pageContent.hero_title || 'Lets Have a Chat'}
+              {pageContent.hero_title || "Let's Have a Chat"}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 15 }}
@@ -136,6 +148,7 @@ export default function ContactPage() {
                   type="text"
                   id="firstName"
                   name="firstName"
+                  autoComplete="given-name"
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                   placeholder="First name"
@@ -153,6 +166,7 @@ export default function ContactPage() {
                   type="text"
                   id="lastName"
                   name="lastName"
+                  autoComplete="family-name"
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                   placeholder="Last name"
@@ -169,6 +183,7 @@ export default function ContactPage() {
                   type="email"
                   id="email"
                   name="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="Email"
@@ -177,17 +192,18 @@ export default function ContactPage() {
                 />
               </div>
 
-              {/* Phone/Subject */}
+              {/* Phone */}
               <div className="space-y-2">
-                <label htmlFor="subject" className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                <label htmlFor="phone" className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                   Phone number
                 </label>
                 <input
-                  type="text"
-                  id="subject"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  autoComplete="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="Phone number"
                   className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-600/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
                 />
@@ -233,21 +249,11 @@ export default function ContactPage() {
 
           {/* Social Links */}
           <div className="flex gap-6 mt-10 text-zinc-500 border-t border-zinc-850/60 pt-6 w-full justify-center">
-            <a href="https://facebook.com/techfnm" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
-              <Facebook size={18} />
-            </a>
-            <a href="https://youtube.com/@techhfnm" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
-              <Youtube size={18} />
-            </a>
-            <a href="https://instagram.com/techfnm" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
-              <Instagram size={18} />
-            </a>
-            <a href="https://linkedin.com/company/techfnm" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
-              <Linkedin size={18} />
-            </a>
-            <a href="https://github.com/Tech-FNM" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
-              <Github size={18} />
-            </a>
+            {SOCIALS.map(({ href, label, Icon }) => (
+              <a key={href} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} title={label} className="hover:text-red-500 transition-colors">
+                <Icon size={18} />
+              </a>
+            ))}
           </div>
 
         </div>

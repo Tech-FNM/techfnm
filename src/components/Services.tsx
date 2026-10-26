@@ -16,6 +16,7 @@ import { motion } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import { usePageContent } from '../lib/cmsContent';
 import { CANONICAL_SERVICES, getCached, setCached } from '../lib/canonicalData';
+import { isLiveService, serviceSlug } from '../lib/useServices';
 
 const iconMap: any = {
   Code,
@@ -120,16 +121,10 @@ export default function Services() {
 
         {/* Services Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {services.slice(0, 6).map((service, index) => {
+          {services.filter(isLiveService).slice(0, 6).map((service, index) => {
             const Icon = iconMap[service.icon] || Code;
-            const rawSlug = service.slug || service.seo_settings?.slug;
-            const cleanSlug =
-              rawSlug && isNaN(Number(rawSlug))
-                ? String(rawSlug).replace(/^\/services\//, '').replace(/^\//, '')
-                : service.title
-                ? service.title.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '')
-                : String(service.id);
-            const serviceLink = `/services/${cleanSlug}`;
+            // Same slug rule as the server and the header menu (a title-derived slug 404s)
+            const serviceLink = `/services/${serviceSlug(service)}`;
 
             return (
               <motion.div

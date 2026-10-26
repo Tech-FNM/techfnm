@@ -15,14 +15,12 @@ const Testimonials = lazy(() => import('../components/Testimonials'));
 const LatestBlogs = lazy(() => import('../components/LatestBlogs'));
 const Contact = lazy(() => import('../components/Contact'));
 import Footer from '../components/Footer';
-import ScriptInjector from '../components/ScriptInjector';
 import SeoHead from '../components/SeoHead';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-black font-sans text-white scroll-smooth overflow-x-hidden w-full selection:bg-[#e5432e] selection:text-white">
       <SeoHead pageId="home" />
-      <ScriptInjector />
       <Header />
       <main>
         {/* 1. Hero Section */}

@@ -41,7 +41,7 @@ export default function FAQ() {
   const [activeIndex, setActiveIndex] = useState<number | null>(0);
 
   const pageContent = usePageContent('page-home', {
-    faq_badge: 'Frequently Asked Questions.',
+    faq_badge: 'Frequently Asked Questions',
     faq_heading: 'Find answers to common questions here',
     faq_desc: 'Explore clear and helpful answers to the most common questions about our services, process, and solutions.',
     faq_trust_score: '5.0/5',
@@ -72,7 +72,7 @@ export default function FAQ() {
             <div className="inline-flex items-center gap-2 bg-[#1B1B1B] border border-white/10 rounded-full px-4 py-1.5 mb-5 w-fit">
               <span className="w-2 h-2 rounded-full bg-[#e5432e]" />
               <span className="text-xs sm:text-sm font-semibold tracking-wider text-zinc-300 uppercase">
-                {pageContent.faq_badge || 'Frequently Asked Questions.'}
+                {pageContent.faq_badge || 'Frequently Asked Questions'}
               </span>
             </div>
 
@@ -127,6 +127,8 @@ export default function FAQ() {
                   }`}
                 >
                   <button
+                    type="button"
+                    aria-expanded={isOpen}
                     onClick={() => setActiveIndex(isOpen ? null : index)}
                     className="w-full p-6 sm:p-7 flex items-center justify-between text-left gap-4 transition-colors"
                   >

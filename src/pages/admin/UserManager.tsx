@@ -18,7 +18,6 @@ const DEFAULT_USERS: AdminUser[] = [
     name: 'Muhammad Naeem',
     email: 'admin@techfnm.com',
     role: 'Super Admin',
-    password: 'TechFNM@2026',
     created_at: new Date('2024-01-01').toISOString()
   }
 ];
@@ -53,7 +52,7 @@ export default function UserManager() {
           name: remote.name || remote.full_name || remote.email?.split('@')[0] || 'Admin',
           email: remote.email,
           role: remote.role || 'Administrator',
-          password: remote.password || 'TechFNM@2026',
+          password: remote.password || '',
           created_at: remote.created_at || new Date().toISOString()
         }));
         setUsers(mapped);
@@ -98,7 +97,7 @@ export default function UserManager() {
       name: user.name,
       email: user.email,
       role: user.role,
-      password: user.password || 'TechFNM@2026'
+      password: '' // blank = keep the current password
     });
     setIsEditing(true);
   };
@@ -109,7 +108,7 @@ export default function UserManager() {
       name: '',
       email: '',
       role: 'Administrator',
-      password: 'TechFNM@2026'
+      password: ''
     });
     setIsEditing(true);
   };
@@ -118,6 +117,12 @@ export default function UserManager() {
     e.preventDefault();
     if (!formData.name.trim() || !formData.email.trim()) {
       toast.error('Please enter name and valid email.');
+      return;
+    }
+    // New users need their own password; when editing, a blank field keeps the existing one
+    const pw = formData.password.trim();
+    if ((!selectedUser && pw.length < 8) || (selectedUser && pw && pw.length < 8)) {
+      toast.error('Password must be at least 8 characters.');
       return;
     }
 
@@ -145,7 +150,7 @@ export default function UserManager() {
           name: formData.name.trim(),
           email: formData.email.trim(),
           role: formData.role,
-          password: formData.password ? formData.password.trim() : 'TechFNM@2026',
+          password: formData.password.trim(),
           created_at: new Date().toISOString()
         };
         updated = [newUser, ...users];
@@ -161,7 +166,8 @@ export default function UserManager() {
           name: u.name,
           email: u.email,
           role: u.role,
-          password: u.password || 'TechFNM@2026',
+          // never write a built-in default password; undefined leaves the stored one untouched
+          password: u.password || undefined,
           updated_at: new Date().toISOString()
         }));
         await supabase.from('profiles').upsert(rows);
@@ -299,13 +305,15 @@ export default function UserManager() {
                 <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
                   Password
                 </label>
-                <span className="text-[10px] text-zinc-500">Default: TechFNM@2026</span>
+                <span className="text-[10px] text-zinc-500">{selectedUser ? 'Leave blank to keep current' : 'Min. 8 characters'}</span>
               </div>
               <div className="relative">
                 <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  required
+                  required={!selectedUser}
+                  minLength={8}
+                  autoComplete="new-password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="••••••••"
@@ -391,7 +399,7 @@ export default function UserManager() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-zinc-500 font-mono text-[11px]">
-                      {user.password ? '••••••••' : 'Default (TechFNM@2026)'}
+                      {user.password ? '••••••••' : 'Not set (cannot log in)'}
                     </td>
                     <td className="px-5 py-3.5 text-zinc-500 font-mono text-[11px]">
                       {new Date(user.created_at).toLocaleDateString()}

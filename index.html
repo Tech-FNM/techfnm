@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Google Tag Manager -->
 <script>
 // GTM is non-critical: start it after the page has loaded so it doesn't compete with the first render.
@@ -15,19 +17,22 @@ if(document.readyState==='complete'){setTimeout(g,1500)}else{window.addEventList
 </script>
 <!-- End Google Tag Manager -->
     <meta name="trustpilot-one-time-domain-verification-id" content="7830a348-be18-4a17-9e65-1e8782d2af51"/>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Primary Meta Tags -->
-    <title>TechFNM</title>
+
+    <!-- Primary Meta Tags (api/render.js replaces these per page) -->
+    <title>Digital Marketing Agency In Pakistan | TechFNM</title>
+    <meta name="description" content="TechFNM is a digital marketing agency in Pakistan offering SEO services, web development, mobile apps, social media and content writing for businesses worldwide." data-rh="true" />
     <meta name="author" content="TechFNM" />
-    <meta name="robots" content="index, follow" data-rh="true" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" data-rh="true" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta property="og:site_name" content="TechFNM" data-rh="true" />
+    <meta property="og:locale" content="en_US" data-rh="true" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/image/agency-assets/projects/0.569918561129375.png" />
+    <link rel="apple-touch-icon" href="/image/agency-assets/projects/0.569918561129375.png" />
 
-    <!-- Google Fonts DM Sans (Fexora Design System) -->
-    <!-- Self-hosted, preloaded main font (no render-blocking Google Fonts request) -->
+    <!-- Self-hosted, preloaded DM Sans (no render-blocking Google Fonts request) -->
     <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
     <style>
       @font-face{font-family:'DM Sans';font-style:normal;font-display:optional;font-weight:100 1000;src:url(/fonts/dm-sans-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
@@ -39,15 +44,18 @@ if(document.readyState==='complete'){setTimeout(g,1500)}else{window.addEventList
 [
   {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": "ProfessionalService",
     "@id": "https://techfnm.com/#localbusiness",
-    "name": "Tech FNM",
+    "name": "TechFNM",
+    "alternateName": "Tech FNM",
     "url": "https://techfnm.com/",
     "logo": "https://techfnm.com/image/agency-assets/projects/0.3295514356725505.png",
     "image": "https://techfnm.com/image/agency-assets/projects/0.3295514356725505.png",
-    "description": "We specialize in custom web development, mobile apps, and SEO solutions. We develop digital future.",
+    "description": "TechFNM is a digital marketing agency in Pakistan offering SEO services, web development, mobile apps, social media and content writing for businesses worldwide.",
     "telephone": "+92-313-9023118",
     "email": "techhfnm@gmail.com",
+    "parentOrganization": { "@id": "https://techfnm.com/#organization" },
+    "areaServed": [{ "@type": "Country", "name": "Pakistan" }, "Worldwide"],
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Karachi",
@@ -74,13 +82,28 @@ if(document.readyState==='complete'){setTimeout(g,1500)}else{window.addEventList
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": "https://techfnm.com/#organization",
-    "name": "Tech FNM",
+    "name": "TechFNM",
+    "alternateName": "Tech FNM",
     "url": "https://techfnm.com/",
-    "logo": "https://techfnm.com/image/agency-assets/projects/0.3295514356725505.png",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://techfnm.com/image/agency-assets/projects/0.3295514356725505.png"
+    },
+    "email": "techhfnm@gmail.com",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+92-313-9023118",
+      "email": "techhfnm@gmail.com",
+      "contactType": "customer service",
+      "areaServed": "Worldwide",
+      "availableLanguage": ["English", "Urdu"]
+    },
     "sameAs": [
       "https://www.facebook.com/techfnm",
       "https://www.youtube.com/@techhfnm",
-      "https://www.instagram.com/techfnm"
+      "https://www.instagram.com/techfnm",
+      "https://www.linkedin.com/company/techfnm",
+      "https://github.com/Tech-FNM"
     ]
   },
   {
@@ -88,7 +111,8 @@ if(document.readyState==='complete'){setTimeout(g,1500)}else{window.addEventList
     "@type": "WebSite",
     "@id": "https://techfnm.com/#website",
     "url": "https://techfnm.com/",
-    "name": "Tech FNM",
+    "name": "TechFNM",
+    "inLanguage": "en",
     "publisher": { "@id": "https://techfnm.com/#organization" }
   },
   {
@@ -96,8 +120,11 @@ if(document.readyState==='complete'){setTimeout(g,1500)}else{window.addEventList
     "@type": "WebPage",
     "@id": "https://techfnm.com/#webpage",
     "url": "https://techfnm.com/",
-    "name": "Tech FNM - Web Development & SEO Solutions",
-    "description": "Custom web development, mobile apps, and SEO services in Karachi, Pakistan.",
+    "name": "Digital Marketing Agency In Pakistan | TechFNM",
+    "description": "TechFNM is a digital marketing agency in Pakistan offering SEO services, web development, mobile apps, social media and content writing for businesses worldwide.",
+    "isPartOf": { "@id": "https://techfnm.com/#website" },
+    "about": { "@id": "https://techfnm.com/#organization" },
+    "inLanguage": "en",
     "datePublished": "2026-04-16T20:26:00+05:00",
     "dateModified": "2026-04-17T23:57:00+05:00"
   },
@@ -112,7 +139,7 @@ if(document.readyState==='complete'){setTimeout(g,1500)}else{window.addEventList
         "name": "What specific services do you offer?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "We specialize in providing high-quality Web Development, Digital Marketing, content writting, finance, PPC and SEO solutions. Our goal is to help businesses establish a strong and effective digital presence."
+          "text": "We specialize in providing high-quality Web Development, Digital Marketing, content writing, finance, PPC and SEO solutions. Our goal is to help businesses establish a strong and effective digital presence."
         }
       },
       {
