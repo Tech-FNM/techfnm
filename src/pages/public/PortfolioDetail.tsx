@@ -96,10 +96,10 @@ export default function PortfolioDetail() {
             <div className="article-content" dangerouslySetInnerHTML={{ __html: p.content }} />
           )}
           <div className="flex flex-wrap gap-3 pt-6">
-            <Link to="/portfolio" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/15 hover:border-white/30 font-semibold transition-colors">
+            <Link to="/portfolio" className="btn-secondary inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold">
               <ArrowLeft size={16} /> All projects
             </Link>
-            <Link to="/request-service" className="px-5 py-2.5 rounded-full bg-red-600 hover:bg-red-700 font-semibold transition-colors">Start a similar project</Link>
+            <Link to="/request-service" className="btn-primary px-5 py-2.5 rounded-full font-semibold">Start a similar project</Link>
           </div>
         </div>
       </main>

@@ -104,7 +104,7 @@ export default function Portfolio() {
           <div className="flex-shrink-0">
             <Link
               to={pageContent.portfolio_btn_link || '/portfolio'}
-              className="group inline-flex items-center gap-3 bg-[#1B1B1B] hover:bg-[#222225] border border-white/15 hover:border-[#e5432e]/40 text-white px-6 py-3.5 rounded-full text-sm font-semibold transition-all duration-300"
+              className="btn-secondary group inline-flex items-center gap-3 text-white px-6 py-3.5 rounded-full text-sm font-semibold"
             >
               <span>{pageContent.portfolio_btn_text || 'View Projects'}</span>
               <span className="w-7 h-7 rounded-full bg-white/10 text-white group-hover:bg-[#e5432e] group-hover:text-white flex items-center justify-center transition-all duration-300">
@@ -144,7 +144,7 @@ export default function Portfolio() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4 }}
-                className="group relative bg-[#121214] border border-white/10 hover:border-[#e5432e]/40 rounded-3xl overflow-hidden transition-all duration-500 flex flex-col justify-between hover:shadow-xl hover:shadow-[#e5432e]/5"
+                className="card-hover group relative bg-[#121214] border border-white/10 hover:border-[#e5432e]/40 rounded-3xl overflow-hidden flex flex-col justify-between"
               >
                 {/* Image Container with Hover Zoom */}
                 <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-zinc-900">

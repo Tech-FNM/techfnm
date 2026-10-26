@@ -507,7 +507,7 @@ export default function ServiceDetail() {
                 {/* Key Deliverables Checkmark Bullets */}
                 <div className="space-y-3 pt-2">
                   {heroBullets.map((bullet, idx) => (
-                    <div key={idx} className="flex items-start gap-3 text-zinc-200 text-xs sm:text-sm">
+                    <div key={idx} className="flex items-start gap-3 text-zinc-200 text-sm sm:text-base">
                       <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
                         <Check size={12} strokeWidth={3} />
                       </div>
@@ -520,7 +520,7 @@ export default function ServiceDetail() {
                 <div className="pt-4 flex flex-wrap items-center gap-4">
                   <a
                     href="#consultation-card"
-                    className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-7 py-3.5 rounded-full font-bold text-sm shadow-xl shadow-red-950/40 transition-all hover:scale-105 cursor-pointer"
+                    className="btn-primary inline-flex items-center justify-center gap-2 w-full sm:w-auto text-white px-7 py-3.5 rounded-full font-semibold text-sm"
                   >
                     <span>Get Free Consultation</span>
                     <ArrowRight size={16} />
@@ -528,7 +528,7 @@ export default function ServiceDetail() {
 
                   <Link
                     to={`/request-service?service=${encodeURIComponent(service.title)}`}
-                    className="inline-flex items-center gap-2 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white px-6 py-3.5 rounded-full font-semibold text-sm border border-zinc-800 transition-all"
+                    className="btn-secondary inline-flex items-center justify-center gap-2 w-full sm:w-auto text-zinc-300 hover:text-white px-6 py-3.5 rounded-full font-semibold text-sm"
                   >
                     <span>Request Custom Scope</span>
                   </Link>
@@ -591,7 +591,7 @@ export default function ServiceDetail() {
                           value={leadForm.name}
                           onChange={e => setLeadForm({ ...leadForm, name: e.target.value })}
                           placeholder="Your Name *"
-                          className="w-full bg-[#1b1b22] border border-zinc-800 focus:border-red-500/60 rounded-xl px-4 py-3 text-xs text-white placeholder-zinc-500 outline-none transition-all"
+                          className="field"
                         />
                       </div>
 
@@ -602,7 +602,7 @@ export default function ServiceDetail() {
                           value={leadForm.email}
                           onChange={e => setLeadForm({ ...leadForm, email: e.target.value })}
                           placeholder="Business Email *"
-                          className="w-full bg-[#1b1b22] border border-zinc-800 focus:border-red-500/60 rounded-xl px-4 py-3 text-xs text-white placeholder-zinc-500 outline-none transition-all"
+                          className="field"
                         />
                       </div>
 
@@ -612,7 +612,7 @@ export default function ServiceDetail() {
                           value={leadForm.website}
                           onChange={e => setLeadForm({ ...leadForm, website: e.target.value })}
                           placeholder="Website or Project URL (Optional)"
-                          className="w-full bg-[#1b1b22] border border-zinc-800 focus:border-red-500/60 rounded-xl px-4 py-3 text-xs text-white placeholder-zinc-500 outline-none transition-all"
+                          className="field"
                         />
                       </div>
 
@@ -623,14 +623,14 @@ export default function ServiceDetail() {
                           value={leadForm.message}
                           onChange={e => setLeadForm({ ...leadForm, message: e.target.value })}
                           placeholder="Tell us about your project goals, milestones, or current challenges... *"
-                          className="w-full bg-[#1b1b22] border border-zinc-800 focus:border-red-500/60 rounded-xl p-3.5 text-xs text-white placeholder-zinc-500 outline-none transition-all resize-none"
+                          className="field resize-none"
                         />
                       </div>
 
                       <button
                         type="submit"
                         disabled={submittingLead}
-                        className="w-full py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-lg shadow-red-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                        className="btn-primary w-full py-3.5 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2"
                       >
                         {submittingLead ? (
                           <span>Submitting Request...</span>
@@ -642,7 +642,7 @@ export default function ServiceDetail() {
                         )}
                       </button>
 
-                      <p className="text-[10px] text-zinc-500 text-center">
+                      <p className="text-xs text-zinc-500 text-center">
                         Zero spam. We respect your confidentiality and sign NDAs upon request.
                       </p>
                     </form>
@@ -676,13 +676,13 @@ export default function ServiceDetail() {
         <section className="py-20 bg-black relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
             <div className="text-center max-w-3xl mx-auto space-y-3">
-              <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+              <span className="eyebrow">
                 Under the Hood
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
                 What Really Happens Behind A High-Performing <span className="text-red-400">{service.title}</span> Asset
               </h2>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                 Algorithms and consumers reward relevance, distance, and prominence. We build three synchronized layers to turn rankings into measurable commercial return.
               </p>
             </div>
@@ -697,7 +697,7 @@ export default function ServiceDetail() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1, duration: 0.4 }}
-                    className="bg-[#111116] border border-zinc-800 rounded-3xl p-8 space-y-5 hover:border-red-500/40 transition-all group shadow-xl hover:shadow-red-950/10"
+                    className="card-hover bg-[#111116] border border-zinc-800 rounded-3xl p-8 space-y-5 hover:border-red-500/40 group"
                   >
                     <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-red-400 group-hover:scale-110 group-hover:bg-red-500/10 transition-all shadow-md">
                       <FeatIcon size={24} />
@@ -705,7 +705,7 @@ export default function ServiceDetail() {
                     <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-red-300 transition-colors">
                       {pillar.title}
                     </h3>
-                    <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+                    <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                       {pillar.desc}
                     </p>
                   </motion.div>
@@ -719,13 +719,13 @@ export default function ServiceDetail() {
         <section className="py-20 bg-zinc-950">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
             <div className="text-center max-w-3xl mx-auto space-y-3">
-              <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+              <span className="eyebrow">
                 Comprehensive Modules
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
                 Every Part Of Your Project, Tuned To Pull In Qualified Leads
               </h2>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                 No two markets act identically; copy-paste templates never win. We calibrate every signal to ensure compounding lead generation.
               </p>
             </div>
@@ -736,13 +736,13 @@ export default function ServiceDetail() {
                 return (
                   <div
                     key={index}
-                    className="bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-6 sm:p-7 space-y-4 hover:border-zinc-700 transition-all"
+                    className="card-hover bg-[#0f0f13] border border-zinc-800/80 rounded-2xl p-6 sm:p-7 space-y-4 hover:border-zinc-700"
                   >
                     <div className="w-12 h-12 rounded-xl bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-400">
                       <CapIcon size={20} />
                     </div>
                     <h3 className="text-base sm:text-lg font-bold text-white">{cap.title}</h3>
-                    <p className="text-zinc-400 text-xs leading-relaxed">{cap.desc}</p>
+                    <p className="text-zinc-400 text-sm leading-relaxed">{cap.desc}</p>
                   </div>
                 );
               })}
@@ -754,13 +754,13 @@ export default function ServiceDetail() {
         <section className="py-20 bg-black">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
             <div className="text-center max-w-3xl mx-auto space-y-3">
-              <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+              <span className="eyebrow">
                 Strategic Advantage
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
                 Why Professional <span className="text-red-400">{service.title}</span> Quietly Decides Who Wins
               </h2>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                 Most clicks and conversions go to the top three verified providers. We ensure your brand sits front and center when customers make buying decisions.
               </p>
             </div>
@@ -771,13 +771,13 @@ export default function ServiceDetail() {
                 return (
                   <div
                     key={index}
-                    className="bg-gradient-to-b from-[#141419] to-[#0c0c10] border border-zinc-800 rounded-3xl p-6 space-y-4 hover:border-red-500/30 transition-all"
+                    className="card-hover bg-gradient-to-b from-[#141419] to-[#0c0c10] border border-zinc-800 rounded-3xl p-6 space-y-4 hover:border-red-500/30"
                   >
                     <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-red-400">
                       <BenIcon size={20} />
                     </div>
                     <h3 className="text-base font-bold text-white">{benefit.title}</h3>
-                    <p className="text-zinc-400 text-xs leading-relaxed">{benefit.desc}</p>
+                    <p className="text-zinc-400 text-sm leading-relaxed">{benefit.desc}</p>
                   </div>
                 );
               })}
@@ -789,13 +789,13 @@ export default function ServiceDetail() {
         <section className="py-20 bg-[#0a0a0f]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
             <div className="text-center max-w-3xl mx-auto space-y-3">
-              <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+              <span className="eyebrow">
                 Proven Framework
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
                 The Step-By-Step System We Use To Deliver Predictable Results
               </h2>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                 Growth is never guesswork. Every account follows our disciplined 6-stage execution roadmap to climb positions reliably.
               </p>
             </div>
@@ -804,13 +804,13 @@ export default function ServiceDetail() {
               {processSteps.map((step: any, index: number) => (
                 <div
                   key={index}
-                  className="bg-[#111116] border border-zinc-800/90 rounded-2xl p-7 space-y-3 relative hover:border-red-500/30 transition-all"
+                  className="card-hover bg-[#111116] border border-zinc-800/90 rounded-2xl p-7 space-y-3 relative hover:border-red-500/30"
                 >
                   <span className="text-3xl sm:text-4xl font-black text-red-500/20 font-mono block">
                     {step.step || `0${index + 1}`}
                   </span>
                   <h3 className="text-base sm:text-lg font-bold text-white">{step.title}</h3>
-                  <p className="text-zinc-400 text-xs leading-relaxed">{step.desc}</p>
+                  <p className="text-zinc-400 text-sm leading-relaxed">{step.desc}</p>
                 </div>
               ))}
             </div>
@@ -821,13 +821,13 @@ export default function ServiceDetail() {
         <section className="py-20 bg-black">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
             <div className="text-center max-w-3xl mx-auto space-y-3">
-              <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+              <span className="eyebrow">
                 Measurable Impact
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
                 Real Local & Global Wins We Have Delivered
               </h2>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                 Real metrics beat hollow promises. These brief case snapshots demonstrate how dedicated execution drives qualified leads and revenue.
               </p>
             </div>
@@ -836,7 +836,7 @@ export default function ServiceDetail() {
               {caseWins.map((win: any, index: number) => (
                 <div
                   key={index}
-                  className="bg-gradient-to-b from-[#13131a] to-[#0a0a0d] border border-zinc-800 rounded-3xl p-6 sm:p-7 space-y-4 hover:border-red-500/30 transition-all flex flex-col justify-between"
+                  className="card-hover bg-gradient-to-b from-[#13131a] to-[#0a0a0d] border border-zinc-800 rounded-3xl p-6 sm:p-7 space-y-4 hover:border-red-500/30 flex flex-col justify-between"
                 >
                   <div className="space-y-2">
                     <span className="text-3xl sm:text-4xl font-black text-red-400 font-mono tracking-tight block">
@@ -848,7 +848,7 @@ export default function ServiceDetail() {
                       <span>{win.timeframe}</span>
                     </div>
                   </div>
-                  <p className="text-zinc-400 text-xs leading-relaxed pt-2 border-t border-zinc-800/80">
+                  <p className="text-zinc-400 text-sm leading-relaxed pt-2 border-t border-zinc-800/80">
                     {win.story}
                   </p>
                 </div>
@@ -861,13 +861,13 @@ export default function ServiceDetail() {
         <section className="py-20 bg-zinc-950">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
             <div className="text-center max-w-3xl mx-auto space-y-3">
-              <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+              <span className="eyebrow">
                 Vertical Expertise
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
                 Industries Where Strong Digital Execution Changes The Game
               </h2>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                 Different verticals search and decide differently. We tailor conversion signals based on exact customer behavioral dynamics.
               </p>
             </div>
@@ -876,7 +876,7 @@ export default function ServiceDetail() {
               {targetIndustries.map((ind: any, index: number) => (
                 <div
                   key={index}
-                  className="bg-[#111116] border border-zinc-800 rounded-2xl overflow-hidden group hover:border-zinc-700 transition-all flex flex-col"
+                  className="card-hover bg-[#111116] border border-zinc-800 rounded-2xl overflow-hidden group hover:border-zinc-700 flex flex-col"
                 >
                   <div className="h-44 w-full overflow-hidden relative bg-zinc-900">
                     <img width={800} height={500}
@@ -892,7 +892,7 @@ export default function ServiceDetail() {
                       <h3 className="text-base font-bold text-white group-hover:text-red-300 transition-colors">
                         {ind.title}
                       </h3>
-                      <p className="text-zinc-400 text-xs leading-relaxed">
+                      <p className="text-zinc-400 text-sm leading-relaxed">
                         {ind.desc}
                       </p>
                     </div>
@@ -907,13 +907,13 @@ export default function ServiceDetail() {
         <section className="py-16 bg-black">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 text-center">
             <div className="space-y-2">
-              <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+              <span className="eyebrow">
                 Telemetry & Technology
               </span>
               <h2 className="text-2xl sm:text-3xl font-bold text-white">
                 The Data And Tools Behind Every Decision We Make
               </h2>
-              <p className="text-zinc-400 text-xs sm:text-sm max-w-xl mx-auto">
+              <p className="text-zinc-400 text-sm sm:text-base max-w-xl mx-auto">
                 Smart execution comes from real telemetry, not guesswork. We leverage industry-leading platforms to analyze and optimize continuously.
               </p>
             </div>
@@ -935,13 +935,13 @@ export default function ServiceDetail() {
         <section className="py-20 bg-zinc-950">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
             <div className="text-center max-w-3xl mx-auto space-y-3">
-              <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+              <span className="eyebrow">
                 Agency Advantage
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
                 Why Growing Businesses Trust TechFNM
               </h2>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                 Zero outsourcing, battle-tested modern architectures, and dedicated founder involvement on every single campaign.
               </p>
             </div>
@@ -952,7 +952,7 @@ export default function ServiceDetail() {
                   <BarChart3 size={22} />
                 </div>
                 <h3 className="text-lg font-bold text-white">AI & Data-Driven Strategy</h3>
-                <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+                <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                   We replace guesswork with verified search signals, machine-learning analytics, and conversion telemetry to pinpoint market opportunities and maximize clicks.
                 </p>
               </div>
@@ -962,7 +962,7 @@ export default function ServiceDetail() {
                   <Zap size={22} />
                 </div>
                 <h3 className="text-lg font-bold text-white">A Proven Execution Framework</h3>
-                <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+                <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                   Our repeatable process stacks technical corrections, targeted copy, and authority in the exact sequence algorithms reward for sustainable growth.
                 </p>
               </div>
@@ -972,7 +972,7 @@ export default function ServiceDetail() {
                   <Shield size={22} />
                 </div>
                 <h3 className="text-lg font-bold text-white">Clear, Honest Telemetry</h3>
-                <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+                <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                   You always know where you stand. Our dashboards track qualified leads, search visibility, and revenue impact in simple, plain-English milestones.
                 </p>
               </div>
@@ -984,13 +984,13 @@ export default function ServiceDetail() {
         <section className="py-20 bg-black">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
             <div className="text-center max-w-3xl mx-auto space-y-3">
-              <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+              <span className="eyebrow">
                 Transparent Packages
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
                 Simple, High-Value Service Plans
               </h2>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                 Choose the level of execution that fits your market competition and revenue objectives.
               </p>
             </div>
@@ -999,14 +999,14 @@ export default function ServiceDetail() {
               {pricingPlans.map((plan: any, index: number) => (
                 <div
                   key={index}
-                  className={`relative rounded-3xl p-8 backdrop-blur-sm border flex flex-col justify-between transition-all ${
+                  className={`card-hover relative rounded-3xl p-8 border flex flex-col justify-between ${
                     plan.popular
                       ? 'bg-gradient-to-b from-[#1a1416] to-[#120f12] border-red-500/50 shadow-2xl shadow-red-950/20 scale-[1.02] z-10'
                       : 'bg-[#111116] border-zinc-800 hover:border-zinc-700'
                   }`}
                 >
                   {plan.popular && (
-                    <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-red-600 to-rose-600 text-white text-[10px] uppercase font-bold tracking-widest px-3.5 py-1 rounded-full shadow-md shadow-red-950/30">
+                    <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[11px] uppercase font-bold tracking-widest px-3.5 py-1 rounded-full shadow-md shadow-red-950/30">
                       Most Popular
                     </span>
                   )}
@@ -1026,7 +1026,7 @@ export default function ServiceDetail() {
 
                     <ul className="space-y-3">
                       {(Array.isArray(plan.features) ? plan.features : []).map((feature: string, idx: number) => (
-                        <li key={idx} className="flex items-start gap-2.5 text-zinc-300 text-xs sm:text-sm">
+                        <li key={idx} className="flex items-start gap-2.5 text-zinc-300 text-sm">
                           <CheckCircle2 size={15} className="text-red-400 shrink-0 mt-0.5" />
                           <span>{feature}</span>
                         </li>
@@ -1037,14 +1037,14 @@ export default function ServiceDetail() {
                   <div className="pt-8">
                     <Link
                       to={`/request-service?service=${encodeURIComponent(service.title)}&plan=${encodeURIComponent(plan.name)}`}
-                      className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-xs font-bold transition-all ${
+                      className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-sm font-semibold ${
                         plan.popular
-                          ? 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-lg shadow-red-950/20'
-                          : 'bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-200 hover:text-white'
+                          ? 'btn-primary'
+                          : 'btn-secondary'
                       }`}
                     >
                       <span>Select {plan.name}</span>
-                      <ArrowRight size={13} />
+                      <ArrowRight size={15} />
                     </Link>
                   </div>
                 </div>
@@ -1057,13 +1057,13 @@ export default function ServiceDetail() {
         <section className="py-20 bg-zinc-950">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
             <div className="text-center max-w-2xl mx-auto space-y-3">
-              <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+              <span className="eyebrow">
                 Connected Growth
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
                 Services That Make Your Strategy Work Even Harder
               </h2>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                 Connect your brand across search, social, and modern engineering to build one unified client ingestion engine.
               </p>
             </div>
@@ -1075,7 +1075,7 @@ export default function ServiceDetail() {
                   <Link
                     key={idx}
                     to={`/services/${other.slug}`}
-                    className="bg-[#111116] border border-zinc-800/80 rounded-2xl p-6 space-y-3 hover:border-red-500/40 transition-all group block"
+                    className="card-hover bg-[#111116] border border-zinc-800/80 rounded-2xl p-6 space-y-3 hover:border-red-500/40 group block"
                   >
                     <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-red-400 group-hover:scale-110 transition-transform">
                       <OtherIcon size={18} />
@@ -1084,7 +1084,7 @@ export default function ServiceDetail() {
                       <span>{other.title}</span>
                       <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400" />
                     </h3>
-                    <p className="text-zinc-400 text-xs leading-relaxed">{other.desc}</p>
+                    <p className="text-zinc-400 text-sm leading-relaxed">{other.desc}</p>
                   </Link>
                 );
               })}
@@ -1097,13 +1097,13 @@ export default function ServiceDetail() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
               <div className="lg:col-span-6 space-y-6">
-                <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+                <span className="eyebrow">
                   {(service as any).worldwide_badge || (service.seo_settings as any)?.worldwide_badge || 'Worldwide Operations'}
                 </span>
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
                   {(service as any).worldwide_title || (service.seo_settings as any)?.worldwide_title || 'Helping Businesses Get Found In Markets Around The World'}
                 </h2>
-                <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+                <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
                   {(service as any).worldwide_desc || (service.seo_settings as any)?.worldwide_desc || 'Wherever you operate, our technical marketing and software solutions reach qualified local and international audiences. We adapt strategies to meet regional competition, search intent, and buyer habits.'}
                 </p>
 
@@ -1169,13 +1169,13 @@ export default function ServiceDetail() {
         <section className="py-20 bg-zinc-950">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
             <div className="text-center space-y-3">
-              <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+              <span className="eyebrow">
                 Clear Answers
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
                 Frequently Asked Questions
               </h2>
-              <p className="text-zinc-400 text-xs sm:text-sm">
+              <p className="text-zinc-400 text-sm sm:text-base">
                 Got questions before initiating your project? Find immediate details below.
               </p>
             </div>
@@ -1209,7 +1209,7 @@ export default function ServiceDetail() {
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="px-6 pb-5 pt-1 text-xs sm:text-sm text-zinc-400 leading-relaxed border-t border-zinc-850/60"
+                          className="px-6 pb-5 pt-1 text-sm sm:text-base text-zinc-400 leading-relaxed border-t border-zinc-850/60"
                         >
                           {faq.a || faq.answer}
                         </motion.div>
@@ -1244,7 +1244,7 @@ export default function ServiceDetail() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-red-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
           <div className="max-w-3xl mx-auto space-y-6">
-            <span className="text-red-500 font-bold uppercase tracking-wider text-xs">
+            <span className="eyebrow">
               Start Project
             </span>
 
@@ -1259,7 +1259,7 @@ export default function ServiceDetail() {
             <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
               <a
                 href="#consultation-card"
-                className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-full font-bold text-sm shadow-xl shadow-red-950/40 transition-all hover:scale-105 cursor-pointer"
+                className="btn-primary inline-flex items-center gap-2 text-white px-8 py-3.5 rounded-full font-semibold text-sm"
               >
                 <span>Start Free Consultation</span>
                 <ArrowRight size={16} />
@@ -1267,7 +1267,7 @@ export default function ServiceDetail() {
 
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-300 hover:text-white px-7 py-3.5 rounded-full font-semibold text-sm transition-all"
+                className="btn-secondary inline-flex items-center gap-2 text-zinc-300 hover:text-white px-7 py-3.5 rounded-full font-semibold text-sm"
               >
                 <span>Speak With An Architect</span>
               </Link>

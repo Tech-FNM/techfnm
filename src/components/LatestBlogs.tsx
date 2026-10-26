@@ -155,7 +155,7 @@ export default function LatestBlogs() {
           <div className="flex-shrink-0">
             <Link
               to={content.blogs_btn_link && content.blogs_btn_link !== '/portfolio' ? content.blogs_btn_link : '/blog'}
-              className="group inline-flex items-center gap-3 bg-[#1B1B1B] hover:bg-[#222225] border border-white/15 hover:border-[#e5432e]/40 text-white px-6 py-3.5 rounded-full text-sm font-semibold transition-all duration-300"
+              className="btn-secondary group inline-flex items-center gap-3 text-white px-6 py-3.5 rounded-full text-sm font-semibold"
             >
               <span>{content.blogs_btn_text || 'View All Blogs'}</span>
               <span className="w-7 h-7 rounded-full bg-white/10 text-white group-hover:bg-[#e5432e] group-hover:text-white flex items-center justify-center transition-all duration-300">
@@ -207,7 +207,7 @@ export default function LatestBlogs() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="group bg-[#121214] border border-white/10 hover:border-[#e5432e]/50 rounded-3xl overflow-hidden transition-all duration-300 flex flex-col justify-between hover:shadow-xl hover:shadow-[#e5432e]/10"
+                  className="card-hover group bg-[#121214] border border-white/10 hover:border-[#e5432e]/50 rounded-3xl overflow-hidden flex flex-col justify-between"
                 >
                   <Link to={linkTarget} className="block">
                     {/* Thumbnail Image */}

@@ -169,7 +169,7 @@ export default function Contact() {
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full px-4 py-3.5 rounded-xl bg-[#1B1B1B] border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-[#e5432e] transition-colors text-sm"
+                    className="field py-3.5"
                     placeholder="John Doe"
                     disabled={status === 'submitting'}
                   />
@@ -184,7 +184,7 @@ export default function Contact() {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-3.5 rounded-xl bg-[#1B1B1B] border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-[#e5432e] transition-colors text-sm"
+                    className="field py-3.5"
                     placeholder="john@example.com"
                     disabled={status === 'submitting'}
                   />
@@ -201,7 +201,7 @@ export default function Contact() {
                   required
                   value={formData.subject}
                   onChange={handleChange}
-                  className="w-full px-4 py-3.5 rounded-xl bg-[#1B1B1B] border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-[#e5432e] transition-colors text-sm"
+                  className="field py-3.5"
                   placeholder="Website Redesign & SEO"
                   disabled={status === 'submitting'}
                 />
@@ -217,7 +217,7 @@ export default function Contact() {
                   rows={4}
                   value={formData.message}
                   onChange={handleChange}
-                  className="w-full px-4 py-3.5 rounded-xl bg-[#1B1B1B] border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-[#e5432e] transition-colors text-sm resize-none"
+                  className="field py-3.5 resize-none"
                   placeholder="Tell us about your business goals, timeline, and requirements..."
                   disabled={status === 'submitting'}
                 />
@@ -226,7 +226,7 @@ export default function Contact() {
               <button
                 type="submit"
                 disabled={status === 'submitting'}
-                className="w-full group inline-flex items-center justify-center gap-3 bg-[#e5432e] hover:bg-[#cc3622] text-white px-8 py-4 rounded-full text-base font-semibold transition-all duration-300 transform hover:scale-[1.01] shadow-lg shadow-[#e5432e]/20 disabled:opacity-50 cursor-pointer"
+                className="btn-primary w-full group inline-flex items-center justify-center gap-3 text-white px-8 py-4 rounded-full text-base font-semibold"
               >
                 {status === 'submitting' ? (
                   <>

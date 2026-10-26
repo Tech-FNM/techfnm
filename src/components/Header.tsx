@@ -88,10 +88,10 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-3 sm:py-4 px-4 sm:px-6 lg:px-8">
       <div
-        className={`max-w-7xl mx-auto rounded-full px-5 sm:px-8 py-3 transition-all duration-300 border flex justify-between items-center ${
+        className={`max-w-7xl mx-auto rounded-full px-5 sm:px-8 transition-all duration-500 ease-out border flex justify-between items-center ${
           scrolled
-            ? 'bg-black/85 backdrop-blur-xl border-white/15 shadow-2xl shadow-black/80'
-            : 'bg-[#121214]/75 backdrop-blur-lg border-white/10'
+            ? 'py-2 bg-black/85 backdrop-blur-xl border-white/15 shadow-2xl shadow-black/80'
+            : 'py-3 bg-[#121214]/75 backdrop-blur-lg border-white/10'
         }`}
       >
         {/* Logo */}
@@ -167,7 +167,7 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-3">
           <Link
             to={content.cta_link}
-            className="group inline-flex items-center gap-2 bg-[#e5432e] hover:bg-[#cc3622] text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-[1.02] shadow-lg shadow-[#e5432e]/20"
+            className="btn-primary group inline-flex items-center gap-2 text-white px-5 py-2.5 rounded-full text-sm font-semibold"
           >
             <span>{content.cta_text}</span>
             <span className="w-7 h-7 rounded-full bg-white text-[#e5432e] flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -240,7 +240,7 @@ export default function Header() {
                 <Link
                   to={content.cta_link}
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full bg-[#e5432e] text-white px-5 py-3 rounded-xl font-semibold hover:bg-[#cc3622] transition-colors"
+                  className="btn-primary flex items-center justify-center gap-2 w-full text-white px-5 py-3 rounded-xl font-semibold"
                 >
                   <span>{content.cta_text}</span>
                   <ArrowUpRight size={16} />

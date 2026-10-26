@@ -255,7 +255,7 @@ export default function BlogDetail() {
               {relatedPosts.map((related, idx) => (
                 <article
                   key={related.id || idx}
-                  className="group bg-[#121214] border border-white/10 hover:border-[#e5432e]/50 rounded-3xl overflow-hidden transition-all duration-300 flex flex-col justify-between"
+                  className="card-hover group bg-[#121214] border border-white/10 hover:border-[#e5432e]/50 rounded-3xl overflow-hidden flex flex-col justify-between"
                 >
                   <Link to={`/blog/${related.slug || related.id}`} className="block">
                     <div className="relative h-48 w-full overflow-hidden bg-zinc-900">

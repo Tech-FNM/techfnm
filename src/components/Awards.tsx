@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Award, Trophy, Star, ArrowUpRight } from 'lucide-react';
 import { usePageContent } from '../lib/cmsContent';
+import CountUp from './CountUp';
 
 export default function Awards() {
   const content = usePageContent('page-home', {
@@ -67,7 +68,7 @@ export default function Awards() {
               </div>
               <div>
                 <div className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-                  {content.awards_count || '50+'}
+                  <CountUp value={content.awards_count || '50+'} />
                 </div>
                 <div className="text-sm sm:text-base text-zinc-300 font-medium mt-1">
                   {content.awards_count_text || 'We have won 50+ awards believe in quality.'}
@@ -85,7 +86,7 @@ export default function Awards() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="group bg-[#121214] border border-white/10 hover:border-[#e5432e]/50 rounded-2xl p-6 sm:p-7 flex items-center justify-between transition-all duration-300 hover:shadow-lg hover:shadow-[#e5432e]/5"
+                className="card-hover group bg-[#121214] border border-white/10 hover:border-[#e5432e]/50 rounded-2xl p-6 sm:p-7 flex items-center justify-between"
               >
                 <div className="flex items-center gap-5">
                   <div className="w-12 h-12 rounded-xl bg-[#1B1B1B] border border-white/10 flex items-center justify-center text-[#e5432e] group-hover:bg-[#e5432e] group-hover:text-white transition-all">

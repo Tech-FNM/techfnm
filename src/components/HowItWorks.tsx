@@ -76,7 +76,7 @@ export default function HowItWorks() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: idx * 0.1 }}
-                    className="group bg-[#121214] border border-white/10 hover:border-[#e5432e]/40 p-6 sm:p-7 rounded-2xl transition-all duration-300 flex items-start gap-4 sm:gap-6 hover:shadow-lg hover:shadow-[#e5432e]/5"
+                    className="card-hover group bg-[#121214] border border-white/10 hover:border-[#e5432e]/40 p-6 sm:p-7 rounded-2xl flex items-start gap-4 sm:gap-6"
                   >
                     <div className="w-12 h-12 rounded-xl bg-[#1B1B1B] border border-white/10 flex items-center justify-center text-[#e5432e] group-hover:bg-[#e5432e] group-hover:text-white transition-all duration-300 flex-shrink-0 mt-0.5">
                       <Icon size={22} />
@@ -103,7 +103,7 @@ export default function HowItWorks() {
             <div>
               <Link
                 to={content.process_btn_link || '/request-service'}
-                className="group inline-flex items-center gap-3 bg-[#e5432e] hover:bg-[#cc3622] text-white px-7 py-3.5 rounded-full text-sm sm:text-base font-semibold transition-all duration-300 transform hover:scale-[1.02] shadow-lg shadow-[#e5432e]/20"
+                className="btn-primary group inline-flex items-center gap-3 text-white px-7 py-3.5 rounded-full text-sm sm:text-base font-semibold"
               >
                 <span>{content.process_btn_text || 'Get Started Now'}</span>
                 <span className="w-7 h-7 rounded-full bg-white text-[#e5432e] flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">

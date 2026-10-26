@@ -95,14 +95,10 @@ export default function ServicesPage() {
         {/* HERO SECTION */}
         <section className="relative min-h-[55vh] bg-black flex items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8">
           {/* Background Shapes */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-            <div className="absolute -top-20 -left-20 w-96 h-96 bg-red-900/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob"></div>
-            <div className="absolute top-0 -right-20 w-96 h-96 bg-orange-900/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
-            <div className="absolute -bottom-32 left-20 w-96 h-96 bg-red-800/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
-          </div>
+          <div className="hero-backdrop" aria-hidden="true" />
 
           <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
-            <span className="inline-block py-1 px-3 rounded-full bg-red-900/50 text-red-200 text-sm font-semibold mb-2 border border-red-500/30">
+            <span className="eyebrow mb-2">
               {pageContent.hero_badge || 'Innovative Solutions'}
             </span>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight">
@@ -135,7 +131,7 @@ export default function ServicesPage() {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: (index % 3) * 0.08, duration: 0.4 }}
-                      className="bg-[#121214] rounded-3xl p-8 hover:shadow-xl hover:shadow-[#e5432e]/5 transition-all duration-300 border border-white/10 group hover:border-[#e5432e]/40 overflow-hidden relative flex flex-col justify-between"
+                      className="card-hover bg-[#121214] rounded-3xl p-8 border border-white/10 group hover:border-[#e5432e]/40 overflow-hidden relative flex flex-col justify-between"
                     >
                       <div>
                         {/* CMS colour presets like "text-white-400" aren't real classes, so use the brand style */}
@@ -169,7 +165,7 @@ export default function ServicesPage() {
         {/* CTA SECTION */}
         <section className="py-24 bg-black text-center px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto space-y-6">
-            <span className="text-red-500 font-semibold tracking-wider uppercase text-sm block">
+            <span className="eyebrow">
               Have a Project?
             </span>
             
@@ -184,7 +180,7 @@ export default function ServicesPage() {
             <div className="pt-2">
               <SmartLink
                 to={pageContent.cta_btn_link || '/request-service'}
-                className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-full font-bold transition-all hover:scale-105 shadow-lg shadow-red-950/20"
+                className="btn-primary inline-flex items-center gap-2 text-white px-8 py-3.5 rounded-full font-semibold"
               >
                 <span>{pageContent.cta_btn_text || 'Get Started Now'}</span>
                 <ArrowRight size={16} />

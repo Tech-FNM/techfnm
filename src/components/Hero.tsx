@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { ArrowUpRight, CheckCircle2, Star, Zap, Sparkles } from 'lucide-react';
 import SmartLink from './SmartLink';
+import CountUp from './CountUp';
 import { usePageContent } from '../lib/cmsContent';
 
 export default function Hero() {
@@ -109,11 +110,11 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4"
+          className="mt-8 sm:mt-10 w-full flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
         >
           <SmartLink
             to={cta1Link}
-            className="group inline-flex items-center justify-center gap-3 bg-[#e5432e] hover:bg-[#cc3622] text-white px-7 h-14 min-w-[175px] sm:min-w-[185px] rounded-full text-base font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl shadow-[#e5432e]/20"
+            className="btn-primary group inline-flex items-center justify-center gap-3 text-white px-7 h-14 w-full max-w-[320px] sm:w-auto sm:min-w-[185px] rounded-full text-base font-semibold"
           >
             <span>{cta1Text}</span>
             <span className="w-7 h-7 rounded-full bg-white text-[#e5432e] flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -123,7 +124,7 @@ export default function Hero() {
 
           <SmartLink
             to={cta2Link}
-            className="inline-flex items-center justify-center gap-2 bg-[#1B1B1B] hover:bg-[#252528] text-white px-7 h-14 min-w-[175px] sm:min-w-[185px] rounded-full text-base font-semibold border border-white/10 hover:border-white/25 transition-all duration-300"
+            className="btn-secondary inline-flex items-center justify-center gap-2 text-white px-7 h-14 w-full max-w-[320px] sm:w-auto sm:min-w-[185px] rounded-full text-base font-semibold"
           >
             <span>{cta2Text}</span>
           </SmartLink>
@@ -137,13 +138,13 @@ export default function Hero() {
           className="mt-14 sm:mt-20 w-full max-w-4xl grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6"
         >
           {/* Metric 1 */}
-          <div className="bg-[#121214] border border-white/10 rounded-2xl p-5 sm:p-6 text-left flex items-center gap-4 transition-all duration-300 hover:border-[#e5432e]/40 hover:shadow-lg hover:shadow-[#e5432e]/5">
+          <div className="card-hover bg-[#121214] border border-white/10 rounded-2xl p-5 sm:p-6 text-left flex items-center gap-4 hover:border-[#e5432e]/40">
             <div className="w-12 h-12 rounded-xl bg-[#e5432e]/10 border border-[#e5432e]/20 flex items-center justify-center text-[#e5432e] flex-shrink-0">
               <CheckCircle2 size={24} />
             </div>
             <div>
               <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                {content.hero_stat1_num || '95%'}
+                <CountUp value={content.hero_stat1_num || '95%'} />
               </div>
               <div className="text-xs sm:text-sm text-zinc-400 font-medium mt-0.5">
                 {content.hero_stat1_lbl || 'Client Satisfaction Rate'}
@@ -152,13 +153,13 @@ export default function Hero() {
           </div>
 
           {/* Metric 2 */}
-          <div className="bg-[#121214] border border-white/10 rounded-2xl p-5 sm:p-6 text-left flex items-center gap-4 transition-all duration-300 hover:border-[#e5432e]/40 hover:shadow-lg hover:shadow-[#e5432e]/5">
+          <div className="card-hover bg-[#121214] border border-white/10 rounded-2xl p-5 sm:p-6 text-left flex items-center gap-4 hover:border-[#e5432e]/40">
             <div className="w-12 h-12 rounded-xl bg-[#e5432e]/10 border border-[#e5432e]/20 flex items-center justify-center text-[#e5432e] flex-shrink-0">
               <Star size={24} />
             </div>
             <div>
               <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                {content.hero_stat2_num || '50%'}
+                <CountUp value={content.hero_stat2_num || '50%'} />
               </div>
               <div className="text-xs sm:text-sm text-zinc-400 font-medium mt-0.5">
                 {content.hero_stat2_lbl || 'Influencer collaboration'}
@@ -167,13 +168,13 @@ export default function Hero() {
           </div>
 
           {/* Metric 3 */}
-          <div className="bg-[#121214] border border-white/10 rounded-2xl p-5 sm:p-6 text-left flex items-center gap-4 transition-all duration-300 hover:border-[#e5432e]/40 hover:shadow-lg hover:shadow-[#e5432e]/5">
+          <div className="card-hover bg-[#121214] border border-white/10 rounded-2xl p-5 sm:p-6 text-left flex items-center gap-4 hover:border-[#e5432e]/40">
             <div className="w-12 h-12 rounded-xl bg-[#e5432e]/10 border border-[#e5432e]/20 flex items-center justify-center text-[#e5432e] flex-shrink-0">
               <Zap size={24} />
             </div>
             <div>
               <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                {content.hero_stat3_num || '250+'}
+                <CountUp value={content.hero_stat3_num || '250+'} />
               </div>
               <div className="text-xs sm:text-sm text-zinc-400 font-medium mt-0.5">
                 {content.hero_stat3_lbl || 'Projects Completed'}

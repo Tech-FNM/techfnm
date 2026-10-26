@@ -8,6 +8,10 @@
      Tailwind's default palette; without them `border border-zinc-850` fell back to currentColor and
      rendered bright white borders. */
 @theme {
+  /* Slightly lighter heavy weights: DM Sans at 800/900 looked crude in long headlines */
+  --font-weight-extrabold: 750;
+  --font-weight-black: 800;
+
   --color-red-300: #f48a79;
   --color-red-400: #ef6450;
   --color-red-500: #e5432e;
@@ -78,6 +82,281 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+/* ───────────────────────── UI system ─────────────────────────
+   One look for every button, badge, card and input across the site.
+   Lives in the components layer so per-element utilities (padding, width, size) still win. */
+@layer components {
+  /* Buttons: gentle lift on hover, press-down on click, light sweep on primary */
+  .btn-primary,
+  .btn-secondary {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    cursor: pointer;
+    transition:
+      translate 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+      scale 0.15s ease,
+      box-shadow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      color 0.25s ease;
+  }
+
+  .btn-primary {
+    background-color: #e5432e;
+    color: #fff;
+    box-shadow: 0 10px 24px -12px rgba(229, 67, 46, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    pointer-events: none;
+  }
+
+  .btn-primary:hover {
+    background-color: #d63a26;
+    box-shadow: 0 18px 36px -14px rgba(229, 67, 46, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+
+  .btn-primary:hover::after {
+    transform: translateX(120%);
+  }
+
+  .btn-secondary {
+    background-color: #18181b;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .btn-secondary:hover {
+    background-color: #222226;
+    border-color: rgba(229, 67, 46, 0.45);
+    box-shadow: 0 14px 30px -16px rgba(0, 0, 0, 0.9);
+  }
+
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    translate: 0 -2px;
+  }
+
+  .btn-primary:active,
+  .btn-secondary:active {
+    translate: 0 0;
+    scale: 0.98;
+  }
+
+  .btn-primary:disabled,
+  .btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    translate: none;
+    scale: none;
+  }
+
+  /* Arrow icons inside buttons/links nudge toward their direction on hover */
+  .btn-primary svg,
+  .btn-secondary svg,
+  .link-arrow svg {
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .btn-primary:hover svg.lucide-arrow-right,
+  .btn-secondary:hover svg.lucide-arrow-right,
+  .link-arrow:hover svg.lucide-arrow-right {
+    transform: translateX(3px);
+  }
+
+  .btn-primary:hover svg.lucide-arrow-up-right,
+  .btn-secondary:hover svg.lucide-arrow-up-right,
+  .link-arrow:hover svg.lucide-arrow-up-right {
+    transform: translate(2px, -2px);
+  }
+
+  /* Section eyebrow badge (same as the homepage pills) */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: fit-content;
+    padding: 0.375rem 1rem;
+    border-radius: 9999px;
+    background-color: #1b1b1b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #d4d4d8;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: #e5432e;
+    box-shadow: 0 0 0 3px rgba(229, 67, 46, 0.18);
+    flex-shrink: 0;
+  }
+
+  /* Cards: lift + soft accent glow on hover */
+  .card-hover {
+    /* translate (not transform) so it composes with motion's inline entrance transform */
+    transition:
+      translate 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+      border-color 0.3s ease,
+      box-shadow 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+      background-color 0.3s ease;
+  }
+
+  .card-hover:hover {
+    translate: 0 -4px;
+    border-color: rgba(229, 67, 46, 0.4);
+    box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(229, 67, 46, 0.08), 0 18px 40px -28px rgba(229, 67, 46, 0.45);
+  }
+
+  /* Form fields */
+  .field {
+    width: 100%;
+    background-color: #111114;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    padding: 0.8rem 1rem;
+    color: #fff;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+
+  .field::placeholder {
+    color: #71717a;
+  }
+
+  .field:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .field:focus {
+    outline: none;
+    border-color: #e5432e;
+    background-color: #141417;
+    box-shadow: 0 0 0 4px rgba(229, 67, 46, 0.15);
+  }
+
+  select.field {
+    appearance: none;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+  }
+
+  select.field option {
+    background-color: #18181b;
+  }
+
+  /* Image zoom inside a hovered card */
+  .img-zoom {
+    transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .group:hover .img-zoom {
+    transform: scale(1.05);
+  }
+
+  /* Subtle brand glow + grid used behind inner-page heroes */
+  .hero-backdrop {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-backdrop::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: min(900px, 120vw);
+    height: 420px;
+    transform: translate(-50%, -35%);
+    background: radial-gradient(closest-side, rgba(229, 67, 46, 0.16), transparent);
+    filter: blur(20px);
+    animation: glow-breathe 9s ease-in-out infinite;
+  }
+
+  .hero-backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.035;
+    background-image:
+      linear-gradient(to right, #fff 1px, transparent 1px),
+      linear-gradient(to bottom, #fff 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%);
+  }
+}
+
+@keyframes glow-breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: translate(-50%, -35%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -35%) scale(1.08);
+  }
+}
+
+/* Gentle entrance for page content after client-side navigation.
+   Opacity only: a transform here would make the fixed header scroll with the page while it runs. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.page-enter {
+  animation: page-enter 0.4s ease-out both;
+}
+
+/* Scroll-linked reveal for section headings (progressive enhancement: browsers without
+   scroll-driven animations simply show the content). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    main section :is(h2, .eyebrow),
+    .reveal {
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
   }
 }
 

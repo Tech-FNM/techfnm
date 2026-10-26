@@ -4,6 +4,7 @@ import { Star, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { usePageContent } from '../lib/cmsContent';
 import { CANONICAL_TESTIMONIALS, getCached, setCached } from '../lib/canonicalData';
+import Avatar from './Avatar';
 
 const GMB_LINK = 'https://share.google/LRx2Rpfx8ATZzfWyH';
 
@@ -108,7 +109,7 @@ export default function Testimonials() {
               href={GMB_LINK}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white text-xs sm:text-sm font-semibold border border-white/10 transition-all hover:scale-105"
+              className="btn-secondary inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white text-xs sm:text-sm font-semibold"
             >
               <span>View Profile on Google Maps</span>
               <ExternalLink size={14} className="text-[#e5432e]" />
@@ -125,7 +126,7 @@ export default function Testimonials() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group bg-[#121214] border border-white/10 hover:border-[#e5432e]/50 rounded-3xl p-8 transition-all duration-300 flex flex-col justify-between hover:shadow-xl hover:shadow-[#e5432e]/5 relative"
+              className="card-hover group bg-[#121214] border border-white/10 hover:border-[#e5432e]/50 rounded-3xl p-8 flex flex-col justify-between relative"
             >
               <div>
                 {/* 5 Stars Rating & Google Badge */}
@@ -150,10 +151,10 @@ export default function Testimonials() {
               {/* Author Info */}
               <div className="pt-6 border-t border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-3.5">
-                  <img width={48} height={48} loading="lazy" decoding="async"
-                    src={item.image || 'https://lh3.googleusercontent.com/a/ACg8ocJebTZef1PlAZ2KlnBvVinAYyAookncycfnwHyxCli_auWdeQ=w120-h120-p-rp-mo-br100'}
-                    alt={item.name}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-white/10 group-hover:border-[#e5432e] transition-colors"
+                  <Avatar
+                    src={item.image}
+                    name={item.name}
+                    className="border-2 border-white/10 group-hover:border-[#e5432e] transition-colors"
                   />
                   <div>
                     <h4 className="text-white font-bold text-base group-hover:text-[#e5432e] transition-colors">

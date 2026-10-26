@@ -109,7 +109,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
-                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300"
+                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e5432e]/25 text-zinc-400 flex items-center justify-center transition-all duration-300"
                 >
                   <Facebook size={17} />
                 </a>
@@ -120,7 +120,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
-                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300"
+                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e5432e]/25 text-zinc-400 flex items-center justify-center transition-all duration-300"
                 >
                   <Instagram size={17} />
                 </a>
@@ -131,7 +131,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
-                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300"
+                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e5432e]/25 text-zinc-400 flex items-center justify-center transition-all duration-300"
                 >
                   <Linkedin size={17} />
                 </a>
@@ -142,7 +142,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="YouTube"
-                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300"
+                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e5432e]/25 text-zinc-400 flex items-center justify-center transition-all duration-300"
                 >
                   <Youtube size={17} />
                 </a>
@@ -153,7 +153,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="GitHub"
-                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300"
+                  className="w-10 h-10 rounded-full bg-[#121214] border border-white/10 hover:border-[#e5432e] hover:bg-[#e5432e] hover:text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e5432e]/25 text-zinc-400 flex items-center justify-center transition-all duration-300"
                 >
                   <Github size={17} />
                 </a>
@@ -167,13 +167,13 @@ export default function Footer() {
               Quick Links
             </h3>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Home</Link></li>
-              <li><Link to="/about" className="text-zinc-400 hover:text-[#e5432e] transition-colors">About Us</Link></li>
-              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Services</Link></li>
-              <li><Link to="/portfolio" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Portfolio</Link></li>
-              <li><Link to="/blog" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Blog & Insights</Link></li>
-              <li><Link to="/faq" className="text-zinc-400 hover:text-[#e5432e] transition-colors">FAQs</Link></li>
-              <li><Link to="/contact" className="text-zinc-400 hover:text-[#e5432e] transition-colors">Contact Us</Link></li>
+              <li><Link to="/" className="text-zinc-400 hover:text-[#e5432e] inline-block transition-[color,translate] duration-200 hover:translate-x-1">Home</Link></li>
+              <li><Link to="/about" className="text-zinc-400 hover:text-[#e5432e] inline-block transition-[color,translate] duration-200 hover:translate-x-1">About Us</Link></li>
+              <li><Link to="/services" className="text-zinc-400 hover:text-[#e5432e] inline-block transition-[color,translate] duration-200 hover:translate-x-1">Services</Link></li>
+              <li><Link to="/portfolio" className="text-zinc-400 hover:text-[#e5432e] inline-block transition-[color,translate] duration-200 hover:translate-x-1">Portfolio</Link></li>
+              <li><Link to="/blog" className="text-zinc-400 hover:text-[#e5432e] inline-block transition-[color,translate] duration-200 hover:translate-x-1">Blog & Insights</Link></li>
+              <li><Link to="/faq" className="text-zinc-400 hover:text-[#e5432e] inline-block transition-[color,translate] duration-200 hover:translate-x-1">FAQs</Link></li>
+              <li><Link to="/contact" className="text-zinc-400 hover:text-[#e5432e] inline-block transition-[color,translate] duration-200 hover:translate-x-1">Contact Us</Link></li>
             </ul>
           </div>
 
@@ -185,7 +185,7 @@ export default function Footer() {
             <ul className="space-y-2.5 text-sm">
               {services.map((s) => (
                 <li key={s.slug}>
-                  <Link to={`/services/${s.slug}`} className="text-zinc-400 hover:text-[#e5432e] transition-colors">{s.title}</Link>
+                  <Link to={`/services/${s.slug}`} className="text-zinc-400 hover:text-[#e5432e] inline-block transition-[color,translate] duration-200 hover:translate-x-1">{s.title}</Link>
                 </li>
               ))}
             </ul>
@@ -211,12 +211,12 @@ export default function Footer() {
                 placeholder="Enter your email address"
                 required
                 disabled={status === 'submitting' || status === 'success'}
-                className="w-full bg-[#121214] text-white px-4 py-3 rounded-xl focus:outline-none focus:border-[#e5432e] border border-white/10 text-sm placeholder-zinc-500 transition-colors"
+                className="field text-sm"
               />
               <button
                 type="submit"
                 disabled={status === 'submitting' || status === 'success'}
-                className="w-full group inline-flex items-center justify-center gap-2 bg-[#e5432e] hover:bg-[#cc3622] text-white px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-300 shadow-md shadow-[#e5432e]/20"
+                className="btn-primary w-full group inline-flex items-center justify-center gap-2 text-white px-5 py-3 rounded-xl text-sm font-semibold"
               >
                 {status === 'submitting' ? (
                   <Loader2 size={16} className="animate-spin" />

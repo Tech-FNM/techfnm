@@ -17,9 +17,9 @@ export default function NotFound() {
         <h1 className="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">Page not found</h1>
         <p className="mt-3 text-zinc-400 max-w-md">The page you are looking for doesn't exist or has been moved.</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link to="/" className="px-6 py-3 rounded-full bg-[#e5432e] hover:bg-[#cc3622] font-semibold transition-colors">Go to Home</Link>
-          <Link to="/services" className="px-6 py-3 rounded-full border border-white/15 hover:border-white/30 font-semibold transition-colors">Our Services</Link>
-          <Link to="/contact" className="px-6 py-3 rounded-full border border-white/15 hover:border-white/30 font-semibold transition-colors">Contact Us</Link>
+          <Link to="/" className="btn-primary px-6 py-3 rounded-full font-semibold">Go to Home</Link>
+          <Link to="/services" className="btn-secondary px-6 py-3 rounded-full font-semibold">Our Services</Link>
+          <Link to="/contact" className="btn-secondary px-6 py-3 rounded-full font-semibold">Contact Us</Link>
         </div>
       </main>
       <Footer />
