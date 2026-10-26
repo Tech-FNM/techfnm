@@ -22,6 +22,8 @@ import {
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import SeoHead from '../../components/SeoHead';
+import CountUp from '../../components/CountUp';
+import Avatar from '../../components/Avatar';
 import { usePageContent } from '../../lib/cmsContent';
 
 const GMB_LINK = 'https://share.google/LRx2Rpfx8ATZzfWyH';
@@ -238,11 +240,11 @@ export default function AboutPage() {
               {/* Left Column: Big Stat Highlight Box */}
               <motion.div
                 {...fadeInUp}
-                className="lg:col-span-5 p-8 sm:p-10 rounded-3xl bg-[#0f0f13] border border-white/10 relative overflow-hidden group hover:border-[#e5432e]/40 transition-all duration-300"
+                className="card-hover lg:col-span-5 p-8 sm:p-10 rounded-3xl bg-[#0f0f13] border border-white/10 relative overflow-hidden group hover:border-[#e5432e]/40"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#e5432e]/10 blur-2xl rounded-full" />
                 <div className="text-5xl sm:text-6xl font-black text-white tracking-tight mb-3">
-                  {content.intro_exp_years || '25+'}
+                  <CountUp value={content.intro_exp_years || '25+'} />
                 </div>
                 <div className="text-lg sm:text-xl font-bold text-white mb-2">
                   {content.intro_exp_title || 'Year Digital Experience'}
@@ -304,7 +306,7 @@ export default function AboutPage() {
                     href={GMB_LINK}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-4 sm:p-5 rounded-2xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/50 flex items-center gap-4 transition-all group cursor-pointer"
+                    className="card-hover p-4 sm:p-5 rounded-2xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/50 flex items-center gap-4 group cursor-pointer"
                   >
                     {/* Avatars Stack */}
                     <div className="flex -space-x-3 overflow-hidden">
@@ -313,12 +315,7 @@ export default function AboutPage() {
                         'https://lh3.googleusercontent.com/a/ACg8ocKs2DdJeBpkGCIYeU9nhyi8ZwqilMDD-tpaxKM0g26WQJ8htg=w120-h120-p-rp-mo-br100',
                         'https://lh3.googleusercontent.com/a/ACg8ocJ8LZrpGJ423x17SElxqvKDzVTHVuvDO-X_aiAjP8K_ccwC4g=w120-h120-p-rp-mo-br100'
                       ].map((img, i) => (
-                        <img loading="lazy" decoding="async"
-                          key={i}
-                          src={img}
-                          alt="Google Reviewer"
-                          className="w-10 h-10 rounded-full border-2 border-[#0f0f13] object-cover"
-                        />
+                        <Avatar key={i} src={img} name={['ARK Roofing', 'Maroofa Mazher Ali', 'Umais Gora'][i]} size={40} className="border-2 border-[#0f0f13]" />
                       ))}
                     </div>
 
@@ -403,7 +400,7 @@ export default function AboutPage() {
               {/* Card 1: Our Mission */}
               <motion.div
                 {...fadeInUp}
-                className="p-7 sm:p-8 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/50 transition-all duration-300 flex flex-col justify-between group"
+                className="card-hover p-7 sm:p-8 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/50 flex flex-col justify-between group"
               >
                 <div>
                   <div className="w-12 h-12 rounded-2xl bg-[#1a1a22] border border-white/10 flex items-center justify-center text-[#e5432e] mb-6 group-hover:bg-[#e5432e] group-hover:text-white transition-all">
@@ -427,7 +424,7 @@ export default function AboutPage() {
               <motion.div
                 {...fadeInUp}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="p-7 sm:p-8 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/50 transition-all duration-300 flex flex-col justify-between group"
+                className="card-hover p-7 sm:p-8 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/50 flex flex-col justify-between group"
               >
                 <div>
                   <div className="w-12 h-12 rounded-2xl bg-[#1a1a22] border border-white/10 flex items-center justify-center text-[#e5432e] mb-6 group-hover:bg-[#e5432e] group-hover:text-white transition-all">
@@ -460,7 +457,7 @@ export default function AboutPage() {
               <motion.div
                 {...fadeInUp}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="p-7 sm:p-8 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/50 transition-all duration-300 flex flex-col justify-between group"
+                className="card-hover p-7 sm:p-8 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/50 flex flex-col justify-between group"
               >
                 <div>
                   <div className="w-12 h-12 rounded-2xl bg-[#1a1a22] border border-white/10 flex items-center justify-center text-[#e5432e] mb-6 group-hover:bg-[#e5432e] group-hover:text-white transition-all">
@@ -492,7 +489,7 @@ export default function AboutPage() {
               <motion.div
                 {...fadeInUp}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="p-7 sm:p-8 rounded-3xl bg-gradient-to-br from-[#1b1517] via-[#0f0f13] to-black border border-[#e5432e]/30 hover:border-[#e5432e] transition-all duration-300 flex flex-col justify-between relative overflow-hidden"
+                className="card-hover p-7 sm:p-8 rounded-3xl bg-gradient-to-br from-[#1b1517] via-[#0f0f13] to-black border border-[#e5432e]/30 hover:border-[#e5432e] flex flex-col justify-between relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#e5432e]/15 blur-2xl rounded-full pointer-events-none" />
                 <div>
@@ -510,7 +507,7 @@ export default function AboutPage() {
                 <div className="pt-6">
                   <Link
                     to="/request-service"
-                    className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-5 rounded-xl bg-[#e5432e] hover:bg-[#cc3622] text-white font-bold text-sm shadow-lg shadow-[#e5432e]/30 transition-all hover:scale-[1.02]"
+                    className="btn-primary inline-flex items-center justify-center gap-2 w-full py-3.5 px-5 rounded-xl text-white font-semibold text-sm"
                   >
                     <span>Get Free Quote</span>
                     <ArrowRight size={16} />
@@ -594,9 +591,9 @@ export default function AboutPage() {
             <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-r from-[#070709] to-transparent z-10 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-l from-[#070709] to-transparent z-10 pointer-events-none" />
 
-            <div className="flex shrink-0 animate-[marquee_20s_linear_infinite] hover:[animation-play-state:paused] items-center gap-8 sm:gap-14">
-              {[...marqueeSkills, ...marqueeSkills, ...marqueeSkills].map((skill, index) => (
-                <div key={index} className="flex items-center gap-4 text-white font-extrabold text-sm sm:text-base tracking-wider uppercase shrink-0">
+            <div className="flex w-max animate-[marquee_30s_linear_infinite] hover:[animation-play-state:paused] items-center">
+              {[...marqueeSkills, ...marqueeSkills, ...marqueeSkills, ...marqueeSkills].map((skill, index) => (
+                <div key={index} className="flex items-center gap-4 pr-8 sm:pr-14 text-white font-extrabold text-sm sm:text-base tracking-wider uppercase shrink-0" aria-hidden={index >= marqueeSkills.length}>
                   <span className="text-[#e5432e] text-lg">✱</span>
                   <span>{skill}</span>
                 </div>
@@ -646,7 +643,7 @@ export default function AboutPage() {
               >
                 <Link
                   to="/contact"
-                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#e5432e] hover:bg-[#cc3622] text-white font-bold text-sm shadow-xl shadow-[#e5432e]/30 transition-all hover:scale-[1.02]"
+                  className="btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-white font-semibold text-sm"
                 >
                   <span>Contact Us</span>
                   <ArrowRight size={16} />
@@ -659,7 +656,7 @@ export default function AboutPage() {
               {/* Card 1: Seamless Collaboration (7 cols) */}
               <motion.div
                 {...fadeInUp}
-                className="lg:col-span-7 p-8 sm:p-10 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/40 transition-all duration-300 flex flex-col justify-between group overflow-hidden relative"
+                className="card-hover lg:col-span-7 p-8 sm:p-10 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/40 flex flex-col justify-between group overflow-hidden relative"
               >
                 <div className="relative z-10">
                   <div className="w-12 h-12 rounded-2xl bg-[#1b1b22] border border-white/10 flex items-center justify-center text-[#e5432e] mb-6 group-hover:bg-[#e5432e] group-hover:text-white transition-all">
@@ -717,7 +714,7 @@ export default function AboutPage() {
               <motion.div
                 {...fadeInUp}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="lg:col-span-5 p-8 sm:p-10 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/40 transition-all duration-300 flex flex-col justify-between group"
+                className="card-hover lg:col-span-5 p-8 sm:p-10 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/40 flex flex-col justify-between group"
               >
                 <div>
                   <div className="w-12 h-12 rounded-2xl bg-[#1b1b22] border border-white/10 flex items-center justify-center text-[#e5432e] mb-6 group-hover:bg-[#e5432e] group-hover:text-white transition-all">
@@ -740,7 +737,7 @@ export default function AboutPage() {
               <motion.div
                 {...fadeInUp}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="lg:col-span-7 p-8 sm:p-10 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/40 transition-all duration-300 flex flex-col justify-between"
+                className="card-hover lg:col-span-7 p-8 sm:p-10 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/40 flex flex-col justify-between"
               >
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                   {/* Overlapping Google Reviewer Avatars */}
@@ -750,12 +747,7 @@ export default function AboutPage() {
                       'https://lh3.googleusercontent.com/a/ACg8ocKs2DdJeBpkGCIYeU9nhyi8ZwqilMDD-tpaxKM0g26WQJ8htg=w120-h120-p-rp-mo-br100',
                       'https://lh3.googleusercontent.com/a/ACg8ocJ8LZrpGJ423x17SElxqvKDzVTHVuvDO-X_aiAjP8K_ccwC4g=w120-h120-p-rp-mo-br100'
                     ].map((img, i) => (
-                      <img loading="lazy" decoding="async"
-                        key={i}
-                        src={img}
-                        alt="Google Reviewer"
-                        className="w-11 h-11 rounded-full border-2 border-[#0f0f13] object-cover"
-                      />
+                      <Avatar key={i} src={img} name={['ARK Roofing', 'Maroofa Mazher Ali', 'Umais Gora'][i]} size={44} className="border-2 border-[#0f0f13]" />
                     ))}
                   </div>
 
@@ -937,7 +929,7 @@ export default function AboutPage() {
                   key={idx}
                   {...fadeInUp}
                   transition={{ duration: 0.4, delay: idx * 0.1 }}
-                  className="p-7 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/40 transition-all duration-300"
+                  className="card-hover p-7 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/40"
                 >
                   <div className="text-4xl sm:text-5xl font-black text-[#e5432e] tracking-tight mb-2">
                     {stat.num}
@@ -997,7 +989,7 @@ export default function AboutPage() {
                   href={GMB_LINK}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-sm border border-white/10 transition-all hover:scale-[1.02]"
+                  className="btn-secondary inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-white font-semibold text-sm"
                 >
                   <span>View on Google Maps</span>
                   <ArrowRight size={16} />
@@ -1012,7 +1004,7 @@ export default function AboutPage() {
                 href={GMB_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="lg:col-span-4 p-8 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/40 space-y-6 block transition-all group cursor-pointer"
+                className="card-hover lg:col-span-4 p-8 rounded-3xl bg-[#0f0f13] border border-white/10 hover:border-[#e5432e]/40 space-y-6 block group cursor-pointer"
               >
                 <div className="flex -space-x-3 overflow-hidden">
                   {[
@@ -1020,12 +1012,7 @@ export default function AboutPage() {
                     'https://lh3.googleusercontent.com/a/ACg8ocKs2DdJeBpkGCIYeU9nhyi8ZwqilMDD-tpaxKM0g26WQJ8htg=w120-h120-p-rp-mo-br100',
                     'https://lh3.googleusercontent.com/a/ACg8ocJ8LZrpGJ423x17SElxqvKDzVTHVuvDO-X_aiAjP8K_ccwC4g=w120-h120-p-rp-mo-br100'
                   ].map((img, i) => (
-                    <img loading="lazy" decoding="async"
-                      key={i}
-                      src={img}
-                      alt="Google Reviewer"
-                      className="w-12 h-12 rounded-full border-2 border-[#0f0f13] object-cover"
-                    />
+                    <Avatar key={i} src={img} name={['ARK Roofing', 'Maroofa Mazher Ali', 'Umais Gora'][i]} size={48} className="border-2 border-[#0f0f13]" />
                   ))}
                 </div>
 
@@ -1094,11 +1081,13 @@ export default function AboutPage() {
 
                     <div className="flex items-center justify-between pt-4 border-t border-white/5">
                       <div className="flex items-center gap-4">
-                        <img loading="lazy" decoding="async"
+                        <Avatar
+                          key={currentTestimonial}
                           src={testimonials[currentTestimonial].avatar}
-                          alt={testimonials[currentTestimonial].name}
-                          className="w-12 h-12 rounded-full object-cover border border-white/10"
+                          name={testimonials[currentTestimonial].name}
+                          className="border border-white/10"
                         />
+
                         <div>
                           <div className="text-base font-bold text-white">
                             {testimonials[currentTestimonial].name}
@@ -1153,14 +1142,14 @@ export default function AboutPage() {
             <motion.div {...fadeInUp} className="flex flex-wrap items-center justify-center gap-4 pt-4">
               <Link
                 to="/request-service"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#e5432e] hover:bg-[#cc3622] text-white font-bold text-sm shadow-xl shadow-[#e5432e]/40 hover:scale-[1.03] transition-all cursor-pointer"
+                className="btn-primary inline-flex items-center gap-2 px-8 py-4 rounded-full text-white font-semibold text-sm"
               >
                 <span>Start Your Project</span>
                 <ArrowRight size={16} />
               </Link>
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 hover:text-white border border-zinc-800 font-semibold text-sm hover:scale-[1.03] transition-all cursor-pointer"
+                className="btn-secondary inline-flex items-center gap-2 px-8 py-4 rounded-full text-zinc-200 hover:text-white font-semibold text-sm"
               >
                 <span>Contact Our Team</span>
               </Link>

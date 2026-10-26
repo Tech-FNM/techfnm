@@ -94,7 +94,7 @@ export default function CoreFeatures() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.08 }}
-                className="group relative bg-[#121214] border border-white/10 hover:border-[#e5432e]/50 rounded-3xl p-7 sm:p-8 transition-all duration-300 flex flex-col justify-between hover:shadow-xl hover:shadow-[#e5432e]/5"
+                className="card-hover group relative bg-[#121214] border border-white/10 hover:border-[#e5432e]/50 rounded-3xl p-7 sm:p-8 flex flex-col justify-between"
               >
                 <div>
                   <div className="w-13 h-13 rounded-2xl bg-[#1B1B1B] border border-white/10 flex items-center justify-center text-[#e5432e] mb-6 group-hover:bg-[#e5432e] group-hover:text-white transition-all duration-300">

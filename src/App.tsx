@@ -1,7 +1,9 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, ReactNode, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { MotionConfig } from 'motion/react';
 import Home from './pages/Home';
 import ScriptInjector from './components/ScriptInjector';
+import ScrollExtras from './components/ScrollExtras';
 
 // Route-level code splitting: only the homepage ships in the main bundle,
 // every other page (and the admin) loads its own chunk on demand.
@@ -64,15 +66,39 @@ function ScrollManager() {
 // not only the homepage — and never inside the admin panel.
 function PublicScripts() {
   const { pathname } = useLocation();
-  return pathname.startsWith('/admin') ? null : <ScriptInjector />;
+  return pathname.startsWith('/admin') ? null : (
+    <>
+      <ScriptInjector />
+      <ScrollExtras />
+    </>
+  );
+}
+
+// Soft fade between public pages. Skipped on the first load (it would delay the hero paint / LCP)
+// and inside the admin, where remounting on every tab change would reset the dashboard.
+let firstRender = true;
+function PageTransition({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+  const isAdmin = pathname.startsWith('/admin');
+  const animate = !firstRender && !isAdmin;
+  useEffect(() => {
+    firstRender = false;
+  }, []);
+  return (
+    <div key={isAdmin ? 'admin' : pathname} className={animate ? 'page-enter' : undefined}>
+      {children}
+    </div>
+  );
 }
 
 function App() {
   return (
     <Router>
+      <MotionConfig reducedMotion="user">
       <ScrollManager />
       <PublicScripts />
       <DeferredCursor />
+      <PageTransition>
       <Suspense fallback={<div className="min-h-screen bg-black" />}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -98,6 +124,8 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      </PageTransition>
+      </MotionConfig>
     </Router>
   );
 }

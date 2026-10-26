@@ -91,7 +91,7 @@ export default function Pricing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`relative rounded-3xl p-8 sm:p-9 flex flex-col justify-between transition-all duration-300 ${
+                className={`card-hover relative rounded-3xl p-8 sm:p-9 flex flex-col justify-between ${
                   isPopular
                     ? 'bg-[#161619] border-2 border-[#e5432e] shadow-2xl shadow-[#e5432e]/10 lg:-translate-y-3'
                     : 'bg-[#121214] border border-white/10 hover:border-white/25'
@@ -145,10 +145,10 @@ export default function Pricing() {
                 <div className="pt-4">
                   <Link
                     to="/request-service"
-                    className={`w-full group inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-semibold transition-all duration-300 ${
+                    className={`w-full group inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-semibold ${
                       isPopular
-                        ? 'bg-[#e5432e] hover:bg-[#cc3622] text-white shadow-lg shadow-[#e5432e]/20'
-                        : 'bg-[#1B1B1B] hover:bg-[#252528] text-white border border-white/10 hover:border-white/25'
+                        ? 'btn-primary'
+                        : 'btn-secondary'
                     }`}
                   >
                     <span>Choose A Plan</span>

@@ -104,7 +104,7 @@ export default function ContactPage() {
             initial={{ opacity: 0, y: -15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-zinc-950/90 border border-zinc-800/80 text-xs font-semibold shadow-xl shadow-black/40 mb-6 text-red-500 uppercase tracking-wider"
+            className="eyebrow mb-6"
           >
             <span>{pageContent.hero_badge || 'Contact Us'}</span>
           </motion.div>
@@ -153,7 +153,7 @@ export default function ContactPage() {
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                   placeholder="First name"
                   required
-                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-600/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
+                  className="field py-3.5"
                 />
               </div>
 
@@ -170,7 +170,7 @@ export default function ContactPage() {
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                   placeholder="Last name"
-                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-600/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
+                  className="field py-3.5"
                 />
               </div>
 
@@ -188,7 +188,7 @@ export default function ContactPage() {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="Email"
                   required
-                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-600/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
+                  className="field py-3.5"
                 />
               </div>
 
@@ -205,7 +205,7 @@ export default function ContactPage() {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="Phone number"
-                  className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-600/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors"
+                  className="field py-3.5"
                 />
               </div>
 
@@ -224,7 +224,7 @@ export default function ContactPage() {
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 placeholder="Message"
                 required
-                className="w-full bg-zinc-950/60 border border-zinc-850 hover:border-zinc-800 focus:border-red-600/40 rounded-xl px-4 py-3.5 text-zinc-200 placeholder-zinc-700 outline-none transition-colors resize-none"
+                className="field py-3.5 resize-none"
               />
             </div>
 
@@ -233,7 +233,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-950/20 transition-all hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed border border-red-500/20"
+                className="btn-primary w-full flex items-center justify-center gap-2 text-white font-semibold py-4 rounded-xl"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />

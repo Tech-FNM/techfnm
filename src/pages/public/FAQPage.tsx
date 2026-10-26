@@ -43,16 +43,12 @@ export default function FAQPage() {
         {/* HERO & FAQ SECTION */}
         <section className="relative min-h-[90vh] bg-black flex flex-col items-center justify-center overflow-hidden border-b border-zinc-900 px-4 sm:px-6 lg:px-8 py-24">
           {/* Background Shapes */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-            <div className="absolute -top-20 -left-20 w-96 h-96 bg-red-900/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob"></div>
-            <div className="absolute top-0 -right-20 w-96 h-96 bg-orange-900/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
-            <div className="absolute -bottom-32 left-20 w-96 h-96 bg-red-800/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
-          </div>
+          <div className="hero-backdrop" aria-hidden="true" />
 
           <div className="relative z-10 max-w-3xl w-full mx-auto space-y-12">
             {/* Header Content */}
             <div className="text-center space-y-6">
-              <span className="text-red-500 font-semibold tracking-wider uppercase text-sm block">
+              <span className="eyebrow">
                 Support Center
               </span>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight">
@@ -137,7 +133,7 @@ export default function FAQPage() {
             <div className="pt-2">
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-full font-bold transition-all hover:scale-105 shadow-lg shadow-red-950/20"
+                className="btn-primary inline-flex items-center gap-2 text-white px-8 py-3.5 rounded-full font-semibold"
               >
                 <span>Contact Our Team</span>
                 <ArrowRight size={16} />

@@ -216,7 +216,7 @@ export default function BlogPage() {
                   setSearchQuery('');
                   setSelectedCategory('All');
                 }}
-                className="bg-[#e5432e] hover:bg-[#cc3622] text-white px-5 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer"
+                className="btn-primary text-white px-5 py-2 rounded-full text-xs font-semibold"
               >
                 Reset Filters
               </button>
@@ -230,7 +230,7 @@ export default function BlogPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: (idx % 6) * 0.08 }}
-                  className="group bg-[#121214] border border-white/10 hover:border-[#e5432e]/50 rounded-3xl overflow-hidden transition-all duration-300 flex flex-col justify-between hover:shadow-xl hover:shadow-[#e5432e]/10"
+                  className="card-hover group bg-[#121214] border border-white/10 hover:border-[#e5432e]/50 rounded-3xl overflow-hidden flex flex-col justify-between"
                 >
                   <Link to={`/blog/${blog.slug || blog.id}`} className="block">
                     {/* Thumbnail Image */}
@@ -305,7 +305,7 @@ export default function BlogPage() {
           <div className="relative rounded-3xl bg-gradient-to-b from-[#18181B] to-[#121214] border border-white/10 p-8 sm:p-12 lg:p-16 overflow-hidden text-center space-y-6">
             <div className="pointer-events-none absolute inset-0 bg-radial from-[#e5432e]/10 to-transparent blur-2xl" />
             
-            <span className="inline-block py-1 px-3.5 rounded-full bg-[#e5432e]/10 text-[#e5432e] text-xs font-bold uppercase tracking-wider border border-[#e5432e]/25">
+            <span className="eyebrow">
               Let's Scale Your Digital Presence
             </span>
 
@@ -320,7 +320,7 @@ export default function BlogPage() {
             <div className="pt-2">
               <Link
                 to="/request-service"
-                className="group inline-flex items-center gap-3 bg-[#e5432e] hover:bg-[#cc3622] text-white px-7 py-3.5 rounded-full text-sm font-semibold transition-all duration-300 shadow-xl shadow-[#e5432e]/20 hover:scale-[1.02]"
+                className="btn-primary group inline-flex items-center gap-3 text-white px-7 py-3.5 rounded-full text-sm font-semibold"
               >
                 <span>Book Free Strategy Session</span>
                 <span className="w-6 h-6 rounded-full bg-white text-[#e5432e] flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">

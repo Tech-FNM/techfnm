@@ -156,10 +156,8 @@ export default function RequestServicePage() {
     }
   };
 
-  const inputCls =
-    'w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-zinc-600';
-  const selectCls =
-    'w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all appearance-none cursor-pointer';
+  const inputCls = 'field';
+  const selectCls = 'field cursor-pointer';
 
   return (
     <div className="min-h-screen bg-black font-sans text-white flex flex-col w-full">
@@ -170,7 +168,7 @@ export default function RequestServicePage() {
         {/* Hero */}
         <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="text-red-500 font-semibold tracking-wider uppercase text-sm">Get Started</span>
+            <span className="eyebrow">Get Started</span>
             <h1 className="mt-4 text-4xl md:text-6xl font-extrabold text-white tracking-tight">
               Request a <span className="text-red-500">Service</span>
             </h1>
@@ -186,7 +184,7 @@ export default function RequestServicePage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-20 bg-zinc-900 border border-zinc-800 rounded-3xl"
+              className="text-center py-20 px-6 bg-[#0f0f12] border border-white/10 rounded-3xl"
             >
               <CheckCircle className="mx-auto text-green-500 mb-6" size={64} />
               <h2 className="text-3xl font-bold mb-4">Thank You!</h2>
@@ -200,7 +198,7 @@ export default function RequestServicePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
               onSubmit={handleSubmit}
-              className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 md:p-12 space-y-8 relative overflow-hidden"
+              className="bg-[#0f0f12] border border-white/10 rounded-3xl p-6 sm:p-8 md:p-12 space-y-8 relative overflow-hidden shadow-2xl shadow-black/50"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-3xl" />
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-500/5 rounded-full blur-3xl" />
@@ -349,7 +347,7 @@ export default function RequestServicePage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full md:w-auto bg-red-600 hover:bg-red-700 disabled:bg-zinc-800 text-white font-bold rounded-xl px-10 py-4 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-red-600/20"
+                  className="btn-primary w-full md:w-auto text-white font-semibold rounded-xl px-10 py-4 flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
