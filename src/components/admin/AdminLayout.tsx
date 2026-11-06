@@ -24,7 +24,8 @@ import {
   CheckCircle2,
   ShieldCheck,
   Sparkles,
-  FolderGit2
+  FolderGit2,
+  Code2
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -167,6 +168,7 @@ export default function AdminLayout({ children, activeTab }: AdminLayoutProps) {
       items: [
         { id: 'header', label: 'Header & Navigation', icon: PanelTop },
         { id: 'footer', label: 'Footer Management', icon: PanelBottom },
+        { id: 'snippets', label: 'Custom Snippets', icon: Code2 },
         { id: 'users', label: 'User Management', icon: Users },
         { id: 'settings', label: 'Global Settings', icon: Settings },
       ]

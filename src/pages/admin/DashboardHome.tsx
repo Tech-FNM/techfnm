@@ -24,7 +24,8 @@ import {
   RefreshCw,
   Star,
   Trash2,
-  X
+  X,
+  Code
 } from 'lucide-react';
 import { toast, Toaster } from 'react-hot-toast';
 import { supabase } from '../../lib/supabase';
@@ -319,6 +320,13 @@ export default function DashboardHome() {
       tab: 'settings',
       icon: Database,
       color: 'text-purple-400'
+    },
+    {
+      title: 'Custom Snippets',
+      desc: 'Inject GA4, GTM, Meta Pixel, custom JS & CSS scripts',
+      tab: 'snippets',
+      icon: Code,
+      color: 'text-red-400'
     }
   ];
 

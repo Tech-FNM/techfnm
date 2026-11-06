@@ -13,6 +13,7 @@ import PortfolioManager from './PortfolioManager';
 import HeaderManager from './HeaderManager';
 import FooterManager from './FooterManager';
 import SettingsManager from './SettingsManager';
+import CustomSnippetsManager from './CustomSnippetsManager';
 
 export default function AdminDashboard() {
   const { tab: pathTab } = useParams();
@@ -61,6 +62,10 @@ export default function AdminDashboard() {
         return <HeaderManager />;
       case 'footer':
         return <FooterManager />;
+      case 'snippets':
+      case 'custom-snippets':
+      case 'scripts':
+        return <CustomSnippetsManager />;
       case 'settings':
         return <SettingsManager />;
       default:

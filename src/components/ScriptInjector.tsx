@@ -67,8 +67,14 @@ export default function ScriptInjector() {
 
     fetchAndInject();
 
+    const handleUpdate = () => {
+      if (isMounted) fetchAndInject();
+    };
+    window.addEventListener('techfnm_scripts_updated', handleUpdate);
+
     return () => {
       isMounted = false;
+      window.removeEventListener('techfnm_scripts_updated', handleUpdate);
       cleanInjectedTags();
     };
   }, []);
