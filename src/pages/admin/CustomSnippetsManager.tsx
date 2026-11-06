@@ -580,7 +580,7 @@ export default function CustomSnippetsManager() {
               type="button"
               onClick={handleSaveForm}
               disabled={saving}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-800 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-lg shadow-blue-950/40 cursor-pointer transition-all"
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 disabled:bg-zinc-800 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-lg shadow-red-950/40 cursor-pointer transition-all"
             >
               <Save size={14} className={saving ? 'animate-spin' : ''} />
               <span>{saving ? 'Saving...' : selectedSnippet ? 'Update Snippet' : 'Save & Activate'}</span>
@@ -605,7 +605,7 @@ export default function CustomSnippetsManager() {
                 value={formTitle}
                 onChange={(e) => setFormTitle(e.target.value)}
                 placeholder="e.g., Google Analytics 4 Global Site Tag"
-                className="w-full bg-zinc-950 border border-zinc-850 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl px-4 py-3 text-white text-base font-medium outline-none transition-all placeholder:text-zinc-600"
+                className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/50 focus:ring-1 focus:ring-red-600/50 rounded-xl px-4 py-3 text-white text-base font-medium outline-none transition-all placeholder:text-zinc-600"
               />
             </div>
 
@@ -613,7 +613,7 @@ export default function CustomSnippetsManager() {
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-sm space-y-3">
               <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <FileCode size={15} className="text-blue-400" />
+                  <FileCode size={15} className="text-red-500" />
                   <span className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Code Snippet Editor</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -624,7 +624,7 @@ export default function CustomSnippetsManager() {
                       onClick={() => setFormCodeType(t)}
                       className={`px-2.5 py-1 rounded-md text-[11px] font-mono uppercase font-bold transition-all cursor-pointer ${
                         formCodeType === t
-                          ? 'bg-blue-600 text-white shadow-sm'
+                          ? 'bg-red-600 text-white shadow-sm'
                           : 'bg-zinc-950 text-zinc-400 hover:text-white border border-zinc-800'
                       }`}
                     >
@@ -641,7 +641,7 @@ export default function CustomSnippetsManager() {
                   rows={18}
                   spellCheck={false}
                   placeholder={`<!-- Paste your custom ${formCodeType.toUpperCase()} code snippet here -->`}
-                  className="w-full bg-[#0d1117] border border-zinc-850 focus:border-blue-500 rounded-xl p-4 font-mono text-xs text-emerald-400 placeholder:text-zinc-600 outline-none leading-relaxed resize-y selection:bg-blue-600/30 selection:text-white"
+                  className="w-full bg-[#0d1117] border border-zinc-850 focus:border-red-600/50 rounded-xl p-4 font-mono text-xs text-emerald-400 placeholder:text-zinc-600 outline-none leading-relaxed resize-y selection:bg-red-600/30 selection:text-white"
                 />
                 <div className="absolute right-3 bottom-3 text-[10px] text-zinc-400 font-mono bg-zinc-900/90 px-2.5 py-1 rounded-md border border-zinc-800 pointer-events-none">
                   Lines: {formCode ? formCode.split('\n').length : 0} | Chars: {formCode.length}
@@ -651,7 +651,7 @@ export default function CustomSnippetsManager() {
               <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 pt-1">
                 <HelpCircle size={13} className="text-zinc-400 shrink-0" />
                 <span>
-                  Tip: Enclose JavaScript code within <code className="text-blue-400">&lt;script&gt;</code> tags and CSS within <code className="text-blue-400">&lt;style&gt;</code> tags.
+                  Tip: Enclose JavaScript code within <code className="text-red-400">&lt;script&gt;</code> tags and CSS within <code className="text-red-400">&lt;style&gt;</code> tags.
                 </span>
               </div>
             </div>
@@ -664,7 +664,7 @@ export default function CustomSnippetsManager() {
                 onChange={(e) => setFormDescription(e.target.value)}
                 rows={2}
                 placeholder="Optional notes explaining what this snippet does or who installed it..."
-                className="w-full bg-zinc-950 border border-zinc-850 focus:border-blue-500 rounded-xl px-4 py-2.5 text-zinc-300 text-xs outline-none transition-all placeholder:text-zinc-600 resize-none"
+                className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/50 rounded-xl px-4 py-2.5 text-zinc-300 text-xs outline-none transition-all placeholder:text-zinc-600 resize-none"
               />
             </div>
 
@@ -677,7 +677,7 @@ export default function CustomSnippetsManager() {
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-sm space-y-4">
               <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-zinc-800 pb-2 flex items-center justify-between">
                 <span>Placement / Location</span>
-                <Sparkles size={14} className="text-blue-400" />
+                <Sparkles size={14} className="text-red-500" />
               </h3>
 
               <div className="space-y-2.5">
@@ -691,7 +691,7 @@ export default function CustomSnippetsManager() {
                     key={loc.id}
                     className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
                       formLocation === loc.id
-                        ? 'bg-blue-950/20 border-blue-500/50 text-white'
+                        ? 'bg-red-950/20 border-red-500/50 text-white'
                         : 'bg-zinc-950/50 border-zinc-850 text-zinc-400 hover:border-zinc-700'
                     }`}
                   >
@@ -701,7 +701,7 @@ export default function CustomSnippetsManager() {
                       value={loc.id}
                       checked={formLocation === loc.id}
                       onChange={() => setFormLocation(loc.id as SnippetLocation)}
-                      className="mt-1 accent-blue-600"
+                      className="mt-1 accent-red-600"
                     />
                     <div className="min-w-0">
                       <span className="text-xs font-bold block text-zinc-200">{loc.title}</span>
@@ -751,7 +751,7 @@ export default function CustomSnippetsManager() {
               <div className="space-y-1 pt-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-zinc-300">Execution Priority</label>
-                  <span className="text-xs text-blue-400 font-mono font-bold">{formPriority}</span>
+                  <span className="text-xs text-red-500 font-mono font-bold">{formPriority}</span>
                 </div>
                 <input
                   type="number"
@@ -759,7 +759,7 @@ export default function CustomSnippetsManager() {
                   max="100"
                   value={formPriority}
                   onChange={(e) => setFormPriority(Number(e.target.value) || 10)}
-                  className="w-full bg-zinc-950 border border-zinc-850 focus:border-blue-500 rounded-xl px-3 py-2 text-white text-xs outline-none"
+                  className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/50 rounded-xl px-3 py-2 text-white text-xs outline-none"
                 />
                 <span className="text-[10px] text-zinc-400 block">Lower numbers run earlier (e.g., 1 runs first, 10 is normal)</span>
               </div>
@@ -775,7 +775,7 @@ export default function CustomSnippetsManager() {
                   value={formTags}
                   onChange={(e) => setFormTags(e.target.value)}
                   placeholder="analytics, tracking, google"
-                  className="w-full bg-zinc-950 border border-zinc-850 focus:border-blue-500 rounded-xl px-3 py-2 text-white text-xs outline-none placeholder:text-zinc-600"
+                  className="w-full bg-zinc-950 border border-zinc-850 focus:border-red-600/50 rounded-xl px-3 py-2 text-white text-xs outline-none placeholder:text-zinc-600"
                 />
               </div>
 
@@ -797,7 +797,7 @@ export default function CustomSnippetsManager() {
                     className="w-full text-left p-2 rounded-lg bg-zinc-950 hover:bg-zinc-800 border border-zinc-850 hover:border-zinc-700 text-xs text-zinc-300 hover:text-white transition-all flex items-center justify-between group cursor-pointer"
                   >
                     <span className="truncate pr-2 font-medium">{tpl.title}</span>
-                    <span className="text-[10px] text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">Load</span>
+                    <span className="text-[10px] text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">Load</span>
                   </button>
                 ))}
               </div>
@@ -823,14 +823,14 @@ export default function CustomSnippetsManager() {
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
               <span>Code Snippets</span>
-              <span className="text-xs font-mono bg-blue-600/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">
+              <span className="text-xs font-mono bg-red-600/10 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-bold">
                 WP Edition
               </span>
             </h1>
             <button
               type="button"
               onClick={handleOpenAdd}
-              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition-all shadow-md shadow-blue-950/40 cursor-pointer"
+              className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition-all shadow-md shadow-red-950/40 cursor-pointer"
             >
               <Plus size={14} />
               <span>Add New</span>
@@ -859,7 +859,7 @@ export default function CustomSnippetsManager() {
             type="button"
             onClick={() => setFilterStatus('all')}
             className={`font-semibold transition-colors cursor-pointer ${
-              filterStatus === 'all' ? 'text-blue-400 underline underline-offset-4' : 'hover:text-zinc-200'
+              filterStatus === 'all' ? 'text-red-500 underline underline-offset-4' : 'hover:text-zinc-200'
             }`}
           >
             All ({snippets.length})
@@ -869,7 +869,7 @@ export default function CustomSnippetsManager() {
             type="button"
             onClick={() => setFilterStatus('active')}
             className={`font-semibold transition-colors cursor-pointer ${
-              filterStatus === 'active' ? 'text-blue-400 underline underline-offset-4' : 'hover:text-zinc-200'
+              filterStatus === 'active' ? 'text-red-500 underline underline-offset-4' : 'hover:text-zinc-200'
             }`}
           >
             Active ({activeCount})
@@ -879,7 +879,7 @@ export default function CustomSnippetsManager() {
             type="button"
             onClick={() => setFilterStatus('inactive')}
             className={`font-semibold transition-colors cursor-pointer ${
-              filterStatus === 'inactive' ? 'text-blue-400 underline underline-offset-4' : 'hover:text-zinc-200'
+              filterStatus === 'inactive' ? 'text-red-500 underline underline-offset-4' : 'hover:text-zinc-200'
             }`}
           >
             Inactive ({inactiveCount})
@@ -894,7 +894,7 @@ export default function CustomSnippetsManager() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search installed snippets..."
-            className="w-full bg-zinc-900 border border-zinc-800 focus:border-blue-500 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder:text-zinc-600 outline-none transition-all"
+            className="w-full bg-zinc-900 border border-zinc-800 focus:border-red-600/50 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder:text-zinc-600 outline-none transition-all"
           />
         </div>
       </div>
@@ -955,7 +955,7 @@ export default function CustomSnippetsManager() {
                     type="checkbox"
                     checked={filteredSnippets.length > 0 && selectedIds.length === filteredSnippets.length}
                     onChange={toggleSelectAll}
-                    className="accent-blue-600 rounded cursor-pointer"
+                    className="accent-red-600 rounded cursor-pointer"
                   />
                 </th>
                 <th className="py-3 px-3 w-16 text-center">Active</th>
@@ -980,7 +980,7 @@ export default function CustomSnippetsManager() {
                       <button
                         type="button"
                         onClick={handleOpenAdd}
-                        className="mt-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-1.5 rounded-xl text-xs transition-all cursor-pointer"
+                        className="mt-2 bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-1.5 rounded-xl text-xs transition-all cursor-pointer"
                       >
                         + Add Snippet
                       </button>
@@ -995,7 +995,7 @@ export default function CustomSnippetsManager() {
                       key={snip.id}
                       className={`group hover:bg-zinc-850/60 transition-colors ${
                         !snip.active ? 'opacity-70 bg-zinc-950/30' : ''
-                      } ${isSelected ? 'bg-blue-950/20' : ''}`}
+                      } ${isSelected ? 'bg-red-950/20' : ''}`}
                     >
                       {/* Checkbox */}
                       <td className="py-3.5 px-4 text-center">
@@ -1007,7 +1007,7 @@ export default function CustomSnippetsManager() {
                               prev.includes(snip.id) ? prev.filter((i) => i !== snip.id) : [...prev, snip.id]
                             );
                           }}
-                          className="accent-blue-600 rounded cursor-pointer"
+                          className="accent-red-600 rounded cursor-pointer"
                         />
                       </td>
 
@@ -1033,7 +1033,7 @@ export default function CustomSnippetsManager() {
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(snip)}
-                            className="hover:text-blue-400 text-left font-bold transition-colors cursor-pointer"
+                            className="hover:text-red-400 text-left font-bold transition-colors cursor-pointer"
                           >
                             {snip.title}
                           </button>
@@ -1047,7 +1047,7 @@ export default function CustomSnippetsManager() {
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(snip)}
-                            className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer"
+                            className="text-red-500 hover:text-red-400 font-semibold cursor-pointer"
                           >
                             Edit
                           </button>
@@ -1128,7 +1128,7 @@ export default function CustomSnippetsManager() {
                             type="button"
                             onClick={() => handleOpenEdit(snip)}
                             title="Edit Snippet"
-                            className="p-1.5 rounded-lg bg-zinc-800 hover:bg-blue-600 text-zinc-300 hover:text-white transition-all cursor-pointer"
+                            className="p-1.5 rounded-lg bg-zinc-800 hover:bg-red-600 text-zinc-300 hover:text-white transition-all cursor-pointer"
                           >
                             <Edit3 size={13} />
                           </button>
@@ -1154,7 +1154,7 @@ export default function CustomSnippetsManager() {
         {/* Table Footer */}
         <div className="bg-zinc-950/90 border-t border-zinc-800 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-zinc-500">
           <div className="flex items-center gap-2">
-            <Sparkles size={14} className="text-blue-400" />
+            <Sparkles size={14} className="text-red-500" />
             <span>Built exactly like the popular WordPress Code Snippets plugin for maximum flexibility.</span>
           </div>
           <span>Active snippets are automatically injected on public pages.</span>
